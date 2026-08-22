@@ -1,0 +1,4 @@
+/* Page-specific styling for isolated Archive page */
+.archive-page-container {
+  min-height: 100vh;
+}
