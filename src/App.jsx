@@ -1,40 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { GridLines } from './components/common/GridLines';
 import { NoiseOverlay } from './components/common/NoiseOverlay';
+import { ScrollToTop } from './components/common/ScrollToTop';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
-import { Hero } from './components/sections/Hero';
-import { Marquee } from './components/sections/Marquee';
-import { Ethos } from './components/sections/Ethos';
-import { Archive } from './components/sections/Archive';
-import { Competencies } from './components/sections/Competencies';
-import { Consultation } from './components/sections/Consultation';
-import { ProjectModal } from './components/sections/ProjectModal';
+
+import { Home } from './pages/Home/Home';
+import { Archive } from './pages/Archive/Archive';
+import { Expertise } from './pages/Expertise/Expertise';
+import { Contact } from './pages/Contact/Contact';
+import { Inquire } from './pages/Inquire/Inquire';
 
 export const App = () => {
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [consultationProject, setConsultationProject] = useState(null);
-
-  const handleOpenConsultation = (project = null) => {
-    if (project) {
-      setConsultationProject(project);
-    }
-    const el = document.getElementById('consultation');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleExploreArchive = () => {
-    const el = document.getElementById('work');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
     <div className="relative min-h-screen bg-[#F9F8F6] text-[#1A1A1A] font-sans antialiased overflow-x-hidden selection:bg-[#D4AF37] selection:text-white">
-      
+      {/* Scroll restoration helper */}
+      <ScrollToTop />
+
       {/* 4 Architectural Vertical Gridlines */}
       <GridLines />
 
@@ -42,33 +25,18 @@ export const App = () => {
       <NoiseOverlay />
 
       {/* Navigation Header */}
-      <Navbar onOpenConsultation={() => handleOpenConsultation()} />
+      <Navbar />
 
-      {/* Main Editorial Experience */}
-      <main className="relative z-10 flex flex-col w-full">
-        <Hero 
-          onExploreArchive={handleExploreArchive} 
-          onOpenConsultation={() => handleOpenConsultation()} 
-        />
-        <Marquee />
-        <Ethos />
-        <Archive onSelectProject={(project) => setSelectedProject(project)} />
-        <Competencies />
-        <Consultation 
-          selectedProject={consultationProject} 
-          onClearSelectedProject={() => setConsultationProject(null)} 
-        />
-      </main>
-
-      {/* Architectural Project Dossier Modal */}
-      <ProjectModal
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-        onInquire={(project) => {
-          setSelectedProject(null);
-          handleOpenConsultation(project);
-        }}
-      />
+      {/* Page Routing */}
+      <div className="relative z-10 w-full">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/archive" element={<Archive />} />
+          <Route path="/expertise" element={<Expertise />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/inquire" element={<Inquire />} />
+        </Routes>
+      </div>
 
       {/* Footer */}
       <Footer />
