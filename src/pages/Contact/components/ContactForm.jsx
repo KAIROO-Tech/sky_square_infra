@@ -167,33 +167,33 @@ export const ContactForm = () => {
 
   if (isSubmitted) {
     return (
-      <div className="bg-[#EBE5DE]/30 border-t-2 border-t-[#D4AF37] border border-[#1A1A1A]/10 p-8 md:p-12 shadow-sm text-center">
-        <div className="w-16 h-16 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] flex items-center justify-center mx-auto mb-6">
-          <CheckCircle2 className="w-10 h-10 text-[#D4AF37]" />
+      <div className="theme-form-card bg-[#111113] border-t-2 border-t-[#d4af37] border border-white/10 p-8 md:p-12 shadow-2xl rounded-2xl text-center">
+        <div className="w-16 h-16 rounded-full bg-[#d4af37]/10 text-[#d4af37] flex items-center justify-center mx-auto mb-6 border border-[#d4af37]/30">
+          <CheckCircle2 className="w-10 h-10 text-[#d4af37]" />
         </div>
-        <h3 className="font-serif text-3xl text-[#1A1A1A] mb-3">
+        <h3 className="font-serif text-3xl text-[#f5f5f7] mb-3">
           Advisory Request Confirmed
         </h3>
-        <p className="font-sans text-sm text-[#6C6863] leading-relaxed max-w-md mx-auto mb-8 font-light">
-          Thank you, <span className="font-medium text-[#1A1A1A]">{formData.name}</span>. Our executive consultation team has received your request for <span className="font-medium text-[#1A1A1A]">{formattedSelectedDate}</span> at <span className="font-medium text-[#D4AF37]">{formData.timeSlot}</span>.
+        <p className="font-sans text-sm text-white/70 leading-relaxed max-w-md mx-auto mb-8 font-light">
+          Thank you, <span className="font-medium text-[#d4af37]">{formData.name}</span>. Our executive consultation team has received your request for <span className="font-medium text-white">{formattedSelectedDate}</span> at <span className="font-medium text-[#d4af37]">{formData.timeSlot}</span>.
         </p>
 
-        <div className="bg-[#F9F8F6] p-6 border border-[#1A1A1A]/10 text-left text-xs font-sans space-y-3 mb-8 max-w-md mx-auto">
-          <div className="flex justify-between border-b border-[#1A1A1A]/10 pb-2">
-            <span className="text-[#6C6863]">Phone Contact:</span>
-            <span className="font-medium text-[#1A1A1A]">+91 {formData.phone}</span>
+        <div className="theme-calendar-wrapper bg-[#161618] p-6 border border-white/10 text-left text-xs font-mono space-y-3 mb-8 max-w-md mx-auto rounded-xl">
+          <div className="flex justify-between border-b border-white/10 pb-2">
+            <span className="text-white/60">Phone Contact:</span>
+            <span className="font-medium text-[#f5f5f7]">+91 {formData.phone}</span>
           </div>
-          <div className="flex justify-between border-b border-[#1A1A1A]/10 pb-2">
-            <span className="text-[#6C6863]">Email Desk:</span>
-            <span className="font-medium text-[#1A1A1A]">{formData.email}</span>
+          <div className="flex justify-between border-b border-white/10 pb-2">
+            <span className="text-white/60">Email Desk:</span>
+            <span className="font-medium text-[#f5f5f7]">{formData.email}</span>
           </div>
-          <div className="flex justify-between border-b border-[#1A1A1A]/10 pb-2">
-            <span className="text-[#6C6863]">Meeting Date:</span>
-            <span className="font-medium text-[#1A1A1A]">{formattedSelectedDate}</span>
+          <div className="flex justify-between border-b border-white/10 pb-2">
+            <span className="text-white/60">Meeting Date:</span>
+            <span className="font-medium text-[#f5f5f7]">{formattedSelectedDate}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-[#6C6863]">Time Dial Slot:</span>
-            <span className="font-medium text-[#D4AF37]">{formData.timeSlot} IST</span>
+            <span className="text-white/60">Time Dial Slot:</span>
+            <span className="font-medium text-[#d4af37]">{formData.timeSlot} IST</span>
           </div>
         </div>
 
@@ -209,7 +209,7 @@ export const ContactForm = () => {
               timeSlot: '10:00 AM'
             });
           }}
-          className="px-8 py-3.5 bg-[#1A1A1A] text-[#F9F8F6] font-sans text-xs uppercase tracking-[0.2em] hover:bg-[#D4AF37] hover:text-[#1A1A1A] transition-all duration-300"
+          className="px-8 py-3.5 bg-[#d4af37] text-[#0c0c0c] font-mono text-xs uppercase tracking-[0.2em] font-semibold hover:bg-[#c29f2f] transition-all duration-300 rounded-full"
         >
           Schedule Another Session
         </button>
@@ -218,30 +218,30 @@ export const ContactForm = () => {
   }
 
   return (
-    <div className="bg-[#EBE5DE]/30 border-t-2 border-t-[#1A1A1A] border border-[#1A1A1A]/10 p-8 md:p-10 shadow-sm">
+    <div className="theme-form-card bg-[#111113] border-t-2 border-t-[#d4af37] border border-white/10 p-8 md:p-10 shadow-2xl rounded-2xl">
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-2">
-          <span className="w-6 h-px bg-[#D4AF37]" />
-          <span className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-medium">
-            Executive Advisory Form
+          <span className="w-6 h-px bg-[#d4af37]" />
+          <span className="font-mono text-xs uppercase tracking-[0.25em] text-[#d4af37] font-semibold">
+            EXECUTIVE ADVISORY FORM
           </span>
         </div>
-        <h2 className="font-serif text-3xl md:text-4xl text-[#1A1A1A]">
+        <h2 className="font-serif text-3xl md:text-4xl text-[#f5f5f7]">
           Schedule a Consultation
         </h2>
-        <p className="font-sans text-xs text-[#6C6863] mt-2 font-light leading-relaxed">
-          Provide your details and select your preferred meeting date and time slot with our senior engineering & acquisition directors.
+        <p className="font-sans text-xs text-white/70 mt-2 font-light leading-relaxed">
+          Provide your details and select your preferred meeting date and time slot with our senior engineering &amp; acquisition directors.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Name Field */}
         <div>
-          <label className="block font-sans text-xs uppercase tracking-[0.15em] text-[#1A1A1A] font-medium mb-2">
-            Full Name <span className="text-[#D4AF37]">*</span>
+          <label className="block font-mono text-xs uppercase tracking-[0.15em] text-[#f5f5f7] font-medium mb-2">
+            Full Name <span className="text-[#d4af37]">*</span>
           </label>
           <div className="relative">
-            <User className="w-4 h-4 text-[#6C6863] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <User className="w-4 h-4 text-white/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="e.g. Rahul Verma"
@@ -250,13 +250,13 @@ export const ContactForm = () => {
                 setFormData((prev) => ({ ...prev, name: e.target.value }));
                 if (errors.name) setErrors((prev) => ({ ...prev, name: '' }));
               }}
-              className={`w-full bg-[#F9F8F6] border ${
-                errors.name ? 'border-red-500' : 'border-[#1A1A1A]/15 focus:border-[#D4AF37]'
-              } pl-10 pr-4 py-3 font-sans text-sm text-[#1A1A1A] placeholder-[#6C6863]/50 outline-none transition-colors`}
+              className={`theme-input w-full bg-[#161618] border ${
+                errors.name ? 'border-red-500' : 'border-white/15 focus:border-[#d4af37]'
+              } pl-10 pr-4 py-3 font-sans text-sm text-[#f5f5f7] placeholder-white/40 outline-none transition-colors rounded-lg`}
             />
           </div>
           {errors.name && (
-            <p className="font-sans text-xs text-red-500 mt-1.5 flex items-center gap-1">
+            <p className="font-sans text-xs text-red-400 mt-1.5 flex items-center gap-1">
               <AlertCircle className="w-3.5 h-3.5" /> {errors.name}
             </p>
           )}
@@ -264,12 +264,12 @@ export const ContactForm = () => {
 
         {/* Phone Number Field */}
         <div>
-          <label className="block font-sans text-xs uppercase tracking-[0.15em] text-[#1A1A1A] font-medium mb-2">
-            Phone Number <span className="text-[#D4AF37]">*</span>
+          <label className="block font-mono text-xs uppercase tracking-[0.15em] text-[#f5f5f7] font-medium mb-2">
+            Phone Number <span className="text-[#d4af37]">*</span>
           </label>
           <div className="relative flex items-center">
-            <div className="absolute left-3.5 flex items-center gap-1.5 text-[#6C6863] font-sans text-xs font-medium border-r border-[#1A1A1A]/10 pr-2">
-              <Phone className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <div className="absolute left-3.5 flex items-center gap-1.5 text-white/60 font-mono text-xs font-medium border-r border-white/10 pr-2">
+              <Phone className="w-3.5 h-3.5 text-[#d4af37]" />
               <span>+91</span>
             </div>
             <input
@@ -279,17 +279,17 @@ export const ContactForm = () => {
               value={formData.phone}
               onChange={handlePhoneChange}
               onBlur={handlePhoneBlur}
-              className={`w-full bg-[#F9F8F6] border ${
-                errors.phone ? 'border-red-500' : 'border-[#1A1A1A]/15 focus:border-[#D4AF37]'
-              } pl-20 pr-4 py-3 font-sans text-sm text-[#1A1A1A] placeholder-[#6C6863]/50 outline-none transition-colors tracking-wide`}
+              className={`theme-input w-full bg-[#161618] border ${
+                errors.phone ? 'border-red-500' : 'border-white/15 focus:border-[#d4af37]'
+              } pl-20 pr-4 py-3 font-sans text-sm text-[#f5f5f7] placeholder-white/40 outline-none transition-colors tracking-wide rounded-lg`}
             />
           </div>
           {errors.phone ? (
-            <p className="font-sans text-xs text-red-500 mt-1.5 flex items-center gap-1">
+            <p className="font-sans text-xs text-red-400 mt-1.5 flex items-center gap-1">
               <AlertCircle className="w-3.5 h-3.5" /> {errors.phone}
             </p>
           ) : (
-            <p className="font-sans text-[11px] text-[#6C6863] mt-1">
+            <p className="font-mono text-[11px] text-white/50 mt-1">
               Must be 10 digits phone number.
             </p>
           )}
@@ -297,11 +297,11 @@ export const ContactForm = () => {
 
         {/* Email Field */}
         <div>
-          <label className="block font-sans text-xs uppercase tracking-[0.15em] text-[#1A1A1A] font-medium mb-2">
-            Email Address <span className="text-[#D4AF37]">*</span>
+          <label className="block font-mono text-xs uppercase tracking-[0.15em] text-[#f5f5f7] font-medium mb-2">
+            Email Address <span className="text-[#d4af37]">*</span>
           </label>
           <div className="relative">
-            <Mail className="w-4 h-4 text-[#6C6863] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Mail className="w-4 h-4 text-white/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="email"
               placeholder="rahul@example.com"
@@ -310,13 +310,13 @@ export const ContactForm = () => {
                 setFormData((prev) => ({ ...prev, email: e.target.value }));
                 if (errors.email) setErrors((prev) => ({ ...prev, email: '' }));
               }}
-              className={`w-full bg-[#F9F8F6] border ${
-                errors.email ? 'border-red-500' : 'border-[#1A1A1A]/15 focus:border-[#D4AF37]'
-              } pl-10 pr-4 py-3 font-sans text-sm text-[#1A1A1A] placeholder-[#6C6863]/50 outline-none transition-colors`}
+              className={`theme-input w-full bg-[#161618] border ${
+                errors.email ? 'border-red-500' : 'border-white/15 focus:border-[#d4af37]'
+              } pl-10 pr-4 py-3 font-sans text-sm text-[#f5f5f7] placeholder-white/40 outline-none transition-colors rounded-lg`}
             />
           </div>
           {errors.email && (
-            <p className="font-sans text-xs text-red-500 mt-1.5 flex items-center gap-1">
+            <p className="font-sans text-xs text-red-400 mt-1.5 flex items-center gap-1">
               <AlertCircle className="w-3.5 h-3.5" /> {errors.email}
             </p>
           )}
@@ -325,21 +325,21 @@ export const ContactForm = () => {
         {/* Premium Calendar Component */}
         <div className="pt-2">
           <div className="flex items-center justify-between mb-3">
-            <label className="font-sans text-xs uppercase tracking-[0.15em] text-[#1A1A1A] font-medium flex items-center gap-2">
-              <CalendarIcon className="w-4 h-4 text-[#D4AF37]" />
-              <span>Select Consultation Date</span> <span className="text-[#D4AF37]">*</span>
+            <label className="font-mono text-xs uppercase tracking-[0.15em] text-[#f5f5f7] font-medium flex items-center gap-2">
+              <CalendarIcon className="w-4 h-4 text-[#d4af37]" />
+              <span>Select Consultation Date</span> <span className="text-[#d4af37]">*</span>
             </label>
             {formData.date && (
-              <span className="font-sans text-xs text-[#D4AF37] font-medium">
+              <span className="font-mono text-xs text-[#d4af37] font-semibold">
                 {formattedSelectedDate}
               </span>
             )}
           </div>
 
-          <div className="bg-[#F9F8F6] border border-[#1A1A1A]/15 p-4 shadow-inner">
+          <div className="theme-calendar-wrapper bg-[#161618] border border-white/15 p-4 rounded-xl shadow-inner">
             {/* Calendar Header */}
-            <div className="flex items-center justify-between mb-4 border-b border-[#1A1A1A]/10 pb-3">
-              <span className="font-serif text-lg text-[#1A1A1A] font-normal">
+            <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
+              <span className="font-serif text-lg text-[#f5f5f7] font-normal">
                 {monthNames[currentMonth]} {currentYear}
               </span>
               <div className="flex items-center gap-1">
@@ -347,7 +347,7 @@ export const ContactForm = () => {
                   type="button"
                   onClick={handlePrevMonth}
                   disabled={currentYear === today.getFullYear() && currentMonth <= today.getMonth()}
-                  className="p-1.5 hover:bg-[#1A1A1A]/5 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-[#1A1A1A]"
+                  className="p-1.5 hover:bg-white/10 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-[#f5f5f7]"
                   title="Previous Month"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -355,7 +355,7 @@ export const ContactForm = () => {
                 <button
                   type="button"
                   onClick={handleNextMonth}
-                  className="p-1.5 hover:bg-[#1A1A1A]/5 rounded transition-colors text-[#1A1A1A]"
+                  className="p-1.5 hover:bg-white/10 rounded transition-colors text-[#f5f5f7]"
                   title="Next Month"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -366,7 +366,7 @@ export const ContactForm = () => {
             {/* Days of Week */}
             <div className="grid grid-cols-7 gap-1 text-center mb-2">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
-                <span key={d} className="font-sans text-[11px] uppercase tracking-wider text-[#6C6863] font-medium">
+                <span key={d} className="font-mono text-[11px] uppercase tracking-wider text-white/50 font-medium">
                   {d}
                 </span>
               ))}
@@ -387,12 +387,12 @@ export const ContactForm = () => {
                     type="button"
                     disabled={past}
                     onClick={() => handleDateSelect(day)}
-                    className={`h-9 flex items-center justify-center font-sans text-xs font-medium transition-all duration-200 ${
+                    className={`h-9 flex items-center justify-center font-mono text-xs font-medium transition-all duration-200 rounded-md ${
                       selected
-                        ? 'bg-[#1A1A1A] text-[#D4AF37] border border-[#D4AF37] shadow-sm font-semibold scale-105'
+                        ? 'bg-[#d4af37] text-[#0c0c0c] font-bold shadow-md scale-105'
                         : past
-                        ? 'text-[#6C6863]/30 cursor-not-allowed'
-                        : 'text-[#1A1A1A] hover:bg-[#D4AF37]/15 hover:text-[#1A1A1A] border border-transparent'
+                        ? 'text-white/20 cursor-not-allowed'
+                        : 'text-[#f5f5f7] hover:bg-[#d4af37]/20 hover:text-[#d4af37] border border-transparent'
                     }`}
                   >
                     {day}
@@ -402,7 +402,7 @@ export const ContactForm = () => {
             </div>
           </div>
           {errors.date && (
-            <p className="font-sans text-xs text-red-500 mt-1.5 flex items-center gap-1">
+            <p className="font-sans text-xs text-red-400 mt-1.5 flex items-center gap-1">
               <AlertCircle className="w-3.5 h-3.5" /> {errors.date}
             </p>
           )}
@@ -411,17 +411,17 @@ export const ContactForm = () => {
         {/* Premium Time Dial Selector (10:00 AM - 10:00 PM) */}
         <div className="pt-2">
           <div className="flex items-center justify-between mb-3">
-            <label className="font-sans text-xs uppercase tracking-[0.15em] text-[#1A1A1A] font-medium flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#D4AF37]" />
+            <label className="font-mono text-xs uppercase tracking-[0.15em] text-[#f5f5f7] font-medium flex items-center gap-2">
+              <Clock className="w-4 h-4 text-[#d4af37]" />
               <span>Time Dial Selector (10:00 AM – 10:00 PM IST)</span>
             </label>
-            <span className="font-sans text-xs text-[#D4AF37] font-medium">
+            <span className="font-mono text-xs text-[#d4af37] font-semibold">
               {formData.timeSlot}
             </span>
           </div>
 
-          <div className="bg-[#F9F8F6] border border-[#1A1A1A]/15 p-4">
-            <p className="font-sans text-[11px] text-[#6C6863] mb-3">
+          <div className="theme-calendar-wrapper bg-[#161618] border border-white/15 p-4 rounded-xl">
+            <p className="font-mono text-[11px] text-white/50 mb-3">
               Select your convenient time window:
             </p>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-2">
@@ -432,10 +432,10 @@ export const ContactForm = () => {
                     key={slot}
                     type="button"
                     onClick={() => setFormData((prev) => ({ ...prev, timeSlot: slot }))}
-                    className={`py-2 px-2 text-center font-sans text-xs transition-all duration-200 ${
+                    className={`theme-time-slot ${isSelected ? 'selected' : ''} py-2 px-2 text-center font-mono text-xs transition-all duration-200 rounded-md ${
                       isSelected
-                        ? 'bg-[#1A1A1A] text-[#D4AF37] border border-[#D4AF37] font-medium shadow-sm'
-                        : 'bg-[#EBE5DE]/40 text-[#1A1A1A] hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]/40 border border-transparent'
+                        ? 'bg-[#d4af37] text-[#0c0c0c] font-bold shadow-md'
+                        : 'bg-white/[0.04] text-white/80 hover:bg-[#d4af37]/20 hover:text-[#d4af37] border border-white/5'
                     }`}
                   >
                     {slot}
@@ -450,7 +450,7 @@ export const ContactForm = () => {
         <div className="pt-4">
           <button
             type="submit"
-            className="w-full py-4 bg-[#1A1A1A] text-[#F9F8F6] font-sans text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#D4AF37] hover:text-[#1A1A1A] transition-all duration-500 shadow-md flex items-center justify-center gap-2 group"
+            className="w-full py-4 bg-[#d4af37] text-[#0c0c0c] font-mono text-xs uppercase tracking-[0.2em] font-bold hover:bg-[#c29f2f] transition-all duration-500 shadow-lg shadow-[#d4af37]/20 flex items-center justify-center gap-2 group rounded-full"
           >
             <span>Request Advisory Session</span>
             <span className="group-hover:translate-x-1 transition-transform">→</span>
@@ -460,3 +460,5 @@ export const ContactForm = () => {
     </div>
   );
 };
+
+export default ContactForm;

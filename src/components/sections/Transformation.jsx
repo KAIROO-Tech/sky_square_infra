@@ -68,7 +68,7 @@ export const Transformation = () => {
     <section 
       ref={containerRef}
       id="transformation"
-      className="relative w-full bg-[#0d0f11] text-white py-24 md:py-32 px-6 lg:px-16 overflow-hidden border-t border-white/10"
+      className="dark-scrim-container relative w-full bg-[#0d0f11] text-white py-24 md:py-32 px-6 lg:px-16 overflow-hidden border-t border-white/10"
     >
       {/* Architectural Grid Lines */}
       <div className="absolute inset-0 pointer-events-none opacity-5 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:4rem_4rem]" />

@@ -1,4 +1,127 @@
 /* Page-specific styling for isolated Archive page */
 .archive-page-container {
   min-height: 100vh;
+  background-color: #0c0c0c;
+  color: #f5f5f7;
+}
+
+/* Glassmorphism Sticky Filter Bar */
+.archive-sticky-filter {
+  position: sticky;
+  top: 70px;
+  z-index: 40;
+  background: rgba(12, 12, 12, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: border-color 0.3s ease;
+}
+
+/* Pinned Stacking Viewport Container */
+.archive-pinned-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding-top: 1rem;
+  padding-bottom: 2rem;
+}
+
+.archive-stack-viewport {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 190px);
+  min-height: 520px;
+  max-height: 640px;
+  perspective: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+/* Individual Stacking Dossier Card */
+.archive-stack-card {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #111113;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.9),
+              0 0 40px -10px rgba(212, 175, 55, 0.1);
+  transform-origin: center bottom;
+  will-change: transform, opacity;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.archive-stack-card:hover {
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 35px 70px -15px rgba(0, 0, 0, 0.95),
+              0 0 50px -10px rgba(212, 175, 55, 0.2);
+}
+
+/* Hardware accelerated image zoom & mask reveal */
+.archive-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+  will-change: transform, filter;
+  filter: brightness(0.7) contrast(1.08);
+}
+
+.archive-stack-card:hover .archive-card-image {
+  transform: scale(1.05);
+  filter: brightness(0.85) contrast(1.12);
+}
+
+/* Metric item hover effect */
+.archive-metric-item {
+  position: relative;
+  padding-left: 12px;
+  border-left: 1px solid rgba(212, 175, 55, 0.4);
+}
+
+/* Pill Button Arrow Animation */
+.archive-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f5f5f7;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-family: monospace, sans-serif;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.archive-stack-card:hover .archive-pill-btn {
+  background: rgba(212, 175, 55, 0.18);
+  border-color: rgba(212, 175, 55, 0.7);
+  color: #d4af37;
+}
+
+.archive-pill-btn .arrow-icon {
+  transition: transform 0.3s ease;
+}
+
+.archive-stack-card:hover .archive-pill-btn .arrow-icon {
+  transform: translateX(5px);
+}
+
+/* Mobile Cascading Feed Cards */
+.archive-mobile-card {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #111113;
+  border-radius: 12px;
+  overflow: hidden;
 }

@@ -20,7 +20,7 @@ export const Hero = ({ onExploreArchive, onOpenConsultation }) => {
   return (
     <section 
       onMouseMove={handleMouseMove}
-      className="relative min-h-screen w-full flex items-center overflow-hidden pt-28 pb-16 bg-[#0d0f11] text-white border-b border-white/10"
+      className="dark-scrim-container relative min-h-screen w-full flex items-center overflow-hidden pt-28 pb-16 bg-[#0d0f11] text-white border-b border-white/10"
     >
       {/* LAYER 1: Inception Architectural Background with Multi-Axis Drift */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">

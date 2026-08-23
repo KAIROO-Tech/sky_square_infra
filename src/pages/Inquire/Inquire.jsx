@@ -10,7 +10,7 @@ export const Inquire = () => {
   const [selectedProject, setSelectedProject] = useState(passedProject);
 
   return (
-    <div className="inquire-page-container w-full min-h-screen bg-[#F9F8F6] text-[#1A1A1A]">
+    <div className="inquire-page-container w-full min-h-screen bg-[#0c0c0c] text-[#f5f5f7] selection:bg-[#d4af37]/30 selection:text-[#d4af37]">
       <InquireHeader />
       <Consultation 
         selectedProject={selectedProject}

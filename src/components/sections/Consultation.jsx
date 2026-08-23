@@ -33,17 +33,12 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
     setIsSubmitting(true);
 
     try {
-      // Try sending to Express server if running
       await fetch('/api/inquiry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-      }).catch(() => {
-        // Fallback gracefully if API is offline
-      });
-    } catch {
-      // Silently proceed with luxury user feedback
-    }
+      }).catch(() => {});
+    } catch {}
 
     setTimeout(() => {
       setIsSubmitting(false);
@@ -59,45 +54,45 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
   };
 
   return (
-    <section id="consultation" className="w-full py-28 md:py-36 bg-[#F9F8F6] px-8 md:px-16 border-b border-[#1A1A1A]/10 relative z-10">
+    <section id="consultation" className="w-full py-24 md:py-32 bg-[#0c0c0c] text-[#f5f5f7] px-6 md:px-16 border-b border-white/10 relative z-10">
       <div className="max-w-[1600px] mx-auto">
         
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           
           {/* Left Column: Editorial Heading & Direct Contact */}
           <div className="lg:col-span-5">
             <div className="flex items-center gap-3 mb-4">
-              <span className="w-8 h-px bg-[#D4AF37]" />
-              <p className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-medium">
-                Private Advisory
+              <span className="w-8 h-px bg-[#d4af37]" />
+              <p className="font-mono text-xs uppercase tracking-[0.25em] text-[#d4af37] font-semibold">
+                PRIVATE ADVISORY // STRUCTURAL DIRECTORS
               </p>
             </div>
             
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-serif font-normal text-[#1A1A1A] leading-[1.05] mb-8 tracking-tight">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-serif font-normal text-[#f5f5f7] leading-[1.05] mb-6 tracking-tight">
               Initiate a <br />
-              <span className="italic text-[#D4AF37]">Consultation.</span>
+              <span className="italic font-serif text-[#d4af37] font-light">Consultation.</span>
             </h2>
 
-            <p className="font-sans text-base md:text-lg text-[#6C6863] leading-relaxed font-light mb-10 max-w-md">
+            <p className="font-sans text-base md:text-lg text-white/70 leading-relaxed font-light mb-8 max-w-md">
               Whether acquiring expansive land parcels or commissioning turnkey residential builds in Telangana, our engineering team provides structural feasibility and investment clarity.
             </p>
 
             {/* Quick Contact Box */}
-            <div className="p-8 bg-[#EBE5DE]/40 border-t-2 border-t-[#D4AF37] border border-[#1A1A1A]/10 space-y-6">
+            <div className="theme-office-card p-8 bg-[#111113] border-t-2 border-t-[#d4af37] border border-white/10 rounded-2xl shadow-xl space-y-6">
               <div>
-                <span className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#6C6863] block mb-1">
+                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#d4af37] block mb-1">
                   Direct Line &amp; WhatsApp
                 </span>
-                <a href="tel:+919553299745" className="font-serif text-2xl text-[#1A1A1A] hover:text-[#D4AF37] transition-colors">
+                <a href="tel:+919553299745" className="font-serif text-2xl text-[#f5f5f7] hover:text-[#d4af37] transition-colors font-normal">
                   +91 95532 99745
                 </a>
               </div>
 
-              <div className="border-t border-[#1A1A1A]/10 pt-4">
-                <span className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#6C6863] block mb-1">
+              <div className="border-t border-white/10 pt-4">
+                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#d4af37] block mb-1">
                   Email Desk
                 </span>
-                <a href="mailto:info@skysquareinfra.com" className="font-serif text-lg text-[#1A1A1A] hover:text-[#D4AF37] transition-colors">
+                <a href="mailto:info@skysquareinfra.com" className="font-serif text-lg text-[#f5f5f7] hover:text-[#d4af37] transition-colors font-normal">
                   info@skysquareinfra.com
                 </a>
               </div>
@@ -106,27 +101,27 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
                 <button
                   type="button"
                   onClick={handleWhatsAppDirect}
-                  className="w-full h-12 flex items-center justify-center gap-3 border border-[#1A1A1A] hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 text-xs uppercase tracking-[0.2em] font-sans font-medium transition-all duration-500"
+                  className="w-full h-12 flex items-center justify-center gap-3 border border-[#d4af37]/60 hover:border-[#d4af37] hover:bg-[#d4af37]/15 text-xs uppercase tracking-[0.2em] font-mono font-semibold transition-all duration-300 text-[#d4af37] rounded-full"
                 >
-                  <MessageSquareText className="w-4 h-4 text-[#D4AF37]" />
+                  <MessageSquareText className="w-4 h-4 text-[#d4af37]" />
                   <span>Instant WhatsApp Connect</span>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Underline Form Container */}
-          <div className="lg:col-span-7 bg-[#F9F8F6] p-8 sm:p-12 md:p-14 border border-[#1A1A1A]/15 shadow-card relative">
+          {/* Right Column: Form Container */}
+          <div className="theme-form-card lg:col-span-7 bg-[#111113] p-8 sm:p-12 md:p-14 border border-white/10 shadow-2xl rounded-2xl relative">
             
             {isSubmitted ? (
               <div className="py-16 text-center animate-fadeIn">
-                <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center border border-[#D4AF37] text-[#D4AF37]">
-                  <CheckCircle2 className="w-8 h-8" />
+                <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center border border-[#d4af37] text-[#d4af37] rounded-full bg-[#d4af37]/10">
+                  <CheckCircle2 className="w-8 h-8 text-[#d4af37]" />
                 </div>
-                <h3 className="font-serif text-3xl text-[#1A1A1A] mb-4">
+                <h3 className="font-serif text-3xl text-[#f5f5f7] mb-4">
                   Inquiry Received with Distinction
                 </h3>
-                <p className="font-sans text-sm text-[#6C6863] max-w-md mx-auto leading-relaxed mb-8">
+                <p className="font-sans text-sm text-white/70 max-w-md mx-auto leading-relaxed mb-8 font-light">
                   Thank you for reaching out to Sky Square Infra. Our executive engineering director will review your specifications and contact you within 24 business hours.
                 </p>
                 <div className="flex justify-center gap-4">
@@ -136,6 +131,7 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
                       setIsSubmitted(false);
                       if (onClearSelectedProject) onClearSelectedProject();
                     }}
+                    className="border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37]/20"
                   >
                     Submit Another Inquiry
                   </Button>
@@ -145,15 +141,15 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
               <form onSubmit={handleSubmit} className="space-y-8">
                 
                 {selectedProject && (
-                  <div className="p-4 bg-[#EBE5DE]/60 border border-[#D4AF37]/50 flex items-center justify-between">
+                  <div className="p-4 bg-[#d4af37]/10 border border-[#d4af37]/50 flex items-center justify-between rounded-lg">
                     <div>
-                      <span className="font-sans text-[10px] uppercase tracking-widest text-[#6C6863]">Selected Project:</span>
-                      <p className="font-serif text-sm font-medium text-[#1A1A1A]">{selectedProject.title}</p>
+                      <span className="font-mono text-[10px] uppercase tracking-widest text-[#d4af37]">Selected Project:</span>
+                      <p className="font-serif text-sm font-medium text-[#f5f5f7]">{selectedProject.title}</p>
                     </div>
                     <button
                       type="button"
                       onClick={onClearSelectedProject}
-                      className="text-xs text-[#6C6863] hover:text-[#1A1A1A] underline"
+                      className="text-xs font-mono text-white/60 hover:text-white underline"
                     >
                       Clear
                     </button>
@@ -165,7 +161,7 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
                     label="Full Name"
                     name="fullName"
                     required
-                    placeholder="Lord / Lady / Mr. / Ms. Name"
+                    placeholder="Full Name"
                     value={formData.fullName}
                     onChange={handleChange}
                   />
@@ -216,8 +212,8 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
                   onChange={handleChange}
                 />
 
-                <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-[#1A1A1A]/10">
-                  <span className="font-sans text-[11px] text-[#6C6863]/80">
+                <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-6 border-t border-white/10">
+                  <span className="font-mono text-[11px] text-white/50">
                     * All architectural consultations remain strictly confidential.
                   </span>
                   <Button
@@ -225,7 +221,7 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
                     variant="primary"
                     size="large"
                     disabled={isSubmitting}
-                    className="w-full sm:w-auto"
+                    className="w-full sm:w-auto bg-[#d4af37] text-[#0c0c0c] hover:bg-[#c29f2f] font-mono text-xs uppercase tracking-wider font-semibold py-4 px-8 shadow-lg shadow-[#d4af37]/20"
                   >
                     {isSubmitting ? 'Transmitting...' : 'Dispatch Consultation Request'}
                   </Button>
@@ -242,3 +238,5 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
     </section>
   );
 };
+
+export default Consultation;

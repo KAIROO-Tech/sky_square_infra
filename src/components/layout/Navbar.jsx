@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../common/Button';
+import { ThemeToggle } from '../common/ThemeToggle';
 
 export const Navbar = ({ onOpenConsultation }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -38,7 +39,7 @@ export const Navbar = ({ onOpenConsultation }) => {
       <div className="max-w-[1600px] mx-auto px-6 md:px-12 flex items-center justify-between">
         
         {/* Brand / Monogram */}
-        <Link to="/" className="group flex items-center gap-3.5 focus:outline-none">
+        <Link to="/" className="group flex items-center gap-3.5 focus:outline-none cursor-pointer">
           <div className="w-8 h-8 border border-[#C5A880]/60 bg-[#C5A880]/10 flex items-center justify-center font-serif text-sm font-semibold tracking-tighter text-[#C5A880] group-hover:border-[#C5A880] transition-colors duration-300">
             SQ
           </div>
@@ -58,7 +59,7 @@ export const Navbar = ({ onOpenConsultation }) => {
                 key={link.label}
                 to={link.to}
                 onClick={(e) => handleNavClick(link, e)}
-                className={`relative py-1 transition-colors duration-300 hover:text-[#C5A880] ${
+                className={`relative py-1 transition-colors duration-300 hover:text-[#C5A880] cursor-pointer ${
                   isActive
                     ? 'text-[#C5A880] font-semibold after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-full after:h-px after:bg-[#C5A880]'
                     : 'text-white/80'
@@ -70,8 +71,11 @@ export const Navbar = ({ onOpenConsultation }) => {
           })}
         </nav>
 
-        {/* CTA & Mobile Toggle */}
+        {/* CTA, Theme Toggle & Mobile Toggle */}
         <div className="flex items-center gap-4">
+          {/* Fancy Theme Toggle */}
+          <ThemeToggle />
+
           <div className="hidden sm:block">
             <Button 
               variant="primary" 
@@ -111,14 +115,14 @@ export const Navbar = ({ onOpenConsultation }) => {
                   setMobileMenuOpen(false);
                   handleNavClick(link, e);
                 }}
-                className={`py-2 transition-colors border-b border-white/10 ${
+                className={`py-2 transition-colors border-b border-white/10 cursor-pointer ${
                   location.pathname === link.to ? 'text-[#C5A880]' : 'text-white/80 hover:text-[#C5A880]'
                 }`}
               >
                 {link.label}
               </Link>
             ))}
-            <div className="pt-4">
+            <div className="pt-4 flex flex-col gap-4">
               <Button 
                 variant="primary" 
                 size="default" 
