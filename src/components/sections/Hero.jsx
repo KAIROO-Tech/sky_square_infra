@@ -1,142 +1,157 @@
 import React, { useState } from 'react';
 import { Button } from '../common/Button';
+import AnimatedContent from '../motion/AnimatedContent';
+import Marquee from './Marquee';
 
 export const Hero = ({ onExploreArchive, onOpenConsultation }) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  // Hero Drone Architectural Visual
+  // Handle subtle cursor 3D perspective shift on desktop
+  const handleMouseMove = (e) => {
+    if (window.innerWidth < 768) return;
+    const { innerWidth, innerHeight } = window;
+    const x = (e.clientX / innerWidth - 0.5) * 2;
+    const y = (e.clientY / innerHeight - 0.5) * 2;
+    setMousePos({ x, y });
+  };
+
   const heroImageUrl = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop';
 
   return (
-    <section className="relative w-full min-h-[100svh] lg:h-screen flex flex-col lg:flex-row pt-24 lg:pt-0 bg-[#F9F8F6] border-b border-[#1A1A1A]/10 overflow-hidden">
-      
-      {/* 60% Left Architectural Visual Container */}
-      <div className="w-full lg:w-[58%] h-[50vh] sm:h-[60vh] lg:h-full relative overflow-hidden group bg-[#EBE5DE]/40">
-        
-        {/* Subtle Darkening Overlay */}
-        <div className="absolute inset-0 bg-[#1A1A1A]/15 z-10 mix-blend-multiply transition-opacity duration-1000 group-hover:opacity-10 pointer-events-none" />
-        
-        {/* Architectural Framing Border */}
-        <div className="absolute inset-0 shadow-inner-hairline z-20 pointer-events-none" />
-
-        {/* Vertical Editorial Text Label */}
+    <section 
+      onMouseMove={handleMouseMove}
+      className="relative min-h-screen w-full flex items-center overflow-hidden pt-28 pb-16 bg-[#0d0f11] text-white border-b border-white/10"
+    >
+      {/* LAYER 1: Inception Architectural Background with Multi-Axis Drift */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div 
-          className="hidden md:block absolute left-8 top-12 z-20 text-[10px] uppercase font-sans tracking-[0.3em] text-white/90 bg-[#1A1A1A]/80 backdrop-blur-sm px-3 py-4 select-none border-l border-[#D4AF37]"
-          style={{ writingMode: 'vertical-rl' }}
+          className="w-full h-full will-change-transform"
+          style={{
+            transform: `perspective(1000px) rotateX(${-mousePos.y * 3}deg) rotateY(${mousePos.x * 3}deg)`,
+            transition: 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+          }}
         >
-          EDITORIAL / VOL. 01 — HYDERABAD GROWTH CORRIDORS
-        </div>
-
-        {/* Hero Architectural Image with Ultra-slow Grayscale to Color Reveal */}
-        {!imageError ? (
           <img
             src={heroImageUrl}
-            alt="Sky Square Infra Architectural Masterpiece"
-            onLoad={() => setImageLoaded(true)}
-            onError={() => setImageError(true)}
-            className={`w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-[1800ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
-              imageLoaded ? 'opacity-100' : 'opacity-80'
-            }`}
+            alt="Sky Square Architectural Masterpiece"
+            className="w-full h-full object-cover object-center grayscale opacity-55 animate-hero-pan"
           />
-        ) : (
-          /* High-end Architectural Placeholder if offline / blocked */
-          <div className="w-full h-full flex flex-col justify-center items-center bg-[#1A1A1A] text-[#F9F8F6] p-12 relative">
-            <div className="w-32 h-32 border border-[#D4AF37]/40 mb-6 flex items-center justify-center font-serif text-3xl text-[#D4AF37]">
-              SQ
-            </div>
-            <span className="font-serif text-2xl tracking-wide uppercase text-white/90">
-              Sky Square Architectural View
-            </span>
-            <span className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] mt-2">
-              Telangana Growth Sector
-            </span>
-          </div>
-        )}
-
-        {/* Floating Architecture Metric Pill */}
-        <div className="absolute bottom-6 right-6 z-20 bg-[#F9F8F6]/90 backdrop-blur-md px-6 py-4 border border-[#1A1A1A]/10 shadow-feature hidden sm:flex items-center gap-6">
-          <div className="flex flex-col">
-            <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[#6C6863]">Coordinates</span>
-            <span className="font-serif text-sm font-semibold text-[#1A1A1A]">17.3850° N, 78.4867° E</span>
-          </div>
-          <div className="w-px h-8 bg-[#1A1A1A]/15" />
-          <div className="flex flex-col">
-            <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[#6C6863]">Focus</span>
-            <span className="font-serif text-sm font-semibold text-[#D4AF37]">Prime Telangana</span>
-          </div>
         </div>
+
+        {/* Multi-directional Scrim Gradients for High Legibility */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0d0f11] via-[#0d0f11]/80 to-[#0d0f11]/30 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0f11] via-transparent to-[#0d0f11]/60 z-10" />
+        <div className="absolute inset-0 shadow-inner-hairline z-10 pointer-events-none" />
       </div>
 
-      {/* 40% Right Editorial Column */}
-      <div className="w-full lg:w-[42%] flex-1 flex flex-col justify-center py-16 lg:py-0 px-8 sm:px-12 md:px-16 lg:px-20 bg-[#F9F8F6] relative z-20">
+      {/* LAYER 2: Infinite Watermark Marquee Background Layer */}
+      <div className="absolute top-1/2 -translate-y-1/2 inset-x-0 z-10 pointer-events-none opacity-10">
+        <Marquee 
+          speed={32} 
+          textClassName="font-serif tracking-widest text-6xl md:text-8xl lg:text-9xl uppercase text-white font-light select-none"
+        />
+      </div>
+
+      {/* LAYER 3: Editorial Content Stack Layer */}
+      <div className="relative z-20 max-w-7xl mx-auto px-6 lg:px-16 w-full flex flex-col justify-between min-h-[75vh]">
         
-        {/* Background Architectural Monogram Watermark */}
-        <div 
-          className="absolute -bottom-10 -right-6 text-[35vw] lg:text-[18vw] font-serif leading-none text-[#1A1A1A]/[0.025] select-none pointer-events-none z-0"
-          aria-hidden="true"
-        >
-          01
-        </div>
-
-        <div className="max-w-xl relative z-10">
+        {/* Main Editorial Hero Stack */}
+        <div className="max-w-2xl pt-12 md:pt-20">
           
-          {/* Overline with decorative horizontal line */}
-          <div className="flex items-center gap-4 mb-6">
-            <span className="w-8 h-px bg-[#D4AF37]" />
-            <span className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-medium">
-              Sky Square Infra
-            </span>
-          </div>
-
-          {/* Extreme Scale Mixed Italic Headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-normal leading-[0.95] text-[#1A1A1A] mb-8 tracking-tight">
-            Defining the <br />
-            <span className="italic text-[#1A1A1A]/90 font-normal">
-              Hyderabad <span className="text-[#D4AF37]">Horizon.</span>
-            </span>
-          </h1>
-
-          {/* Body Paragraph */}
-          <p className="font-sans text-base md:text-lg text-[#6C6863] leading-relaxed font-light mb-10 max-w-lg">
-            From government-grade infrastructure to luxury land development. We bridge the gap between visionary planning and grounded reality.
-          </p>
-
-          {/* Action CTAs */}
-          <div className="flex flex-wrap items-center gap-6">
-            <Button
-              variant="primary"
-              size="default"
-              onClick={onExploreArchive}
-            >
-              Explore Archive
-            </Button>
-
-            <Button
-              variant="link"
-              onClick={onOpenConsultation}
-            >
-              Book Site Consultation
-            </Button>
-          </div>
-
-          {/* Bottom Trust Stat Bar */}
-          <div className="mt-14 pt-8 border-t border-[#1A1A1A]/10 grid grid-cols-3 gap-6">
-            <div>
-              <span className="block font-serif text-2xl md:text-3xl text-[#1A1A1A] font-normal">134K+</span>
-              <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[#6C6863]">SFT Developed</span>
+          {/* Eyebrow & Overline */}
+          <AnimatedContent distance={30} direction="vertical" delay={0.15}>
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-8 h-px bg-[#C5A880]" />
+              <span className="font-mono text-xs uppercase tracking-[0.25em] text-[#C5A880] font-medium">
+                EDITORIAL / VOL. 01 — TELANGANA CORRIDORS
+              </span>
             </div>
-            <div>
-              <span className="block font-serif text-2xl md:text-3xl text-[#1A1A1A] font-normal">100%</span>
-              <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[#6C6863]">Govt Compliance</span>
+
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-normal leading-[0.98] text-white mb-6 tracking-tight">
+              Defining the <br />
+              <span className="italic text-white/90 font-normal">
+                Hyderabad <span className="text-[#C5A880]">Horizon.</span>
+              </span>
+            </h1>
+          </AnimatedContent>
+
+          {/* Subtitle / Paragraph */}
+          <AnimatedContent distance={30} direction="vertical" delay={0.25}>
+            <p className="font-sans text-base sm:text-lg text-white/75 leading-relaxed font-light mb-10 max-w-xl">
+              From government-grade infrastructure to luxury land development. We bridge the gap between visionary planning and grounded reality across prime expansion belts.
+            </p>
+          </AnimatedContent>
+
+          {/* Action Buttons */}
+          <AnimatedContent distance={30} direction="vertical" delay={0.35}>
+            <div className="flex flex-wrap items-center gap-6">
+              <Button
+                variant="primary"
+                size="large"
+                onClick={onExploreArchive}
+                className="bg-[#C5A880] text-[#0d0f11] hover:bg-[#b0926a] font-mono text-xs uppercase tracking-widest"
+              >
+                Explore Archive
+              </Button>
+
+              <Button
+                variant="link"
+                onClick={onOpenConsultation}
+                className="text-white hover:text-[#C5A880] font-mono text-xs uppercase tracking-widest"
+              >
+                Book Site Consultation →
+              </Button>
             </div>
-            <div>
-              <span className="block font-serif text-2xl md:text-3xl text-[#D4AF37] font-normal">2027</span>
-              <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[#6C6863]">Key Handovers</span>
-            </div>
-          </div>
+          </AnimatedContent>
+
         </div>
+
+        {/* Bottom Bar: Trust Stats + Relocated Telemetry Tag */}
+        <AnimatedContent distance={30} direction="vertical" delay={0.45}>
+          <div className="mt-16 pt-8 border-t border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            
+            {/* Stats Grid */}
+            <div className="grid grid-cols-3 gap-8 md:gap-12">
+              <div>
+                <span className="block font-serif text-2xl md:text-3xl text-white font-normal">134K+</span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/60">SFT Developed</span>
+              </div>
+              <div>
+                <span className="block font-serif text-2xl md:text-3xl text-white font-normal">100%</span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/60">Govt Compliance</span>
+              </div>
+              <div>
+                <span className="block font-serif text-2xl md:text-3xl text-[#C5A880] font-normal">2027</span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/60">Key Handovers</span>
+              </div>
+            </div>
+
+            {/* Compact Telemetry Tag (Relocated to Bottom Right) */}
+            <div className="flex items-center gap-4 text-[11px] font-mono tracking-widest text-white/60 border border-white/15 px-4 py-2 rounded-full bg-black/40 backdrop-blur-sm self-start md:self-auto">
+              <span className="text-[#C5A880]">SECTOR: PRIME TELANGANA</span>
+              <span className="w-1 h-1 rounded-full bg-white/40" />
+              <span>17.3850° N, 78.4867° E</span>
+            </div>
+
+          </div>
+        </AnimatedContent>
+
       </div>
+
+      {/* Embedded CSS for Cinematic Camera Pan */}
+      <style>{`
+        @keyframes cinematicPan {
+          0% { transform: scale(1.05) translate(0, 0); }
+          50% { transform: scale(1.12) translate(-1%, -1.5%); }
+          100% { transform: scale(1.05) translate(0, 0); }
+        }
+        .animate-hero-pan {
+          animation: cinematicPan 25s ease-in-out infinite alternate;
+          will-change: transform;
+        }
+      `}</style>
     </section>
   );
 };
+
+export default Hero;
