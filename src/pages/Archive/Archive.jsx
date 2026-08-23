@@ -2,24 +2,17 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { projects } from '../../data/projects';
 import { ArchiveHero } from './components/ArchiveHero';
-import { ProjectModal } from '../../components/sections/ProjectModal';
 import { Button } from '../../components/common/Button';
 import './Archive.css';
 
 export const Archive = () => {
   const [activeFilter, setActiveFilter] = useState('all');
-  const [selectedProject, setSelectedProject] = useState(null);
   const navigate = useNavigate();
 
   const filteredProjects = projects.filter((project) => {
     if (activeFilter === 'all') return true;
     return project.status.toLowerCase() === activeFilter.toLowerCase();
   });
-
-  const handleInquireForProject = (project) => {
-    setSelectedProject(null);
-    navigate('/inquire', { state: { selectedProject: project } });
-  };
 
   return (
     <div className="archive-page-container w-full min-h-screen bg-[#F9F8F6] text-[#1A1A1A]">
@@ -68,7 +61,7 @@ export const Archive = () => {
               return (
                 <div
                   key={project.id}
-                  onClick={() => setSelectedProject(project)}
+                  onClick={() => navigate(`/archive/${project.id}`)}
                   className={`group relative overflow-hidden bg-[#1A1A1A] border border-[#1A1A1A]/20 shadow-feature cursor-pointer transition-all duration-700 ${
                     isFullWidth ? 'md:col-span-2 h-[520px] md:h-[620px]' : 'h-[480px] md:h-[540px]'
                   }`}
@@ -180,12 +173,7 @@ export const Archive = () => {
         </div>
       </section>
 
-      {/* Project Dossier Modal */}
-      <ProjectModal
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-        onInquire={handleInquireForProject}
-      />
+
     </div>
   );
 };

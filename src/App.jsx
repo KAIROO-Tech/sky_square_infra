@@ -8,8 +8,8 @@ import { Footer } from './components/layout/Footer';
 
 import { Home } from './pages/Home/Home';
 import { Archive } from './pages/Archive/Archive';
+import { ProjectDetail } from './pages/Archive/ProjectDetail';
 import { Expertise } from './pages/Expertise/Expertise';
-import { Contact } from './pages/Contact/Contact';
 import { Inquire } from './pages/Inquire/Inquire';
 
 export const App = () => {
@@ -32,8 +32,9 @@ export const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/archive" element={<Archive />} />
+          <Route path="/archive/:projectSlug" element={<ProjectDetail />} />
           <Route path="/expertise" element={<Expertise />} />
-          <Route path="/contact" element={<Contact />} />
+          <Route path="/contact" element={<Inquire />} />
           <Route path="/inquire" element={<Inquire />} />
         </Routes>
       </div>

@@ -1,36 +1,66 @@
 import React from 'react';
 
-export const Marquee = () => {
-  const words = [
-    'LEGACY',
+export const Marquee = ({
+  text,
+  items,
+  speed = 35,
+  className = '',
+  textClassName = '',
+  reverse = false
+}) => {
+  const defaultItems = [
     'INNOVATION',
     'PRECISION',
     'ARCHITECTURAL RIGOR',
     'GOVERNMENT INFRASTRUCTURE',
     'LUXURY RESIDENTIAL',
-    'LAND ENCLAVES'
+    'LEGACY',
+    'ENGINEERING EXCELLENCE'
   ];
 
+  const listToRender = items || (text ? [text] : defaultItems);
+
   return (
-    <div className="w-full overflow-hidden border-b border-[#1A1A1A]/10 bg-[#EBE5DE]/30 py-4 select-none relative z-10">
-      <div className="flex w-[200%] animate-marquee">
-        <div className="flex items-center gap-12 whitespace-nowrap font-serif text-sm md:text-base tracking-[0.25em] text-[#1A1A1A]/40 uppercase px-6">
-          {words.map((word, i) => (
+    <div className={`w-full overflow-hidden select-none relative ${className}`}>
+      <div 
+        className="flex w-[200%] pointer-events-none will-change-transform"
+        style={{
+          animation: `marqueeScroll ${speed}s linear infinite ${reverse ? 'reverse' : 'normal'}`
+        }}
+      >
+        {/* Loop 1 */}
+        <div className="flex items-center gap-12 whitespace-nowrap px-6 shrink-0 min-w-full justify-around">
+          {listToRender.map((item, i) => (
             <React.Fragment key={`m1-${i}`}>
-              <span className="hover:text-[#D4AF37] transition-colors duration-500">{word}</span>
-              <span className="text-[#D4AF37]/60 text-xs">✦</span>
+              <span className={textClassName || "font-serif text-sm tracking-[0.25em] text-[#1A1A1A]/40 uppercase"}>
+                {item}
+              </span>
+              <span className="text-[#D4AF37]/60 text-xs select-none">✦</span>
             </React.Fragment>
           ))}
         </div>
-        <div className="flex items-center gap-12 whitespace-nowrap font-serif text-sm md:text-base tracking-[0.25em] text-[#1A1A1A]/40 uppercase px-6">
-          {words.map((word, i) => (
+
+        {/* Loop 2 (Duplicate for smooth infinite seamless wrap) */}
+        <div className="flex items-center gap-12 whitespace-nowrap px-6 shrink-0 min-w-full justify-around">
+          {listToRender.map((item, i) => (
             <React.Fragment key={`m2-${i}`}>
-              <span className="hover:text-[#D4AF37] transition-colors duration-500">{word}</span>
-              <span className="text-[#D4AF37]/60 text-xs">✦</span>
+              <span className={textClassName || "font-serif text-sm tracking-[0.25em] text-[#1A1A1A]/40 uppercase"}>
+                {item}
+              </span>
+              <span className="text-[#D4AF37]/60 text-xs select-none">✦</span>
             </React.Fragment>
           ))}
         </div>
       </div>
+
+      <style>{`
+        @keyframes marqueeScroll {
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-50%, 0, 0); }
+        }
+      `}</style>
     </div>
   );
 };
+
+export default Marquee;
