@@ -1,5 +1,6 @@
 import React from 'react';
 import { Phone, Mail, MessageSquareText, ArrowRight } from 'lucide-react';
+import { OfficeCard } from './OfficeCard';
 import { Button } from '../../../components/common/Button';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,6 +13,10 @@ export const ContactMethods = () => {
 
   return (
     <div className="space-y-6">
+      {/* Sky Square Infra Head Office details */}
+      <OfficeCard />
+
+      {/* Direct Phone Line */}
       <div className="p-8 bg-[#EBE5DE]/40 border-t-2 border-t-[#1A1A1A] border border-[#1A1A1A]/10">
         <div className="flex items-center gap-3 mb-6">
           <Phone className="w-5 h-5 text-[#D4AF37]" />
@@ -23,6 +28,7 @@ export const ContactMethods = () => {
         <p className="font-sans text-xs text-[#6C6863]">Instant executive response during office hours</p>
       </div>
 
+      {/* Official Email Desk */}
       <div className="p-8 bg-[#EBE5DE]/40 border-t-2 border-t-[#1A1A1A] border border-[#1A1A1A]/10">
         <div className="flex items-center gap-3 mb-6">
           <Mail className="w-5 h-5 text-[#D4AF37]" />
@@ -34,6 +40,7 @@ export const ContactMethods = () => {
         <p className="font-sans text-xs text-[#6C6863]">Send blueprints, RFPs, or land acquisition queries</p>
       </div>
 
+      {/* WhatsApp Direct Advisory */}
       <div className="p-8 bg-[#1A1A1A] text-[#F9F8F6] space-y-6">
         <div className="flex items-center gap-3">
           <MessageSquareText className="w-5 h-5 text-[#D4AF37]" />
@@ -52,7 +59,7 @@ export const ContactMethods = () => {
         </button>
       </div>
 
-      <div className="pt-4">
+      <div className="pt-2">
         <Button
           variant="primary"
           size="large"
@@ -65,3 +72,4 @@ export const ContactMethods = () => {
     </div>
   );
 };
+
