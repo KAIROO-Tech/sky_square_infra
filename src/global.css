@@ -1,0 +1,164 @@
+/* Theme CSS Variables for Sky Square Infra */
+:root,
+[data-theme='dark'] {
+  --bg-primary: #0c0c0c;
+  --bg-secondary: #121214;
+  --bg-card: #161618;
+  --text-primary: #f5f5f7;
+  --text-secondary: rgba(245, 245, 247, 0.75);
+  --text-muted: rgba(245, 245, 247, 0.45);
+  --accent-gold: #d4af37;
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-gold: rgba(212, 175, 55, 0.4);
+  --glass-bg: rgba(12, 12, 12, 0.85);
+  color-scheme: dark;
+}
+
+[data-theme='light'] {
+  --bg-primary: #f8f8f5;
+  --bg-secondary: #f0eee8;
+  --bg-card: #ffffff;
+  --text-primary: #111111;
+  --text-secondary: #2b2a27;
+  --text-muted: #57554f;
+  --accent-gold: #b8952b;
+  --border-subtle: rgba(0, 0, 0, 0.14);
+  --border-gold: rgba(184, 149, 43, 0.6);
+  --glass-bg: rgba(248, 248, 245, 0.9);
+  color-scheme: light;
+}
+
+/* Global color transitions */
+html, body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Light Theme targeted section overrides */
+[data-theme='light'] body,
+[data-theme='light'] .archive-page-container,
+[data-theme='light'] .expertise-page-container,
+[data-theme='light'] .contact-page-container,
+[data-theme='light'] .inquire-page-container {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* 1. Header Navbar Contrast Protection */
+[data-theme='light'] header,
+[data-theme='light'] header *,
+[data-theme='light'] .dark-header-text {
+  color: #ffffff !important;
+}
+
+[data-theme='light'] header a:hover,
+[data-theme='light'] header button:hover {
+  color: #C5A880 !important;
+}
+
+[data-theme='light'] header .text-\[\#C5A880\] {
+  color: #C5A880 !important;
+}
+
+[data-theme='light'] header .text-white\/80,
+[data-theme='light'] header .text-white\/90 {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+[data-theme='light'] header .text-white\/50,
+[data-theme='light'] header .text-white\/60 {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* 2. Dark Scrim Sections Protection (Hero, Transformation, Footer, Image Overlays) */
+[data-theme='light'] .dark-scrim-container,
+[data-theme='light'] .dark-scrim-container h1,
+[data-theme='light'] .dark-scrim-container h2,
+[data-theme='light'] .dark-scrim-container h3,
+[data-theme='light'] .dark-scrim-container h4,
+[data-theme='light'] .dark-scrim-container p,
+[data-theme='light'] .dark-scrim-container span {
+  color: #ffffff;
+}
+
+[data-theme='light'] .dark-scrim-container .text-[#C5A880],
+[data-theme='light'] .dark-scrim-container .text-[#d4af37] {
+  color: #d4af37 !important;
+}
+
+[data-theme='light'] .dark-scrim-container .text-white\/75,
+[data-theme='light'] .dark-scrim-container .text-white\/80 {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-theme='light'] .dark-scrim-container .text-white\/60,
+[data-theme='light'] .dark-scrim-container .text-white\/40 {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* 3. Page Header Sections High-Contrast Overrides */
+[data-theme='light'] .theme-page-header {
+  background-color: #f0eee8 !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme='light'] .theme-page-header h1 {
+  color: #111111 !important;
+}
+
+[data-theme='light'] .theme-page-header p {
+  color: #2b2a27 !important;
+}
+
+/* 4. Contact & Inquire Form Surface Overrides */
+[data-theme='light'] .theme-form-card,
+[data-theme='light'] .theme-office-card {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme='light'] .theme-form-card h2,
+[data-theme='light'] .theme-form-card h3,
+[data-theme='light'] .theme-form-card label,
+[data-theme='light'] .theme-office-card h3,
+[data-theme='light'] .theme-office-card h4 {
+  color: #111111 !important;
+}
+
+[data-theme='light'] .theme-form-card p,
+[data-theme='light'] .theme-office-card p,
+[data-theme='light'] .theme-office-card span {
+  color: #2b2a27 !important;
+}
+
+[data-theme='light'] .theme-input {
+  background-color: #f8f8f5 !important;
+  border-color: rgba(0, 0, 0, 0.16) !important;
+  color: #111111 !important;
+}
+
+[data-theme='light'] .theme-input::placeholder {
+  color: #8c8980 !important;
+}
+
+[data-theme='light'] .theme-calendar-wrapper {
+  background-color: #f8f8f5 !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-theme='light'] .theme-calendar-wrapper span {
+  color: #111111 !important;
+}
+
+[data-theme='light'] .theme-time-slot {
+  background-color: #f0eee8 !important;
+  color: #111111 !important;
+}
+
+[data-theme='light'] .theme-time-slot.selected {
+  background-color: #111111 !important;
+  color: #b8952b !important;
+  border-color: #b8952b !important;
+}

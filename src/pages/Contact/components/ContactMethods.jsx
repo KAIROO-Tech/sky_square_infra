@@ -17,45 +17,45 @@ export const ContactMethods = () => {
       <OfficeCard />
 
       {/* Direct Phone Line */}
-      <div className="p-8 bg-[#EBE5DE]/40 border-t-2 border-t-[#1A1A1A] border border-[#1A1A1A]/10">
-        <div className="flex items-center gap-3 mb-6">
-          <Phone className="w-5 h-5 text-[#D4AF37]" />
-          <span className="font-sans text-xs uppercase tracking-[0.2em] text-[#6C6863]">Direct Phone Line</span>
+      <div className="theme-office-card p-8 bg-[#111113] border-t-2 border-t-[#d4af37] border border-white/10 rounded-2xl shadow-xl">
+        <div className="flex items-center gap-3 mb-4">
+          <Phone className="w-5 h-5 text-[#d4af37]" />
+          <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#d4af37]">Direct Phone Line</span>
         </div>
-        <a href="tel:+919553299745" className="font-serif text-3xl text-[#1A1A1A] hover:text-[#D4AF37] transition-colors block mb-2">
+        <a href="tel:+919553299745" className="font-serif text-3xl text-[#f5f5f7] hover:text-[#d4af37] transition-colors block mb-2 font-normal">
           +91 95532 99745
         </a>
-        <p className="font-sans text-xs text-[#6C6863]">Instant executive response during office hours</p>
+        <p className="font-sans text-xs text-white/60 font-light">Instant executive response during office hours</p>
       </div>
 
       {/* Official Email Desk */}
-      <div className="p-8 bg-[#EBE5DE]/40 border-t-2 border-t-[#1A1A1A] border border-[#1A1A1A]/10">
-        <div className="flex items-center gap-3 mb-6">
-          <Mail className="w-5 h-5 text-[#D4AF37]" />
-          <span className="font-sans text-xs uppercase tracking-[0.2em] text-[#6C6863]">Official Email Desk</span>
+      <div className="theme-office-card p-8 bg-[#111113] border-t-2 border-t-[#d4af37] border border-white/10 rounded-2xl shadow-xl">
+        <div className="flex items-center gap-3 mb-4">
+          <Mail className="w-5 h-5 text-[#d4af37]" />
+          <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#d4af37]">Official Email Desk</span>
         </div>
-        <a href="mailto:info@skysquareinfra.com" className="font-serif text-2xl text-[#1A1A1A] hover:text-[#D4AF37] transition-colors block mb-2">
+        <a href="mailto:info@skysquareinfra.com" className="font-serif text-2xl text-[#f5f5f7] hover:text-[#d4af37] transition-colors block mb-2 font-normal">
           info@skysquareinfra.com
         </a>
-        <p className="font-sans text-xs text-[#6C6863]">Send blueprints, RFPs, or land acquisition queries</p>
+        <p className="font-sans text-xs text-white/60 font-light">Send blueprints, RFPs, or land acquisition queries</p>
       </div>
 
       {/* WhatsApp Direct Advisory */}
-      <div className="p-8 bg-[#1A1A1A] text-[#F9F8F6] space-y-6">
+      <div className="p-8 bg-[#111113] border border-[#d4af37]/40 rounded-2xl text-[#f5f5f7] space-y-6 shadow-2xl">
         <div className="flex items-center gap-3">
-          <MessageSquareText className="w-5 h-5 text-[#D4AF37]" />
-          <span className="font-sans text-xs uppercase tracking-[0.2em] text-[#D4AF37]">WhatsApp Direct Advisory</span>
+          <MessageSquareText className="w-5 h-5 text-[#d4af37]" />
+          <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#d4af37] font-semibold">WhatsApp Direct Advisory</span>
         </div>
-        <p className="font-sans text-sm text-[#EBE5DE]/80 leading-relaxed font-light">
+        <p className="font-sans text-sm text-white/80 leading-relaxed font-light">
           Connect immediately on WhatsApp to speak with our engineering director regarding active site visits or structural estimations.
         </p>
         <button
           type="button"
           onClick={handleWhatsApp}
-          className="w-full h-12 flex items-center justify-center gap-3 border border-[#F9F8F6]/30 hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 text-xs uppercase tracking-[0.2em] font-sans transition-all duration-500 text-[#F9F8F6]"
+          className="w-full h-12 flex items-center justify-center gap-3 border border-[#d4af37]/60 hover:border-[#d4af37] hover:bg-[#d4af37]/15 text-xs uppercase tracking-[0.2em] font-mono transition-all duration-300 text-[#d4af37] rounded-full font-semibold"
         >
           <span>Open WhatsApp Chat</span>
-          <ArrowRight className="w-4 h-4 text-[#D4AF37]" />
+          <ArrowRight className="w-4 h-4 text-[#d4af37]" />
         </button>
       </div>
 
@@ -63,7 +63,7 @@ export const ContactMethods = () => {
         <Button
           variant="primary"
           size="large"
-          className="w-full justify-center"
+          className="w-full justify-center bg-[#d4af37] text-[#0c0c0c] hover:bg-[#c29f2f] font-mono text-xs uppercase tracking-wider font-semibold py-4"
           onClick={() => navigate('/inquire')}
         >
           Fill Structured Advisory Form
@@ -73,3 +73,4 @@ export const ContactMethods = () => {
   );
 };
 
+export default ContactMethods;

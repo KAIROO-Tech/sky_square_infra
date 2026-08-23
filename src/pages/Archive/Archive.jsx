@@ -1,179 +1,433 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowRight, MapPin, Sparkles, Layers, ChevronRight } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { projects } from '../../data/projects';
 import { ArchiveHero } from './components/ArchiveHero';
 import { Button } from '../../components/common/Button';
 import './Archive.css';
 
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 export const Archive = () => {
   const [activeFilter, setActiveFilter] = useState('all');
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
+  const [hoveredCardId, setHoveredCardId] = useState(null);
+  const [cardMousePos, setCardMousePos] = useState({ x: 0, y: 0 });
+  const [isDesktop, setIsDesktop] = useState(true);
   const navigate = useNavigate();
+
+  const pinnedSectionRef = useRef(null);
+  const cardsRef = useRef([]);
 
   const filteredProjects = projects.filter((project) => {
     if (activeFilter === 'all') return true;
     return project.status.toLowerCase() === activeFilter.toLowerCase();
   });
 
+  const categoryCounts = {
+    all: projects.length,
+    ongoing: projects.filter((p) => p.status.toLowerCase() === 'ongoing').length,
+    completed: projects.filter((p) => p.status.toLowerCase() === 'completed').length,
+  };
+
+  // Viewport resize listener
+  useEffect(() => {
+    const checkViewport = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    checkViewport();
+    window.addEventListener('resize', checkViewport);
+    return () => window.removeEventListener('resize', checkViewport);
+  }, []);
+
+  // GSAP ScrollTrigger pinned staging sequence with explicit card holds & snap
+  useEffect(() => {
+    if (!isDesktop || !pinnedSectionRef.current) return;
+
+    setActiveCardIndex(0);
+
+    const ctx = gsap.context(() => {
+      const cards = cardsRef.current.filter(Boolean);
+      if (!cards.length) return;
+
+      // Initial positions setup: card 01 is 100% visible and centered
+      cards.forEach((card, index) => {
+        if (index > 0) {
+          gsap.set(card, {
+            yPercent: 100,
+            scale: 0.92,
+            opacity: 0,
+          });
+        } else {
+          gsap.set(card, {
+            yPercent: 0,
+            scale: 1,
+            opacity: 1,
+          });
+        }
+      });
+
+      const totalCards = cards.length;
+      if (totalCards <= 1) return;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: pinnedSectionRef.current,
+          pin: true,
+          pinSpacing: true,
+          scrub: 0.8,
+          start: 'top top+=65',
+          end: () => `+=${totalCards * 150}%`,
+          snap: {
+            snapTo: 1 / (totalCards - 1),
+            duration: 0.5,
+            delay: 0.1,
+            ease: 'power1.inOut',
+          },
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const step = Math.min(
+              Math.floor(self.progress * totalCards),
+              totalCards - 1
+            );
+            setActiveCardIndex(step);
+          },
+        },
+      });
+
+      // Build staged hold + transition sequence
+      cards.forEach((card, index) => {
+        // 1. Hold current card locked 100% centered in view
+        tl.to({}, { duration: 1.5 });
+
+        // 2. Transition next card in after hold duration
+        if (index < totalCards - 1) {
+          const nextCard = cards[index + 1];
+          tl.to(
+            nextCard,
+            {
+              yPercent: 0,
+              scale: 1,
+              opacity: 1,
+              duration: 1.0,
+              ease: 'power2.inOut',
+            },
+            '>'
+          );
+
+          tl.to(
+            card,
+            {
+              scale: 0.93,
+              opacity: 0.3,
+              duration: 1.0,
+              ease: 'power2.inOut',
+            },
+            '<'
+          );
+        }
+      });
+    }, pinnedSectionRef);
+
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 120);
+
+    return () => {
+      clearTimeout(timer);
+      ctx.revert();
+    };
+  }, [activeFilter, isDesktop, filteredProjects.length]);
+
+  const handleMouseMove = (e, id) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setCardMousePos({ x, y });
+    setHoveredCardId(id);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredCardId(null);
+  };
+
+  const handleCardClick = (projectId) => {
+    navigate(`/archive/${projectId}`);
+  };
+
   return (
-    <div className="archive-page-container w-full min-h-screen bg-[#F9F8F6] text-[#1A1A1A]">
+    <div className="archive-page-container w-full min-h-screen bg-[#0c0c0c] text-[#f5f5f7] selection:bg-[#d4af37]/30 selection:text-[#d4af37]">
+      {/* Hero Section with Parallax Effect */}
       <ArchiveHero />
 
-      <section className="w-full py-20 md:py-28 px-8 md:px-16 border-b border-[#1A1A1A]/10">
-        <div className="max-w-[1600px] mx-auto">
-          
-          {/* Filter Tabs */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 pb-8 border-b border-[#1A1A1A]/10">
-            <div>
-              <p className="font-sans text-xs uppercase tracking-[0.25em] text-[#6C6863] font-medium">
-                Filter Portfolio Works
-              </p>
-            </div>
-
-            <div className="flex gap-8 mt-6 md:mt-0 font-sans text-xs uppercase tracking-[0.25em]">
-              {[
-                { id: 'all', label: 'All Works' },
-                { id: 'ongoing', label: 'Ongoing' },
-                { id: 'completed', label: 'Completed' },
-              ].map((tab) => {
-                const isActive = activeFilter === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveFilter(tab.id)}
-                    className={`py-2 transition-all duration-500 relative cursor-pointer ${
-                      isActive
-                        ? 'text-[#1A1A1A] font-semibold after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-full after:h-px after:bg-[#D4AF37]'
-                        : 'text-[#6C6863] hover:text-[#1A1A1A]'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
+      {/* Sticky Filter Header */}
+      <div className="archive-sticky-filter py-4 px-6 md:px-16 border-b border-white/10">
+        <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#d4af37] animate-pulse" />
+            <p className="font-mono text-xs uppercase tracking-[0.25em] text-white/70">
+              ARCHITECTURAL DOSSIER SECTORS ({filteredProjects.length} WORKS)
+            </p>
           </div>
 
-          {/* Project Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14">
-            {filteredProjects.map((project, index) => {
-              const isFullWidth = project.featured || (index === 0 && activeFilter === 'all');
+          <div
+            role="tablist"
+            aria-label="Filter Architectural Projects"
+            className="flex gap-2 p-1.5 bg-white/[0.03] border border-white/10 rounded-full font-mono text-xs uppercase tracking-wider"
+          >
+            {[
+              { id: 'all', label: 'All Works' },
+              { id: 'ongoing', label: 'Ongoing' },
+              { id: 'completed', label: 'Completed' },
+            ].map((tab) => {
+              const isActive = activeFilter === tab.id;
+              const count = categoryCounts[tab.id];
 
               return (
-                <div
-                  key={project.id}
-                  onClick={() => navigate(`/archive/${project.id}`)}
-                  className={`group relative overflow-hidden bg-[#1A1A1A] border border-[#1A1A1A]/20 shadow-feature cursor-pointer transition-all duration-700 ${
-                    isFullWidth ? 'md:col-span-2 h-[520px] md:h-[620px]' : 'h-[480px] md:h-[540px]'
+                <button
+                  key={tab.id}
+                  id={`tab-${tab.id}`}
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-controls="archive-project-viewport"
+                  onClick={() => setActiveFilter(tab.id)}
+                  className={`relative px-5 py-2 rounded-full transition-all duration-300 flex items-center gap-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#d4af37] ${
+                    isActive
+                      ? 'bg-[#d4af37] text-[#0c0c0c] font-semibold shadow-lg shadow-[#d4af37]/20'
+                      : 'text-white/70 hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  {/* Background Architectural Image */}
-                  <div className="absolute inset-0 w-full h-full overflow-hidden">
-                    <img
-                      src={project.heroImage}
-                      alt={project.title}
-                      className={`object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-[1600ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:scale-105 opacity-85 group-hover:opacity-100 ${
-                        project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
-                      }`}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
-                    <div className="absolute inset-0 shadow-inner-hairline z-10 pointer-events-none" />
-                  </div>
-
-                  {/* Status Badge */}
-                  <div className="absolute top-6 right-6 z-20 flex items-center gap-3">
-                    {project.isBlueprint && (
-                      <span className="backdrop-blur-md bg-[#1A1A1A]/80 border border-[#D4AF37]/60 text-[#D4AF37] px-4 py-1.5 uppercase tracking-[0.25em] text-[10px] font-sans">
-                        Architectural Blueprint
-                      </span>
-                    )}
-                    <span className={`backdrop-blur-md px-3.5 py-1 uppercase tracking-[0.2em] text-[10px] font-sans border ${
-                      project.status === 'ongoing'
-                        ? 'bg-[#1A1A1A]/80 border-[#D4AF37]/40 text-[#D4AF37]'
-                        : 'bg-[#1A1A1A]/80 border-white/30 text-white/90'
-                    }`}>
-                      {project.status}
-                    </span>
-                  </div>
-
-                  {/* Gradient Shadow Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A] via-[#1A1A1A]/60 to-transparent opacity-85 group-hover:opacity-95 transition-opacity duration-700 z-10" />
-
-                  {/* Content Panel */}
-                  <div className="absolute bottom-0 left-0 w-full p-8 md:p-12 z-20 transform translate-y-24 group-hover:translate-y-0 transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] flex flex-col justify-end h-full">
-                    
-                    <div className="mb-4">
-                      <div className="flex gap-4 items-center mb-3">
-                        <span className="font-sans text-xs tracking-[0.25em] uppercase text-[#D4AF37] font-medium">
-                          {project.location}
-                        </span>
-                        <div className="w-1 h-1 bg-[#D4AF37]" />
-                        <span className="font-sans text-xs tracking-[0.25em] uppercase text-white/70">
-                          {project.category}
-                        </span>
-                      </div>
-
-                      <h3 className="text-2xl sm:text-3xl md:text-4xl font-serif text-white font-normal group-hover:text-[#F9F8F6] transition-colors duration-500">
-                        {project.title}
-                      </h3>
-                    </div>
-
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-100">
-                      <p className="text-white/80 font-sans text-sm md:text-base leading-relaxed max-w-2xl mb-6 font-light">
-                        {project.summary}
-                      </p>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-sans text-xs tracking-widest uppercase text-white/60 border-t border-white/15 pt-6 mt-4">
-                        {project.metrics?.map((m, i) => (
-                          <div key={i} className="flex flex-col gap-1">
-                            <span className="text-[#D4AF37] text-[10px] tracking-[0.2em]">
-                              {m.label}
-                            </span>
-                            <span className="text-white font-serif text-sm">
-                              {m.value}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="mt-6 flex items-center justify-between pt-4">
-                        <span className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] flex items-center gap-2 group-hover:underline">
-                          <span>Inspect Architectural File</span>
-                          <span className="transition-transform duration-300 group-hover:translate-x-1.5">→</span>
-                        </span>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
+                  <span>{tab.label}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                      isActive ? 'bg-[#0c0c0c]/20 text-[#0c0c0c]' : 'bg-white/10 text-white/60'
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
               );
             })}
           </div>
+        </div>
+      </div>
 
-          {/* Custom Architecture CTA */}
-          <div className="mt-20 p-12 bg-[#EBE5DE]/30 border-t-2 border-t-[#D4AF37] border border-[#1A1A1A]/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-            <div>
-              <h4 className="font-serif text-2xl md:text-3xl text-[#1A1A1A] mb-2 font-normal">
-                Have a land parcel or custom architectural project?
-              </h4>
-              <p className="font-sans text-sm text-[#6C6863] font-light">
-                We provide turnkey feasibility studies, land demarcation, and civil structural engineering.
-              </p>
+      {/* Main Works Viewport Section */}
+      <div ref={pinnedSectionRef} className="archive-pinned-wrapper px-6 md:px-16">
+        <div className="max-w-[1600px] mx-auto relative">
+          
+          {/* Deck Header & Live Progress Tracker */}
+          <div className="flex items-center justify-between mb-4 pt-2 font-mono text-xs uppercase tracking-widest text-white/60 border-b border-white/10 pb-3">
+            <div className="flex items-center gap-2">
+              <Layers className="w-4 h-4 text-[#d4af37]" />
+              <span>PINNED DOSSIER STACK</span>
             </div>
-            <Button
-              variant="primary"
-              size="default"
-              onClick={() => navigate('/inquire')}
-            >
-              Request Project Valuation
-            </Button>
+
+            {isDesktop && (
+              <div className="flex items-center gap-3 bg-white/[0.04] border border-white/10 px-4 py-1 rounded-full">
+                <span className="text-[#d4af37] font-semibold">
+                  0{activeCardIndex + 1}
+                </span>
+                <span className="text-white/30">/</span>
+                <span>0{filteredProjects.length}</span>
+              </div>
+            )}
           </div>
 
+          {/* DESKTOP: GSAP Pinned Deck Viewport */}
+          {isDesktop ? (
+            <div
+              id="archive-project-viewport"
+              role="tabpanel"
+              aria-labelledby={`tab-${activeFilter}`}
+              className="archive-stack-viewport"
+            >
+              {filteredProjects.map((project, index) => {
+                const isHovered = hoveredCardId === project.id;
+
+                return (
+                  <div
+                    key={project.id}
+                    ref={(el) => (cardsRef.current[index] = el)}
+                    onMouseMove={(e) => handleMouseMove(e, project.id)}
+                    onMouseLeave={handleMouseLeave}
+                    onClick={() => handleCardClick(project.id)}
+                    className="archive-stack-card group cursor-pointer"
+                  >
+                    {/* Magnetic Cursor Spotlight */}
+                    {isHovered && (
+                      <div
+                        className="pointer-events-none absolute -inset-px z-30 transition-opacity duration-300 opacity-100"
+                        style={{
+                          background: `radial-gradient(700px circle at ${cardMousePos.x}px ${cardMousePos.y}px, rgba(212, 175, 55, 0.16), transparent 45%)`,
+                        }}
+                      />
+                    )}
+
+                    {/* Card Architectural Header */}
+                    <div className="absolute top-6 left-6 right-6 z-20 flex items-center justify-between pointer-events-none">
+                      <div className="font-mono text-xs tracking-widest text-white/70 flex items-center gap-2 bg-[#0c0c0c]/70 backdrop-blur-md px-3.5 py-1.5 rounded-md border border-white/10">
+                        <span className="text-[#d4af37] font-semibold">0{index + 1}</span>
+                        <span>//</span>
+                        <span className="uppercase text-[10px] tracking-[0.2em]">{project.category}</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {project.isBlueprint && (
+                          <span className="backdrop-blur-md bg-[#0c0c0c]/80 border border-[#d4af37]/60 text-[#d4af37] px-3 py-1 uppercase tracking-[0.2em] text-[10px] font-mono rounded-sm">
+                            Blueprint Stage
+                          </span>
+                        )}
+                        <span
+                          className={`backdrop-blur-md px-3.5 py-1 uppercase tracking-[0.2em] text-[10px] font-mono border rounded-sm ${
+                            project.status.toLowerCase() === 'ongoing'
+                              ? 'bg-[#d4af37]/20 border-[#d4af37]/50 text-[#d4af37]'
+                              : 'bg-white/10 border-white/20 text-white/90'
+                          }`}
+                        >
+                          {project.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Background Hero Image */}
+                    <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
+                      <img
+                        src={project.heroImage}
+                        alt={project.title}
+                        className={`archive-card-image ${
+                          project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
+                        }`}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c]/60 to-transparent opacity-90 group-hover:opacity-95 transition-opacity duration-500 z-10" />
+                    </div>
+
+                    {/* Card Content Overlay */}
+                    <div className="absolute bottom-0 left-0 w-full p-6 md:p-10 z-20 flex flex-col justify-end h-full">
+                      <div className="transform group-hover:-translate-y-1.5 transition-transform duration-500 ease-out max-w-4xl">
+                        <div className="flex items-center gap-2 mb-1.5 text-[#d4af37] font-mono text-xs tracking-wider uppercase">
+                          <MapPin className="w-3.5 h-3.5" />
+                          <span>{project.location}</span>
+                        </div>
+
+                        <h3 className="text-2xl sm:text-3xl md:text-4xl font-serif text-[#f5f5f7] font-normal leading-tight group-hover:text-[#d4af37] transition-colors duration-300 mb-2">
+                          {project.title}
+                        </h3>
+
+                        <p className="text-white/70 font-sans text-sm md:text-base leading-relaxed line-clamp-2 font-light mb-4">
+                          {project.summary}
+                        </p>
+                      </div>
+
+                      {/* Dynamic Metrics Drawer */}
+                      {project.metrics && (
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-3 my-1 border-t border-white/15 font-mono text-xs tracking-wider uppercase opacity-85 group-hover:opacity-100 transition-opacity duration-300 max-w-4xl">
+                          {project.metrics.map((metric, i) => (
+                            <div key={i} className="archive-metric-item">
+                              <span className="block text-[10px] text-[#d4af37] tracking-widest">{metric.label}</span>
+                              <span className="text-white font-serif text-sm font-normal">{metric.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Action Pill Button */}
+                      <div className="pt-3 flex items-center justify-between">
+                        <button
+                          type="button"
+                          className="archive-pill-btn group-hover:bg-[#d4af37]/20 group-hover:border-[#d4af37]"
+                        >
+                          <span>Inspect Architectural File</span>
+                          <ArrowRight className="w-3.5 h-3.5 arrow-icon text-[#d4af37]" />
+                        </button>
+
+                        <span className="font-mono text-xs text-white/40 uppercase tracking-widest">
+                          DOSSIER FILE #{project.id.toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* MOBILE: Cascading Feed */
+            <div className="flex flex-col gap-8">
+              {filteredProjects.map((project) => (
+                <div
+                  key={project.id}
+                  onClick={() => handleCardClick(project.id)}
+                  className="archive-mobile-card group cursor-pointer p-6 flex flex-col justify-end"
+                >
+                  <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
+                    <img
+                      src={project.heroImage}
+                      alt={project.title}
+                      className="archive-card-image"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c]/70 to-transparent z-10" />
+                  </div>
+
+                  <div className="relative z-20">
+                    <span className="text-[#d4af37] font-mono text-xs uppercase tracking-wider block mb-1">
+                      {project.location}
+                    </span>
+                    <h3 className="text-2xl font-serif text-white mb-2">{project.title}</h3>
+                    <p className="text-white/70 text-xs line-clamp-2 mb-4 font-light">{project.summary}</p>
+                    <div className="flex items-center justify-between border-t border-white/10 pt-3">
+                      <span className="font-mono text-[10px] text-[#d4af37] uppercase tracking-widest flex items-center gap-1">
+                        Inspect File <ChevronRight className="w-3 h-3" />
+                      </span>
+                      <span className="font-mono text-[10px] text-white/50 uppercase">{project.status}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+        </div>
+      </div>
+
+      {/* Luxury Architectural Valuation CTA Section */}
+      <section className="w-full py-16 px-6 md:px-16 border-t border-white/10 bg-[#0c0c0c]">
+        <div className="max-w-[1600px] mx-auto">
+          <div className="p-8 md:p-14 bg-gradient-to-r from-white/[0.04] via-white/[0.02] to-white/[0.04] border-t-2 border-t-[#d4af37] border border-white/10 rounded-2xl backdrop-blur-md flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-72 h-72 bg-[#d4af37]/5 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="max-w-2xl z-10">
+              <div className="flex items-center gap-2 text-[#d4af37] font-mono text-xs uppercase tracking-widest mb-3">
+                <Sparkles className="w-4 h-4" />
+                <span>TURNKEY LAND &amp; STRUCTURAL ENGINEERING</span>
+              </div>
+              <h4 className="font-serif text-2xl sm:text-3xl text-[#f5f5f7] mb-3 font-normal leading-snug">
+                Have a land parcel or custom architectural project?
+              </h4>
+              <p className="font-sans text-sm md:text-base text-white/70 font-light leading-relaxed">
+                We provide comprehensive feasibility studies, land demarcation, structural civil blueprints, and turnkey construction management across Telangana.
+              </p>
+            </div>
+
+            <div className="z-10 w-full lg:w-auto">
+              <Button
+                variant="primary"
+                size="default"
+                onClick={() => navigate('/inquire')}
+                className="w-full sm:w-auto bg-[#d4af37] text-[#0c0c0c] hover:bg-[#c29f2f] font-mono text-xs uppercase tracking-wider font-semibold py-4 px-8 shadow-lg shadow-[#d4af37]/20"
+              >
+                Request Project Valuation
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
-
-
     </div>
   );
 };
