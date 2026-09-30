@@ -1,43 +1,80 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { projects } from '../../data/projects';
 import { Button } from '../../components/common/Button';
-import { ArrowLeft, ChevronLeft, ChevronRight, ShieldCheck, Info, MapPin, Grid, Layers } from 'lucide-react';
+import { BeforeAfterSlider } from '../../components/common/BeforeAfterSlider';
+import { 
+  ArrowLeft, 
+  ChevronLeft, 
+  ChevronRight, 
+  Layers, 
+  Maximize2, 
+  X, 
+  CheckSquare, 
+  Square,
+  Trees,
+  Droplets,
+  Droplet,
+  ShieldCheck,
+  Shield,
+  Zap,
+  Gem,
+  Cpu,
+  Sun,
+  Waves,
+  Compass,
+  Box,
+  Hammer,
+  Sparkles,
+  VolumeX,
+  CheckCircle2,
+  Maximize,
+  GitCommit,
+  Route,
+  Building2,
+  ArrowUpDown,
+  ShieldAlert,
+  Car,
+  Quote
+} from 'lucide-react';
 
-const getGalleryImages = (category) => {
-  const galleries = {
-    'Land Development': [
-      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=1200&auto=format&fit=crop'
-    ],
-    'Construction': [
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?q=80&w=1200&auto=format&fit=crop'
-    ],
-    'Residential Construction': [
-      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1200&auto=format&fit=crop'
-    ],
-    'Government Infrastructure': [
-      'https://images.unsplash.com/photo-1545459720-aac8509eb02c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1515162305285-0293e4767cc2?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1590486803833-1c5dc8ddd4c8?q=80&w=1200&auto=format&fit=crop'
-    ]
-  };
-  return galleries[category] || galleries['Construction'];
+const iconMap = {
+  Trees,
+  Droplets,
+  Droplet,
+  ShieldCheck,
+  Shield,
+  Zap,
+  Gem,
+  Cpu,
+  Sun,
+  Waves,
+  Compass,
+  Box,
+  Hammer,
+  Sparkles,
+  VolumeX,
+  CheckCircle2,
+  Maximize,
+  GitCommit,
+  Route,
+  Building2,
+  ArrowUpDown,
+  ShieldAlert,
+  Car,
+  Layers
 };
 
 export const ProjectDetail = () => {
   const { projectSlug } = useParams();
   const navigate = useNavigate();
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   // Find project using robust matching for slug variations
   const project = projects.find((p) => {
     const id = p.id.toLowerCase();
-    const slug = projectSlug.toLowerCase();
+    const slug = (projectSlug || '').toLowerCase();
     if (id === slug) return true;
     
     // Normalize IDs and Slugs to match 4800-sft-duplex-villa -> 4800-duplex-villa
@@ -45,6 +82,56 @@ export const ProjectDetail = () => {
     const normSlug = slug.replace('-sft', '').replace('-project', '');
     return normId === normSlug;
   });
+
+  const rawGallery = project?.galleryImages || [];
+  const galleryImages = rawGallery.map((item, idx) => {
+    if (typeof item === 'string') {
+      return { url: item, caption: `Specification Plate 0${idx + 1}` };
+    }
+    return {
+      url: item.url,
+      caption: item.caption || `Specification Plate 0${idx + 1}`
+    };
+  });
+
+  const handlePrev = useCallback(() => {
+    if (!galleryImages.length) return;
+    setLightboxIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+  }, [galleryImages.length]);
+
+  const handleNext = useCallback(() => {
+    if (!galleryImages.length) return;
+    setLightboxIndex((prev) => (prev + 1) % galleryImages.length);
+  }, [galleryImages.length]);
+
+  const closeLightbox = useCallback(() => {
+    setLightboxOpen(false);
+  }, []);
+
+  const openLightbox = (index) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  // Keyboard navigation & body scroll locking for Lightbox
+  useEffect(() => {
+    if (!lightboxOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') handlePrev();
+      if (e.key === 'ArrowRight') handleNext();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [lightboxOpen, handlePrev, handleNext, closeLightbox]);
 
   if (!project) {
     return (
@@ -68,7 +155,7 @@ export const ProjectDetail = () => {
   const prevProject = projects[(currentIndex - 1 + projects.length) % projects.length];
   const nextProject = projects[(currentIndex + 1) % projects.length];
 
-  const galleryImages = getGalleryImages(project.category);
+  const activePlate = galleryImages[lightboxIndex] || { url: '', caption: '' };
 
   return (
     <div className="project-detail-page bg-[#F9F8F6] text-[#1A1A1A] min-h-screen pt-24 pb-12 w-full">
@@ -83,40 +170,37 @@ export const ProjectDetail = () => {
           <span>Back to Archive</span>
         </Link>
 
-        {/* 1. Hero Image Header */}
-        <div className="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] bg-[#1A1A1A] border border-[#1A1A1A]/10 overflow-hidden mb-16">
+        {/* 1. Hero Image Header (Crisp Sizing & Full Bleed Overlay) */}
+        <div className="relative w-full h-[50vh] sm:h-[60vh] md:h-[68vh] bg-[#1A1A1A] border border-[#1A1A1A]/10 overflow-hidden mb-16">
           <img
             src={project.heroImage}
             alt={project.title}
             className={`w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-[1200ms] ${
               project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
             }`}
-            onError={(e) => {
-              e.target.style.display = 'none';
-            }}
           />
           {/* Subtle Darkening Overlay */}
           <div className="absolute inset-0 bg-[#1A1A1A]/20 pointer-events-none" />
           <div className="absolute inset-0 shadow-inner-hairline pointer-events-none z-20" />
 
           {/* Status Badge overlay */}
-          <div className="absolute top-8 right-8 z-20 flex gap-3">
+          <div className="absolute top-6 sm:top-8 right-6 sm:right-8 z-20 flex flex-wrap gap-2 sm:gap-3">
             {project.isBlueprint && (
-              <span className="backdrop-blur-md bg-[#1A1A1A]/80 border border-[#D4AF37]/60 text-[#D4AF37] px-4 py-1.5 uppercase tracking-[0.25em] text-[10px] font-sans">
+              <span className="backdrop-blur-md bg-[#1A1A1A]/85 border border-[#D4AF37]/60 text-[#D4AF37] px-3.5 py-1.5 uppercase tracking-[0.25em] text-[10px] font-sans">
                 Architectural Blueprint
               </span>
             )}
-            <span className={`backdrop-blur-md px-4 py-1.5 uppercase tracking-[0.2em] text-[10px] font-sans border font-medium ${
+            <span className={`backdrop-blur-md px-3.5 py-1.5 uppercase tracking-[0.2em] text-[10px] font-sans border font-medium ${
               project.status === 'ongoing'
-                ? 'bg-[#1A1A1A]/80 border-[#D4AF37]/50 text-[#D4AF37]'
-                : 'bg-[#1A1A1A]/80 border-white/30 text-white/90'
+                ? 'bg-[#1A1A1A]/85 border-[#D4AF37]/50 text-[#D4AF37]'
+                : 'bg-[#1A1A1A]/85 border-white/30 text-white/90'
             }`}>
               {project.status === 'ongoing' ? 'Ongoing Specification' : 'Completed execution'}
             </span>
           </div>
 
           {/* Title Overlay */}
-          <div className="absolute bottom-0 left-0 w-full p-8 sm:p-12 md:p-16 bg-gradient-to-t from-[#1A1A1A]/90 via-[#1A1A1A]/40 to-transparent z-10">
+          <div className="absolute bottom-0 left-0 w-full p-6 sm:p-10 md:p-14 bg-gradient-to-t from-[#1A1A1A]/95 via-[#1A1A1A]/50 to-transparent z-10">
             <span className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] block mb-2 font-medium">
               {project.location}
             </span>
@@ -126,11 +210,13 @@ export const ProjectDetail = () => {
           </div>
         </div>
 
-        {/* 2. Stats Grid & Specifications */}
+        {/* 2. Stats Grid & Specifications (Decoupled Height) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-20 pb-12 border-b border-[#1A1A1A]/10">
           
-          {/* Left Area: Summary & Blueprint Specs */}
+          {/* Left Area: Summary, Blueprint Specs, Material Palette & Pull Quote */}
           <div className="lg:col-span-8 space-y-10">
+            
+            {/* Executive Overview */}
             <div>
               <div className="flex items-center gap-3 mb-4">
                 <span className="w-8 h-px bg-[#D4AF37]" />
@@ -138,10 +224,10 @@ export const ProjectDetail = () => {
                   Executive dossier
                 </h2>
               </div>
-              <p className="font-sans text-lg md:text-xl text-[#1A1A1A] leading-relaxed font-light mb-8">
+              <p className="font-sans text-lg md:text-xl text-[#1A1A1A] leading-relaxed font-light mb-6">
                 {project.summary}
               </p>
-              <div className="font-sans text-sm md:text-base text-[#6C6863] leading-relaxed font-light space-y-6">
+              <div className="font-sans text-sm md:text-base text-[#6C6863] leading-relaxed font-light space-y-4">
                 <p>{project.description}</p>
               </div>
             </div>
@@ -151,7 +237,7 @@ export const ProjectDetail = () => {
               <div className="p-8 bg-[#EBE5DE]/30 border border-[#1A1A1A]/10 border-t-2 border-t-[#D4AF37]">
                 <h3 className="font-serif text-lg text-[#1A1A1A] mb-6 flex items-center gap-3">
                   <Layers className="w-5 h-5 text-[#D4AF37]" />
-                  <span>Key Specifications & Highlights</span>
+                  <span>Key Specifications &amp; Highlights</span>
                 </h3>
                 <div className="space-y-4">
                   {project.architecturalHighlights.map((highlight, index) => (
@@ -163,6 +249,69 @@ export const ProjectDetail = () => {
                 </div>
               </div>
             )}
+
+            {/* Material & Amenity Palette Icon Grid */}
+            {project.materialsAndAmenities && project.materialsAndAmenities.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="w-6 h-px bg-[#D4AF37]" />
+                  <h3 className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-semibold">
+                    Material &amp; Specification Palette
+                  </h3>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {project.materialsAndAmenities.map((item, idx) => {
+                    const IconComp = iconMap[item.icon] || Layers;
+                    return (
+                      <div 
+                        key={idx} 
+                        className="p-5 bg-[#EBE5DE]/20 border border-[#1A1A1A]/10 hover:border-[#D4AF37]/50 hover:bg-[#EBE5DE]/35 transition-all duration-300 group flex items-start gap-4"
+                      >
+                        <div className="p-2.5 bg-[#1A1A1A] text-[#D4AF37] border border-[#D4AF37]/40 flex-shrink-0">
+                          <IconComp className="w-4 h-4 text-[#D4AF37]" />
+                        </div>
+                        <div>
+                          <h4 className="font-serif text-sm text-[#1A1A1A] font-medium mb-1 group-hover:text-[#D4AF37] transition-colors">
+                            {item.label}
+                          </h4>
+                          <p className="font-sans text-xs text-[#6C6863] leading-relaxed font-light">
+                            {item.detail}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Editorial Design Philosophy Pull Quote */}
+            {project.pullQuote && (
+              <div className="p-8 sm:p-10 bg-[#EBE5DE]/25 border-l-2 border-l-[#D4AF37] border-y border-r border-[#1A1A1A]/10 relative overflow-hidden">
+                <div className="absolute top-2 right-4 font-serif text-7xl sm:text-8xl text-[#1A1A1A]/[0.04] select-none pointer-events-none font-bold leading-none">
+                  “
+                </div>
+                <div className="relative z-10 space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Quote className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    <span className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#D4AF37] font-semibold">
+                      Architectural Ethos &amp; Philosophy
+                    </span>
+                  </div>
+                  <blockquote className="font-serif italic text-lg sm:text-xl md:text-2xl text-[#1A1A1A] leading-snug font-normal tracking-tight">
+                    “{project.pullQuote}”
+                  </blockquote>
+                  <div className="pt-2 flex items-center gap-3">
+                    <span className="w-4 h-px bg-[#D4AF37]/60" />
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#6C6863]">
+                      Sky Square Infra Specification Dossier
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
 
           {/* Right Area: Detailed Metadata Grid */}
@@ -201,6 +350,56 @@ export const ProjectDetail = () => {
                   </span>
                 </div>
               ))}
+
+              {/* Live Progress for Ongoing Projects */}
+              {project.status === 'ongoing' && project.progressPercent !== undefined && (
+                <div className="pt-4 border-t border-[#1A1A1A]/10 space-y-4">
+                  <div>
+                    <div className="flex justify-between items-baseline mb-2">
+                      <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[#6C6863]">
+                        Construction Progress
+                      </span>
+                      <span className="font-mono text-sm font-semibold text-[#D4AF37]">
+                        {project.progressPercent}%
+                      </span>
+                    </div>
+                    {/* Compact Gold Progress Bar (0px radius) */}
+                    <div className="w-full h-1.5 bg-[#EBE5DE] border border-[#1A1A1A]/10 overflow-hidden">
+                      <div 
+                        className="h-full bg-[#D4AF37] transition-all duration-1000 ease-editorial"
+                        style={{ width: `${project.progressPercent}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Milestone Checklist */}
+                  {project.milestones && project.milestones.length > 0 && (
+                    <div className="pt-2">
+                      <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[#6C6863] block mb-3">
+                        Milestone Schedule
+                      </span>
+                      <div className="space-y-2.5">
+                        {project.milestones.map((milestone, mIdx) => (
+                          <div key={mIdx} className="flex items-start gap-2.5">
+                            <span className="mt-0.5 flex-shrink-0">
+                              {milestone.done ? (
+                                <CheckSquare className="w-3.5 h-3.5 text-[#D4AF37]" />
+                              ) : (
+                                <Square className="w-3.5 h-3.5 text-[#6C6863]/40" />
+                              )}
+                            </span>
+                            <span className={`font-sans text-xs leading-snug ${
+                              milestone.done ? 'text-[#1A1A1A] font-medium' : 'text-[#6C6863]/70 font-light'
+                            }`}>
+                              {milestone.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="pt-6 border-t border-[#1A1A1A]/10">
@@ -216,36 +415,75 @@ export const ProjectDetail = () => {
 
         </div>
 
-        {/* 3. Narrative Image Gallery */}
+        {/* 3. Before/After Transformation Slider for Completed Projects Only */}
+        {project.status === 'completed' && project.beforeImage && project.afterImage && (
+          <div className="mb-20">
+            <BeforeAfterSlider
+              beforeImage={project.beforeImage}
+              afterImage={project.afterImage}
+              projectTitle={project.title}
+            />
+          </div>
+        )}
+
+        {/* 4. Visual Documentation Gallery with Lightbox Interaction */}
         <div className="mb-20">
-          <div className="flex items-center gap-3 mb-10">
-            <span className="w-8 h-px bg-[#D4AF37]" />
-            <h3 className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-semibold">
-              Visual Documentation
-            </h3>
+          <div className="flex items-center justify-between gap-3 mb-8">
+            <div className="flex items-center gap-3">
+              <span className="w-8 h-px bg-[#D4AF37]" />
+              <h3 className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-semibold">
+                Visual Documentation
+              </h3>
+            </div>
+            <span className="font-mono text-xs text-[#6C6863] tracking-widest hidden sm:inline-block">
+              {String(galleryImages.length).padStart(2, '0')} SPECIFICATION PLATES
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {galleryImages.map((imgUrl, idx) => (
-              <div 
-                key={idx} 
-                className="relative overflow-hidden h-[300px] bg-[#1A1A1A] border border-[#1A1A1A]/10 group"
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {galleryImages.map((plate, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => openLightbox(idx)}
+                className="relative overflow-hidden h-[280px] sm:h-[320px] bg-[#1A1A1A] border border-[#1A1A1A]/15 group cursor-pointer text-left focus:outline-none focus:ring-1 focus:ring-[#D4AF37]"
+                aria-label={`Open specification figure 0${idx + 1}: ${plate.caption} in lightbox`}
               >
                 <img
-                  src={imgUrl}
-                  alt={`Sky Square Project Detail Gallery ${idx + 1}`}
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-[1200ms] group-hover:scale-105"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                  }}
+                  src={plate.url}
+                  alt={`${project.title} - ${plate.caption}`}
+                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-[1000ms] motion-safe:group-hover:scale-105 motion-safe:transition-transform motion-safe:duration-700 motion-safe:ease-out motion-reduce:transform-none"
                 />
+                
+                {/* Hairline + vignette layer */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/90 via-[#1A1A1A]/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500 pointer-events-none" />
                 <div className="absolute inset-0 shadow-inner-hairline pointer-events-none" />
-              </div>
+
+                {/* Technical Figure Badge */}
+                <div className="absolute top-4 left-4 z-10">
+                  <span className="font-mono text-[10px] tracking-[0.2em] text-[#F9F8F6]/90 bg-[#1A1A1A]/85 border border-white/15 px-2.5 py-1 backdrop-blur-sm">
+                    FIG. 0{idx + 1}
+                  </span>
+                </div>
+
+                {/* Hover Caption Overlay (Bottom Left) */}
+                <div className="absolute bottom-4 left-4 right-20 z-10">
+                  <span className="font-sans text-xs text-white/95 font-medium tracking-wide line-clamp-1 block drop-shadow-sm group-hover:text-[#D4AF37] transition-colors duration-300">
+                    {plate.caption}
+                  </span>
+                </div>
+
+                {/* Hover Inspect Prompt (Bottom Right) */}
+                <div className="absolute bottom-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1.5 bg-[#1A1A1A]/95 border border-[#D4AF37]/60 px-2.5 py-1 text-[#D4AF37] text-[10px] font-mono tracking-wider">
+                  <Maximize2 className="w-3 h-3" />
+                  <span>INSPECT</span>
+                </div>
+              </button>
             ))}
           </div>
         </div>
 
-        {/* 4. Consultation Banner CTA */}
+        {/* 5. Consultation Banner CTA */}
         <div className="p-10 bg-[#EBE5DE]/40 border border-[#1A1A1A]/10 flex flex-col md:flex-row items-center justify-between gap-8 mb-20">
           <div>
             <h4 className="font-serif text-xl sm:text-2xl text-[#1A1A1A] mb-2 font-normal">
@@ -263,7 +501,7 @@ export const ProjectDetail = () => {
           </Button>
         </div>
 
-        {/* 5. Next / Prev Project Navigation */}
+        {/* 6. Next / Prev Project Navigation */}
         <div className="border-t border-[#1A1A1A]/10 pt-10 flex justify-between items-center text-xs uppercase font-sans tracking-[0.2em] mb-8">
           <Link
             to={`/archive/${prevProject.id}`}
@@ -291,6 +529,117 @@ export const ProjectDetail = () => {
         </div>
 
       </div>
+
+      {/* 7. High-Precision Lightbox Modal */}
+      {lightboxOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex flex-col justify-between bg-[#1A1A1A]/95 backdrop-blur-md p-4 sm:p-8 animate-fadeIn"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Visual Documentation Lightbox"
+          onClick={closeLightbox}
+        >
+          {/* Lightbox Header */}
+          <div 
+            className="flex items-center justify-between border-b border-white/10 pb-4 w-full max-w-7xl mx-auto z-20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <span className="w-6 h-px bg-[#D4AF37]" />
+              <div>
+                <span className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#D4AF37] block font-medium">
+                  Visual Specification Dossier
+                </span>
+                <h4 className="font-serif text-sm sm:text-base text-white font-normal line-clamp-1">
+                  {project.title} &mdash; <span className="text-[#EBE5DE]/80 font-sans text-xs">{activePlate.caption}</span>
+                </h4>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 sm:gap-6">
+              <span className="font-mono text-xs tracking-[0.2em] text-[#EBE5DE]/70">
+                PLATE {String(lightboxIndex + 1).padStart(2, '0')} / {String(galleryImages.length).padStart(2, '0')}
+              </span>
+              <button
+                type="button"
+                onClick={closeLightbox}
+                className="flex items-center gap-2 border border-white/20 hover:border-[#D4AF37] text-white hover:text-[#D4AF37] px-3 py-1.5 transition-colors font-sans text-xs tracking-widest uppercase cursor-pointer"
+                aria-label="Close Lightbox"
+              >
+                <span className="hidden sm:inline font-mono text-[10px] text-[#6C6863]">[ESC]</span>
+                <span>CLOSE</span>
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Lightbox Main Image Display & Navigation */}
+          <div 
+            className="relative flex-1 flex items-center justify-center my-4 w-full max-w-7xl mx-auto overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Prev Button */}
+            <button
+              type="button"
+              onClick={handlePrev}
+              className="absolute left-2 sm:left-6 z-30 p-3 sm:p-4 bg-[#1A1A1A]/80 hover:bg-[#D4AF37] text-white hover:text-[#1A1A1A] border border-white/20 hover:border-[#D4AF37] transition-all cursor-pointer"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+
+            {/* Active Image with Caption Frame */}
+            <div className="relative max-h-[66vh] sm:max-h-[70vh] max-w-full flex flex-col items-center justify-center border border-white/10 bg-[#0D0D0D] p-1">
+              <img
+                src={activePlate.url}
+                alt={`${project.title} - ${activePlate.caption}`}
+                className="max-h-[62vh] sm:max-h-[66vh] w-auto max-w-full object-contain"
+              />
+              <div className="absolute inset-0 shadow-inner-hairline pointer-events-none" />
+            </div>
+
+            {/* Next Button */}
+            <button
+              type="button"
+              onClick={handleNext}
+              className="absolute right-2 sm:right-6 z-30 p-3 sm:p-4 bg-[#1A1A1A]/80 hover:bg-[#D4AF37] text-white hover:text-[#1A1A1A] border border-white/20 hover:border-[#D4AF37] transition-all cursor-pointer"
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+          </div>
+
+          {/* Lightbox Footer Thumbnail Bar */}
+          <div 
+            className="border-t border-white/10 pt-4 w-full max-w-7xl mx-auto flex items-center justify-center gap-3 overflow-x-auto py-2 z-20"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {galleryImages.map((plate, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setLightboxIndex(idx)}
+                className={`relative w-14 h-10 sm:w-20 sm:h-14 flex-shrink-0 overflow-hidden border transition-all cursor-pointer ${
+                  idx === lightboxIndex 
+                    ? 'border-[#D4AF37] opacity-100 ring-1 ring-[#D4AF37]' 
+                    : 'border-white/20 opacity-40 hover:opacity-80'
+                }`}
+                aria-label={`Jump to plate 0${idx + 1}: ${plate.caption}`}
+              >
+                <img 
+                  src={plate.url} 
+                  alt={`Thumbnail Plate ${idx + 1}`} 
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute bottom-0 right-0 bg-[#1A1A1A]/90 text-[8px] font-mono text-[#D4AF37] px-1">
+                  0{idx + 1}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

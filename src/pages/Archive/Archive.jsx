@@ -248,6 +248,8 @@ export const Archive = () => {
             >
               {filteredProjects.map((project, index) => {
                 const isHovered = hoveredCardId === project.id;
+                const firstGal = project.galleryImages?.[0];
+                const secondaryImage = typeof firstGal === 'string' ? firstGal : firstGal?.url;
 
                 return (
                   <div
@@ -270,7 +272,7 @@ export const Archive = () => {
 
                     {/* Card Architectural Header */}
                     <div className="absolute top-6 left-6 right-6 z-20 flex items-center justify-between pointer-events-none">
-                      <div className="font-mono text-xs tracking-widest text-white/70 flex items-center gap-2 bg-[#0c0c0c]/70 backdrop-blur-md px-3.5 py-1.5 rounded-md border border-white/10">
+                      <div className="font-mono text-xs tracking-widest text-white/70 flex items-center gap-2 bg-[#0c0c0c]/70 backdrop-blur-md px-3.5 py-1.5 border border-white/10">
                         <span className="text-[#d4af37] font-semibold">0{index + 1}</span>
                         <span>//</span>
                         <span className="uppercase text-[10px] tracking-[0.2em]">{project.category}</span>
@@ -278,12 +280,12 @@ export const Archive = () => {
 
                       <div className="flex items-center gap-2">
                         {project.isBlueprint && (
-                          <span className="backdrop-blur-md bg-[#0c0c0c]/80 border border-[#d4af37]/60 text-[#d4af37] px-3 py-1 uppercase tracking-[0.2em] text-[10px] font-mono rounded-sm">
+                          <span className="backdrop-blur-md bg-[#0c0c0c]/80 border border-[#d4af37]/60 text-[#d4af37] px-3 py-1 uppercase tracking-[0.2em] text-[10px] font-mono">
                             Blueprint Stage
                           </span>
                         )}
                         <span
-                          className={`backdrop-blur-md px-3.5 py-1 uppercase tracking-[0.2em] text-[10px] font-mono border rounded-sm ${
+                          className={`backdrop-blur-md px-3.5 py-1 uppercase tracking-[0.2em] text-[10px] font-mono border ${
                             project.status.toLowerCase() === 'ongoing'
                               ? 'bg-[#d4af37]/20 border-[#d4af37]/50 text-[#d4af37]'
                               : 'bg-white/10 border-white/20 text-white/90'
@@ -294,18 +296,28 @@ export const Archive = () => {
                       </div>
                     </div>
 
-                    {/* Background Hero Image */}
+                    {/* Background Hero Image with Hover Crossfade */}
                     <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
+                      {/* Primary Hero Image */}
                       <img
                         src={project.heroImage}
                         alt={project.title}
                         className={`archive-card-image ${
                           project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
-                        }`}
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
+                        } ${isHovered && secondaryImage ? 'opacity-0' : 'opacity-100'}`}
                       />
+
+                      {/* Secondary Preview Plate on Hover */}
+                      {secondaryImage && (
+                        <img
+                          src={secondaryImage}
+                          alt={`${project.title} Preview Plate`}
+                          className={`archive-card-image absolute inset-0 ${
+                            project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
+                          } ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+                        />
+                      )}
+
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c]/60 to-transparent opacity-90 group-hover:opacity-95 transition-opacity duration-500 z-10" />
                     </div>
 
@@ -360,36 +372,48 @@ export const Archive = () => {
           ) : (
             /* MOBILE: Cascading Feed */
             <div className="flex flex-col gap-8">
-              {filteredProjects.map((project) => (
-                <div
-                  key={project.id}
-                  onClick={() => handleCardClick(project.id)}
-                  className="archive-mobile-card group cursor-pointer p-6 flex flex-col justify-end"
-                >
-                  <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
-                    <img
-                      src={project.heroImage}
-                      alt={project.title}
-                      className="archive-card-image"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c]/70 to-transparent z-10" />
-                  </div>
+              {filteredProjects.map((project) => {
+                const firstGal = project.galleryImages?.[0];
+                const secondaryImage = typeof firstGal === 'string' ? firstGal : firstGal?.url;
 
-                  <div className="relative z-20">
-                    <span className="text-[#d4af37] font-mono text-xs uppercase tracking-wider block mb-1">
-                      {project.location}
-                    </span>
-                    <h3 className="text-2xl font-serif text-white mb-2">{project.title}</h3>
-                    <p className="text-white/70 text-xs line-clamp-2 mb-4 font-light">{project.summary}</p>
-                    <div className="flex items-center justify-between border-t border-white/10 pt-3">
-                      <span className="font-mono text-[10px] text-[#d4af37] uppercase tracking-widest flex items-center gap-1">
-                        Inspect File <ChevronRight className="w-3 h-3" />
+                return (
+                  <div
+                    key={project.id}
+                    onClick={() => handleCardClick(project.id)}
+                    className="archive-mobile-card group cursor-pointer p-6 flex flex-col justify-end"
+                  >
+                    <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
+                      <img
+                        src={project.heroImage}
+                        alt={project.title}
+                        className="archive-card-image group-hover:opacity-0"
+                      />
+                      {secondaryImage && (
+                        <img
+                          src={secondaryImage}
+                          alt={`${project.title} Preview`}
+                          className="archive-card-image absolute inset-0 opacity-0 group-hover:opacity-100"
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c]/70 to-transparent z-10" />
+                    </div>
+
+                    <div className="relative z-20">
+                      <span className="text-[#d4af37] font-mono text-xs uppercase tracking-wider block mb-1">
+                        {project.location}
                       </span>
-                      <span className="font-mono text-[10px] text-white/50 uppercase">{project.status}</span>
+                      <h3 className="text-2xl font-serif text-white mb-2">{project.title}</h3>
+                      <p className="text-white/70 text-xs line-clamp-2 mb-4 font-light">{project.summary}</p>
+                      <div className="flex items-center justify-between border-t border-white/10 pt-3">
+                        <span className="font-mono text-[10px] text-[#D4AF37] uppercase tracking-widest flex items-center gap-1">
+                          Inspect File <ChevronRight className="w-3 h-3" />
+                        </span>
+                        <span className="font-mono text-[10px] text-white/50 uppercase">{project.status}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
@@ -399,7 +423,7 @@ export const Archive = () => {
       {/* Luxury Architectural Valuation CTA Section */}
       <section className="w-full py-16 px-6 md:px-16 border-t border-white/10 bg-[#0c0c0c]">
         <div className="max-w-[1600px] mx-auto">
-          <div className="p-8 md:p-14 bg-gradient-to-r from-white/[0.04] via-white/[0.02] to-white/[0.04] border-t-2 border-t-[#d4af37] border border-white/10 rounded-2xl backdrop-blur-md flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 relative overflow-hidden">
+          <div className="p-8 md:p-14 bg-gradient-to-r from-white/[0.04] via-white/[0.02] to-white/[0.04] border-t-2 border-t-[#d4af37] border border-white/10 backdrop-blur-md flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-72 h-72 bg-[#d4af37]/5 rounded-full blur-3xl pointer-events-none" />
 
             <div className="max-w-2xl z-10">
