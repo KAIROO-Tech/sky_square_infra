@@ -32,24 +32,24 @@ export const ArchiveGlimpse = () => {
 
 
   return (
-    <section className="w-full py-24 md:py-36 bg-[#F9F8F6] px-6 sm:px-12 md:px-16 border-b border-[#1A1A1A]/10 relative z-10">
+    <section className="w-full py-24 md:py-36 bg-[var(--color-page-bg)] px-6 sm:px-12 md:px-16 border-b border-[var(--color-border)] relative z-10">
       <div className="max-w-[1600px] mx-auto">
         
         {/* Section Header */}
         <AnimatedContent distance={30} direction="vertical" delay={0.15}>
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 pb-8 border-b border-[#1A1A1A]/10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 pb-8 border-b border-[var(--color-border)]">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <span className="w-8 h-px bg-[#C5A880]" />
-                <p className="font-sans text-xs uppercase tracking-[0.25em] text-[#C5A880] font-medium">
+                <span className="w-8 h-px bg-[var(--color-accent)]" />
+                <p className="font-sans text-xs uppercase tracking-[0.25em] text-[var(--color-accent)] font-medium">
                   Editorial Visual Showcase
                 </p>
               </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-[#1A1A1A] tracking-tight">
-                Featured <span className="italic text-[#C5A880]">Artifacts</span>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-[var(--color-text-primary)] tracking-tight">
+                Featured <span className="italic text-[var(--color-accent)]">Artifacts</span>
               </h2>
             </div>
-            <p className="font-sans text-[#6C6863] max-w-md text-sm md:text-base mt-6 md:mt-0 font-light leading-relaxed">
+            <p className="font-sans text-[var(--color-text-secondary)] max-w-md text-sm md:text-base mt-6 md:mt-0 font-light leading-relaxed">
               An architectural window into our landmark residential developments, private estates, and civil infrastructure.
             </p>
           </div>
@@ -57,10 +57,10 @@ export const ArchiveGlimpse = () => {
 
         {/* Single-Window Editorial Visual Showcase with Curtain/Wipe Crossfade */}
         {activeProject && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 bg-[#0d0f11] text-white border border-white/15 shadow-2xl p-6 sm:p-8 lg:p-10 mb-14 rounded-2xl overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 bg-[var(--color-surface)] text-[var(--color-text-primary)] border border-[var(--color-border)] shadow-xl p-6 sm:p-8 lg:p-10 mb-14 rounded-2xl overflow-hidden transition-colors duration-300">
             
             {/* Left Column: Architectural Curtain/Wipe Image Frame (7 Cols) */}
-            <div className="lg:col-span-7 relative min-h-[380px] sm:min-h-[460px] lg:min-h-[540px] overflow-hidden group bg-[#000000] rounded-xl border border-white/10">
+            <div className="lg:col-span-7 relative min-h-[380px] sm:min-h-[460px] lg:min-h-[540px] overflow-hidden group bg-[var(--color-surface-warm)] rounded-xl border border-[var(--color-border)]">
               {showcaseProjects.map((project, idx) => {
                 const isActive = activeProjectIndex === idx;
                 return (
@@ -68,24 +68,24 @@ export const ArchiveGlimpse = () => {
                     key={project.id}
                     className={`absolute inset-0 w-full h-full transition-all duration-700 ease-out ${
                       isActive 
-                        ? 'opacity-100 scale-105 z-10 pointer-events-auto' 
+                        ? 'opacity-100 scale-100 z-10 pointer-events-auto' 
                         : 'opacity-0 scale-100 z-0 pointer-events-none'
                     }`}
                   >
                     <img
                       src={project.heroImage}
                       alt={project.title}
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 ease-out"
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     />
                     <div className="absolute inset-0 shadow-inner-hairline pointer-events-none" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0d0f11] via-transparent to-black/30" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20 pointer-events-none" />
                     
                     {/* Status & Category Badges */}
                     <div className="absolute top-6 left-6 z-20 flex items-center gap-3">
-                      <span className="backdrop-blur-md bg-black/70 border border-[#C5A880]/60 text-[#C5A880] px-4 py-1.5 uppercase tracking-[0.25em] text-[10px] font-mono font-medium rounded-full">
+                      <span className="backdrop-blur-md bg-black/65 border border-[var(--color-accent)]/60 text-[var(--color-accent)] px-4 py-1.5 uppercase tracking-[0.25em] text-[10px] font-mono font-medium rounded-full">
                         {project.category}
                       </span>
-                      <span className="backdrop-blur-md bg-black/70 border border-white/20 text-white/90 px-3.5 py-1.5 uppercase tracking-[0.2em] text-[10px] font-mono rounded-full">
+                      <span className="backdrop-blur-md bg-black/65 border border-white/20 text-white/90 px-3.5 py-1.5 uppercase tracking-[0.2em] text-[10px] font-mono rounded-full">
                         {project.status}
                       </span>
                     </div>
@@ -110,27 +110,27 @@ export const ArchiveGlimpse = () => {
                           : 'opacity-0 translate-x-4 absolute inset-0 z-0 pointer-events-none hidden'
                       }`}
                     >
-                      <div className="flex items-center gap-2 text-[#C5A880] text-xs font-mono uppercase tracking-[0.25em] mb-3">
+                      <div className="flex items-center gap-2 text-[var(--color-accent)] text-xs font-mono uppercase tracking-[0.25em] mb-3">
                         <MapPin className="w-3.5 h-3.5" />
                         <span>{p.location}</span>
                       </div>
 
-                      <h3 className="text-3xl sm:text-4xl font-serif font-normal text-white mb-4 tracking-tight">
+                      <h3 className="text-3xl sm:text-4xl font-serif font-normal text-[var(--color-text-primary)] mb-4 tracking-tight">
                         {p.title}
                       </h3>
 
-                      <p className="font-sans text-sm text-white/75 leading-relaxed font-light mb-6">
+                      <p className="font-sans text-sm text-[var(--color-text-secondary)] leading-relaxed font-light mb-6">
                         {p.summary}
                       </p>
 
                       {/* Key Metrics Grid */}
-                      <div className="grid grid-cols-2 gap-4 border-y border-white/15 py-5 mb-6">
+                      <div className="grid grid-cols-2 gap-4 border-y border-[var(--color-border)] py-5 mb-6">
                         {p.metrics?.slice(0, 4).map((m, i) => (
                           <div key={i} className="flex flex-col">
-                            <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#C5A880]">
+                            <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[var(--color-accent)]">
                               {m.label}
                             </span>
-                            <span className="font-serif text-base font-normal text-white mt-1">
+                            <span className="font-serif text-base font-normal text-[var(--color-text-primary)] mt-1">
                               {m.value}
                             </span>
                           </div>
@@ -143,7 +143,7 @@ export const ArchiveGlimpse = () => {
 
               {/* Interactive Switcher Menu with Active Glowing Border Indicators */}
               <div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/50 mb-3 font-medium">
+                <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-[var(--color-text-muted)] mb-3 font-medium">
                   Select Visual Showcase Artifact
                 </p>
                 <div className="space-y-2.5 mb-8">
@@ -155,20 +155,20 @@ export const ArchiveGlimpse = () => {
                         onClick={() => setActiveProjectIndex(index)}
                         className={`w-full text-left px-4 py-3.5 rounded-lg border transition-all duration-300 flex items-center justify-between cursor-pointer ${
                           isSelected
-                            ? 'border-[#C5A880] bg-[#C5A880]/10 text-white shadow-[0_0_15px_rgba(197,168,128,0.15)] font-medium'
-                            : 'border-white/10 bg-white/5 text-white/60 hover:text-white hover:border-white/30'
+                            ? 'border-[var(--color-accent)] bg-[var(--color-accent)]/10 text-[var(--color-text-primary)] font-medium shadow-sm'
+                            : 'border-[var(--color-border)] bg-[var(--color-surface-warm)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-border-strong)]'
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className={`font-mono text-xs ${isSelected ? 'text-[#C5A880]' : 'text-white/40'}`}>
+                          <span className={`font-mono text-xs ${isSelected ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)]'}`}>
                             0{index + 1}
                           </span>
                           <span className="font-serif text-sm tracking-wide">{p.title}</span>
                         </div>
                         {isSelected ? (
-                          <CheckCircle2 className="w-4 h-4 text-[#C5A880]" />
+                          <CheckCircle2 className="w-4 h-4 text-[var(--color-accent)]" />
                         ) : (
-                          <ChevronRight className="w-4 h-4 opacity-40" />
+                          <ChevronRight className="w-4 h-4 text-[var(--color-text-muted)]" />
                         )}
                       </button>
                     );
@@ -179,7 +179,7 @@ export const ArchiveGlimpse = () => {
                 <div>
                   <button
                     onClick={() => navigate(`/archive/${activeProject.id}`)}
-                    className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[#C5A880] hover:text-white transition-colors cursor-pointer group"
+                    className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.25em] text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors cursor-pointer group font-semibold"
                   >
                     <span>Inspect Full Architectural File</span>
                     <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
@@ -194,12 +194,12 @@ export const ArchiveGlimpse = () => {
 
         {/* Central Archive Navigation CTA */}
         <AnimatedContent distance={20} direction="vertical" delay={0.2}>
-          <div className="flex flex-col sm:flex-row items-center justify-between p-8 sm:p-10 bg-[#EBE5DE]/30 border border-[#1A1A1A]/10 gap-6 rounded-xl">
+          <div className="flex flex-col sm:flex-row items-center justify-between p-8 sm:p-10 bg-[var(--color-surface-warm)] border border-[var(--color-border)] gap-6 rounded-xl shadow-sm">
             <div>
-              <h4 className="font-serif text-xl sm:text-2xl text-[#1A1A1A] font-normal mb-1">
+              <h4 className="font-serif text-xl sm:text-2xl text-[var(--color-text-primary)] font-normal mb-1">
                 Explore the Complete Architectural Index
               </h4>
-              <p className="font-sans text-xs sm:text-sm text-[#6C6863] font-light">
+              <p className="font-sans text-xs sm:text-sm text-[var(--color-text-secondary)] font-light">
                 Browse our full portfolio of completed handovers, active sites, and pre-construction blueprints.
               </p>
             </div>
@@ -208,7 +208,7 @@ export const ArchiveGlimpse = () => {
               variant="primary"
               size="large"
               onClick={() => navigate('/archive')}
-              className="bg-[#1A1A1A] text-white hover:bg-[#C5A880] hover:text-[#0d0f11] font-mono text-xs uppercase tracking-widest"
+              className="bg-[#141416] text-[#F7F5F0] dark:bg-[var(--color-surface-elevated)] dark:text-[var(--color-text-primary)] border border-transparent dark:border-[var(--color-border-strong)] hover:bg-[var(--color-accent)] hover:text-white dark:hover:border-[var(--color-accent)] font-mono text-xs uppercase tracking-widest shadow-md transition-all"
             >
               Explore Complete Archive
             </Button>

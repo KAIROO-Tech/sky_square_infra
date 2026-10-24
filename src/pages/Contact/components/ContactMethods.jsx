@@ -17,36 +17,36 @@ export const ContactMethods = () => {
       <OfficeCard />
 
       {/* Direct Phone Line */}
-      <div className="theme-office-card p-8 bg-[#111113] border-t-2 border-t-[#d4af37] border border-white/10 rounded-2xl shadow-xl">
+      <div className="theme-office-card p-8 bg-[var(--color-surface)] border-t-2 border-t-[#d4af37] border border-[var(--color-border)] rounded-2xl shadow-xl transition-colors duration-300">
         <div className="flex items-center gap-3 mb-4">
           <Phone className="w-5 h-5 text-[#d4af37]" />
           <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#d4af37]">Direct Phone Line</span>
         </div>
-        <a href="tel:+919553299745" className="font-serif text-3xl text-[#f5f5f7] hover:text-[#d4af37] transition-colors block mb-2 font-normal">
+        <a href="tel:+919553299745" className="font-serif text-3xl text-[var(--color-text-primary)] hover:text-[#d4af37] transition-colors block mb-2 font-normal">
           +91 95532 99745
         </a>
-        <p className="font-sans text-xs text-white/60 font-light">Instant executive response during office hours</p>
+        <p className="font-sans text-xs text-[var(--color-text-secondary)] font-light">Instant executive response during office hours</p>
       </div>
 
       {/* Official Email Desk */}
-      <div className="theme-office-card p-8 bg-[#111113] border-t-2 border-t-[#d4af37] border border-white/10 rounded-2xl shadow-xl">
+      <div className="theme-office-card p-8 bg-[var(--color-surface)] border-t-2 border-t-[#d4af37] border border-[var(--color-border)] rounded-2xl shadow-xl transition-colors duration-300">
         <div className="flex items-center gap-3 mb-4">
           <Mail className="w-5 h-5 text-[#d4af37]" />
           <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#d4af37]">Official Email Desk</span>
         </div>
-        <a href="mailto:info@skysquareinfra.com" className="font-serif text-2xl text-[#f5f5f7] hover:text-[#d4af37] transition-colors block mb-2 font-normal">
+        <a href="mailto:info@skysquareinfra.com" className="font-serif text-2xl text-[var(--color-text-primary)] hover:text-[#d4af37] transition-colors block mb-2 font-normal">
           info@skysquareinfra.com
         </a>
-        <p className="font-sans text-xs text-white/60 font-light">Send blueprints, RFPs, or land acquisition queries</p>
+        <p className="font-sans text-xs text-[var(--color-text-secondary)] font-light">Send blueprints, RFPs, or land acquisition queries</p>
       </div>
 
       {/* WhatsApp Direct Advisory */}
-      <div className="p-8 bg-[#111113] border border-[#d4af37]/40 rounded-2xl text-[#f5f5f7] space-y-6 shadow-2xl">
+      <div className="p-8 bg-[var(--color-surface)] border border-[#d4af37]/40 rounded-2xl text-[var(--color-text-primary)] space-y-6 shadow-2xl transition-colors duration-300">
         <div className="flex items-center gap-3">
           <MessageSquareText className="w-5 h-5 text-[#d4af37]" />
           <span className="font-mono text-xs uppercase tracking-[0.2em] text-[#d4af37] font-semibold">WhatsApp Direct Advisory</span>
         </div>
-        <p className="font-sans text-sm text-white/80 leading-relaxed font-light">
+        <p className="font-sans text-sm text-[var(--color-text-secondary)] leading-relaxed font-light">
           Connect immediately on WhatsApp to speak with our engineering director regarding active site visits or structural estimations.
         </p>
         <button

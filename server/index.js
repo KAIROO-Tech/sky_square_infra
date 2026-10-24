@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -6,6 +7,7 @@ import { fileURLToPath } from 'url';
 import authRoutes from './routes/authRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import mediaRoutes from './routes/mediaRoutes.js';
+import inquiryRoutes from './routes/inquiryRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,49 +36,8 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/media', mediaRoutes);
-
-// In-memory inquiry store for demo/leads
-const inquiries = [];
-
-// API: Submit consultation inquiry
-app.post('/api/inquiry', (req, res) => {
-  const { fullName, phone, email, interest, location, message } = req.body;
-
-  if (!fullName || !phone || !email) {
-    return res.status(400).json({
-      success: false,
-      error: 'Please provide full name, phone number, and email address.',
-    });
-  }
-
-  const newInquiry = {
-    id: `INQ-${Date.now().toString().slice(-6)}`,
-    fullName,
-    phone,
-    email,
-    interest: interest || 'General Consultation',
-    location: location || 'Not Specified',
-    message: message || '',
-    receivedAt: new Date().toISOString(),
-  };
-
-  inquiries.unshift(newInquiry);
-  console.log('[LEAD CAPTURED]', newInquiry);
-
-  return res.status(201).json({
-    success: true,
-    message: 'Consultation request logged successfully with distinction.',
-    inquiryRef: newInquiry.id,
-  });
-});
-
-// API: List inquiries (internal)
-app.get('/api/inquiries', (req, res) => {
-  res.json({
-    count: inquiries.length,
-    data: inquiries,
-  });
-});
+app.use('/api/inquiry', inquiryRoutes);
+app.use('/api/inquiries', inquiryRoutes);
 
 // Serve production assets if built
 const distPath = path.join(__dirname, '../dist');

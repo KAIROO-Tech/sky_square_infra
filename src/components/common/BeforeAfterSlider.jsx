@@ -104,7 +104,7 @@ export const BeforeAfterSlider = ({
           <img
             src={afterUrl}
             alt={`After: ${afterLabel}`}
-            className="w-full h-full object-cover grayscale hover:grayscale-0 transition-[filter] duration-700"
+            className="w-full h-full object-cover"
             draggable={false}
           />
           <div className="absolute inset-0 bg-[#1A1A1A]/10 pointer-events-none" />
@@ -126,7 +126,7 @@ export const BeforeAfterSlider = ({
           <img
             src={beforeUrl}
             alt={`Before: ${beforeLabel}`}
-            className="w-full h-full object-cover grayscale hover:grayscale-0 transition-[filter] duration-700"
+            className="w-full h-full object-cover"
             draggable={false}
           />
           <div className="absolute inset-0 bg-[#1A1A1A]/20 pointer-events-none" />

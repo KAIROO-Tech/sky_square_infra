@@ -129,12 +129,12 @@ export const ProjectDetail = () => {
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-[#F9F8F6] text-[#1A1A1A] flex flex-col justify-center items-center px-6 py-24">
-        <div className="w-20 h-20 border border-[#D4AF37]/40 mb-6 flex items-center justify-center font-serif text-2xl text-[#D4AF37]">
+      <div className="min-h-screen bg-[var(--color-page-bg)] text-[var(--color-text-primary)] flex flex-col justify-center items-center px-6 py-24">
+        <div className="w-20 h-20 border border-[var(--color-accent)]/40 mb-6 flex items-center justify-center font-serif text-2xl text-[var(--color-accent)]">
           SQ
         </div>
         <h2 className="text-3xl font-serif font-normal mb-4">Project File Not Found</h2>
-        <p className="font-sans text-sm text-[#6C6863] max-w-sm text-center leading-relaxed mb-8">
+        <p className="font-sans text-sm text-[var(--color-text-secondary)] max-w-sm text-center leading-relaxed mb-8">
           The requested specification dossier is not registered in our archives.
         </p>
         <Button variant="secondary" onClick={() => navigate('/archive')}>
@@ -152,15 +152,15 @@ export const ProjectDetail = () => {
   const activePlate = galleryImages[lightboxIndex] || { url: '', caption: '' };
 
   return (
-    <div className="project-detail-page bg-[#F9F8F6] text-[#1A1A1A] min-h-screen pt-24 pb-12 w-full">
+    <div className="project-detail-page bg-[var(--color-page-bg)] text-[var(--color-text-primary)] min-h-screen pt-24 pb-12 w-full">
       <div className="max-w-[1600px] mx-auto px-6 sm:px-8 md:px-16">
         
         {/* Back Link */}
         <Link 
           to="/archive" 
-          className="inline-flex items-center gap-2 font-sans text-xs uppercase tracking-[0.25em] text-[#6C6863] hover:text-[#1A1A1A] mb-8 transition-colors"
+          className="inline-flex items-center gap-2 font-sans text-xs uppercase tracking-[0.25em] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] mb-8 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4 text-[#D4AF37]" />
+          <ArrowLeft className="w-4 h-4 text-[var(--color-accent)]" />
           <span>Back to Archive</span>
         </Link>
 
@@ -169,7 +169,7 @@ export const ProjectDetail = () => {
           <img
             src={project.heroImage}
             alt={project.title}
-            className={`w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-[1200ms] ${
+            className={`w-full h-full object-cover transition-transform duration-[1200ms] hover:scale-105 ${
               project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
             }`}
           />
@@ -205,7 +205,7 @@ export const ProjectDetail = () => {
         </div>
 
         {/* 2. Stats Grid & Specifications (Decoupled Height) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-20 pb-12 border-b border-[#1A1A1A]/10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-20 pb-12 border-b border-[var(--color-border)]">
           
           {/* Left Area: Summary, Blueprint Specs, Material Palette & Pull Quote */}
           <div className="lg:col-span-8 space-y-10">
@@ -213,31 +213,31 @@ export const ProjectDetail = () => {
             {/* Executive Overview */}
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <span className="w-8 h-px bg-[#D4AF37]" />
-                <h2 className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-semibold">
+                <span className="w-8 h-px bg-[var(--color-accent)]" />
+                <h2 className="font-sans text-xs uppercase tracking-[0.25em] text-[var(--color-accent)] font-semibold">
                   Executive dossier
                 </h2>
               </div>
-              <p className="font-sans text-lg md:text-xl text-[#1A1A1A] leading-relaxed font-light mb-6">
+              <p className="font-sans text-lg md:text-xl text-[var(--color-text-primary)] leading-relaxed font-light mb-6">
                 {project.summary}
               </p>
-              <div className="font-sans text-sm md:text-base text-[#6C6863] leading-relaxed font-light space-y-4">
+              <div className="font-sans text-sm md:text-base text-[var(--color-text-secondary)] leading-relaxed font-light space-y-4">
                 <p>{project.description}</p>
               </div>
             </div>
 
             {/* Highlights bullet points */}
             {project.architecturalHighlights && (
-              <div className="p-8 bg-[#EBE5DE]/30 border border-[#1A1A1A]/10 border-t-2 border-t-[#D4AF37]">
-                <h3 className="font-serif text-lg text-[#1A1A1A] mb-6 flex items-center gap-3">
-                  <Layers className="w-5 h-5 text-[#D4AF37]" />
+              <div className="p-8 bg-[var(--color-surface-warm)] border border-[var(--color-border)] border-t-2 border-t-[var(--color-accent)] shadow-sm">
+                <h3 className="font-serif text-lg text-[var(--color-text-primary)] mb-6 flex items-center gap-3">
+                  <Layers className="w-5 h-5 text-[var(--color-accent)]" />
                   <span>Key Specifications &amp; Highlights</span>
                 </h3>
                 <div className="space-y-4">
                   {project.architecturalHighlights.map((highlight, index) => (
                     <div key={index} className="flex items-start gap-3">
-                      <span className="text-[#D4AF37] text-sm mt-0.5">✦</span>
-                      <p className="font-sans text-sm text-[#6C6863] leading-relaxed">{highlight}</p>
+                      <span className="text-[var(--color-accent)] text-sm mt-0.5">✦</span>
+                      <p className="font-sans text-sm text-[var(--color-text-secondary)] leading-relaxed">{highlight}</p>
                     </div>
                   ))}
                 </div>
@@ -248,8 +248,8 @@ export const ProjectDetail = () => {
             {project.materialsAndAmenities && project.materialsAndAmenities.length > 0 && (
               <div className="space-y-4">
                 <div className="flex items-center gap-3 mb-2">
-                  <span className="w-6 h-px bg-[#D4AF37]" />
-                  <h3 className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-semibold">
+                  <span className="w-6 h-px bg-[var(--color-accent)]" />
+                  <h3 className="font-sans text-xs uppercase tracking-[0.25em] text-[var(--color-accent)] font-semibold">
                     Material &amp; Specification Palette
                   </h3>
                 </div>
@@ -260,16 +260,16 @@ export const ProjectDetail = () => {
                     return (
                       <div 
                         key={idx} 
-                        className="p-5 bg-[#EBE5DE]/20 border border-[#1A1A1A]/10 hover:border-[#D4AF37]/50 hover:bg-[#EBE5DE]/35 transition-all duration-300 group flex items-start gap-4"
+                        className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-accent)] hover:bg-[var(--color-surface-warm)] transition-all duration-300 group flex items-start gap-4 shadow-sm"
                       >
-                        <div className="p-2.5 bg-[#1A1A1A] text-[#D4AF37] border border-[#D4AF37]/40 flex-shrink-0">
-                          <IconComp className="w-4 h-4 text-[#D4AF37]" />
+                        <div className="p-2.5 bg-[var(--color-surface-warm)] text-[var(--color-accent)] border border-[var(--color-border)] flex-shrink-0">
+                          <IconComp className="w-4 h-4 text-[var(--color-accent)]" />
                         </div>
                         <div>
-                          <h4 className="font-serif text-sm text-[#1A1A1A] font-medium mb-1 group-hover:text-[#D4AF37] transition-colors">
+                          <h4 className="font-serif text-sm text-[var(--color-text-primary)] font-medium mb-1 group-hover:text-[var(--color-accent)] transition-colors">
                             {item.label}
                           </h4>
-                          <p className="font-sans text-xs text-[#6C6863] leading-relaxed font-light">
+                          <p className="font-sans text-xs text-[var(--color-text-secondary)] leading-relaxed font-light">
                             {item.detail}
                           </p>
                         </div>
@@ -282,23 +282,23 @@ export const ProjectDetail = () => {
 
             {/* Editorial Design Philosophy Pull Quote */}
             {project.pullQuote && (
-              <div className="p-8 sm:p-10 bg-[#EBE5DE]/25 border-l-2 border-l-[#D4AF37] border-y border-r border-[#1A1A1A]/10 relative overflow-hidden">
-                <div className="absolute top-2 right-4 font-serif text-7xl sm:text-8xl text-[#1A1A1A]/[0.04] select-none pointer-events-none font-bold leading-none">
+              <div className="p-8 sm:p-10 bg-[var(--color-surface-warm)] border-l-2 border-l-[var(--color-accent)] border border-[var(--color-border)] relative overflow-hidden shadow-sm">
+                <div className="absolute top-2 right-4 font-serif text-7xl sm:text-8xl text-[var(--color-text-primary)]/[0.04] select-none pointer-events-none font-bold leading-none">
                   “
                 </div>
                 <div className="relative z-10 space-y-4">
                   <div className="flex items-center gap-2">
-                    <Quote className="w-3.5 h-3.5 text-[#D4AF37]" />
-                    <span className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#D4AF37] font-semibold">
+                    <Quote className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                    <span className="font-sans text-[10px] uppercase tracking-[0.25em] text-[var(--color-accent)] font-semibold">
                       Architectural Ethos &amp; Philosophy
                     </span>
                   </div>
-                  <blockquote className="font-serif italic text-lg sm:text-xl md:text-2xl text-[#1A1A1A] leading-snug font-normal tracking-tight">
+                  <blockquote className="font-serif italic text-lg sm:text-xl md:text-2xl text-[var(--color-text-primary)] leading-snug font-normal tracking-tight">
                     “{project.pullQuote}”
                   </blockquote>
                   <div className="pt-2 flex items-center gap-3">
-                    <span className="w-4 h-px bg-[#D4AF37]/60" />
-                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#6C6863]">
+                    <span className="w-4 h-px bg-[var(--color-accent)]/60" />
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)]">
                       Sky Square Infra Specification Dossier
                     </span>
                   </div>
@@ -309,26 +309,26 @@ export const ProjectDetail = () => {
           </div>
 
           {/* Right Area: Detailed Metadata Grid */}
-          <div className="lg:col-span-4 bg-[#F9F8F6] border border-[#1A1A1A]/15 p-8 shadow-card space-y-8">
-            <h3 className="font-serif text-lg border-b border-[#1A1A1A]/10 pb-4 text-[#1A1A1A] font-normal">
+          <div className="lg:col-span-4 bg-[var(--color-surface)] border border-[var(--color-border)] p-8 shadow-card space-y-8">
+            <h3 className="font-serif text-lg border-b border-[var(--color-border)] pb-4 text-[var(--color-text-primary)] font-normal">
               Dossier Metadata
             </h3>
 
             <div className="space-y-6">
               <div>
-                <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[#6C6863] block">
+                <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)] block">
                   Location
                 </span>
-                <span className="font-serif text-base text-[#1A1A1A] mt-1 block">
+                <span className="font-serif text-base text-[var(--color-text-primary)] mt-1 block">
                   {project.location}
                 </span>
               </div>
 
               <div>
-                <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[#6C6863] block">
+                <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)] block">
                   Engineering Scope
                 </span>
-                <span className="font-serif text-base text-[#1A1A1A] mt-1 block">
+                <span className="font-serif text-base text-[var(--color-text-primary)] mt-1 block">
                   {project.scope}
                 </span>
               </div>
@@ -336,10 +336,10 @@ export const ProjectDetail = () => {
               {/* Dynamic metrics from project */}
               {project.metrics && project.metrics.map((m, idx) => (
                 <div key={idx}>
-                  <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[#6C6863] block">
+                  <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)] block">
                     {m.label}
                   </span>
-                  <span className="font-serif text-base text-[#D4AF37] mt-1 block">
+                  <span className="font-serif text-base text-[var(--color-accent)] mt-1 block">
                     {m.value}
                   </span>
                 </div>
@@ -347,20 +347,20 @@ export const ProjectDetail = () => {
 
               {/* Live Progress for Ongoing Projects */}
               {project.status === 'ongoing' && project.progressPercent !== undefined && (
-                <div className="pt-4 border-t border-[#1A1A1A]/10 space-y-4">
+                <div className="pt-4 border-t border-[var(--color-border)] space-y-4">
                   <div>
                     <div className="flex justify-between items-baseline mb-2">
-                      <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[#6C6863]">
+                      <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)]">
                         Construction Progress
                       </span>
-                      <span className="font-mono text-sm font-semibold text-[#D4AF37]">
+                      <span className="font-mono text-sm font-semibold text-[var(--color-accent)]">
                         {project.progressPercent}%
                       </span>
                     </div>
                     {/* Compact Gold Progress Bar (0px radius) */}
-                    <div className="w-full h-1.5 bg-[#EBE5DE] border border-[#1A1A1A]/10 overflow-hidden">
+                    <div className="w-full h-1.5 bg-[var(--color-surface-muted)] border border-[var(--color-border)] overflow-hidden">
                       <div 
-                        className="h-full bg-[#D4AF37] transition-all duration-1000 ease-editorial"
+                        className="h-full bg-[var(--color-accent)] transition-all duration-1000 ease-editorial"
                         style={{ width: `${project.progressPercent}%` }}
                       />
                     </div>
@@ -446,7 +446,7 @@ export const ProjectDetail = () => {
                 <img
                   src={plate.url}
                   alt={`${project.title} - ${plate.caption}`}
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-[1000ms] motion-safe:group-hover:scale-105 motion-safe:transition-transform motion-safe:duration-700 motion-safe:ease-out motion-reduce:transform-none"
+                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transform-none"
                 />
                 
                 {/* Hairline + vignette layer */}
@@ -493,24 +493,24 @@ export const ProjectDetail = () => {
                   href={doc.fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-5 bg-[#EBE5DE]/30 border border-[#1A1A1A]/10 hover:border-[#D4AF37] hover:bg-[#EBE5DE]/50 transition-all flex items-center justify-between group cursor-pointer"
+                  className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-accent)] hover:bg-[var(--color-surface-warm)] transition-all flex items-center justify-between group cursor-pointer shadow-sm"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-[#1A1A1A] text-[#D4AF37]">
+                    <div className="p-3 bg-[var(--color-surface-warm)] text-[var(--color-accent)] border border-[var(--color-border)]">
                       <FileText className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-serif text-sm font-medium text-[#1A1A1A] group-hover:text-[#D4AF37] transition-colors">
+                      <h4 className="font-serif text-sm font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors">
                         {doc.title || `Architectural Specification Plate 0${idx + 1}`}
                       </h4>
                       {doc.fileSize && (
-                        <span className="font-mono text-[10px] text-[#6C6863] tracking-wider uppercase">
+                        <span className="font-mono text-[10px] text-[var(--color-text-muted)] tracking-wider uppercase">
                           {doc.fileSize} • PDF Document
                         </span>
                       )}
                     </div>
                   </div>
-                  <Download className="w-4 h-4 text-[#6C6863] group-hover:text-[#D4AF37] transition-colors" />
+                  <Download className="w-4 h-4 text-[var(--color-text-muted)] group-hover:text-[var(--color-accent)] transition-colors" />
                 </a>
               ))}
             </div>
@@ -518,12 +518,12 @@ export const ProjectDetail = () => {
         )}
 
         {/* 5. Consultation Banner CTA */}
-        <div className="p-10 bg-[#EBE5DE]/40 border border-[#1A1A1A]/10 flex flex-col md:flex-row items-center justify-between gap-8 mb-20">
+        <div className="p-10 bg-[var(--color-surface-warm)] border border-[var(--color-border)] flex flex-col md:flex-row items-center justify-between gap-8 mb-20 shadow-sm">
           <div>
-            <h4 className="font-serif text-xl sm:text-2xl text-[#1A1A1A] mb-2 font-normal">
+            <h4 className="font-serif text-xl sm:text-2xl text-[var(--color-text-primary)] mb-2 font-normal">
               Interested in structural specs or valuation in Attapur, Shankerpally, or Zaheerabad?
             </h4>
-            <p className="font-sans text-xs text-[#6C6863] tracking-wider font-light">
+            <p className="font-sans text-xs text-[var(--color-text-secondary)] tracking-wider font-light">
               Connect with our advisory director to acquire site blueprints, geodetic surveys or custom quotes.
             </p>
           </div>
@@ -536,15 +536,15 @@ export const ProjectDetail = () => {
         </div>
 
         {/* 6. Next / Prev Project Navigation */}
-        <div className="border-t border-[#1A1A1A]/10 pt-10 flex justify-between items-center text-xs uppercase font-sans tracking-[0.2em] mb-8">
+        <div className="border-t border-[var(--color-border)] pt-10 flex justify-between items-center text-xs uppercase font-sans tracking-[0.2em] mb-8">
           <Link
             to={`/archive/${prevProject.id}`}
             className="group flex flex-col items-start gap-1 max-w-[45%] text-left"
           >
-            <span className="text-[#6C6863]/60 group-hover:text-[#D4AF37] flex items-center gap-1 transition-colors">
+            <span className="text-[var(--color-text-muted)] group-hover:text-[var(--color-accent)] flex items-center gap-1 transition-colors">
               <ChevronLeft className="w-4 h-4" /> PREVIOUS SPECIFICATION
             </span>
-            <span className="font-serif text-sm font-semibold normal-case text-[#1A1A1A] group-hover:text-[#D4AF37] transition-colors line-clamp-1 mt-1">
+            <span className="font-serif text-sm font-semibold normal-case text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors line-clamp-1 mt-1">
               {prevProject.title}
             </span>
           </Link>
@@ -553,10 +553,10 @@ export const ProjectDetail = () => {
             to={`/archive/${nextProject.id}`}
             className="group flex flex-col items-end gap-1 max-w-[45%] text-right"
           >
-            <span className="text-[#6C6863]/60 group-hover:text-[#D4AF37] flex items-center gap-1 transition-colors">
+            <span className="text-[var(--color-text-muted)] group-hover:text-[var(--color-accent)] flex items-center gap-1 transition-colors">
               NEXT SPECIFICATION <ChevronRight className="w-4 h-4" />
             </span>
-            <span className="font-serif text-sm font-semibold normal-case text-[#1A1A1A] group-hover:text-[#D4AF37] transition-colors line-clamp-1 mt-1">
+            <span className="font-serif text-sm font-semibold normal-case text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors line-clamp-1 mt-1">
               {nextProject.title}
             </span>
           </Link>

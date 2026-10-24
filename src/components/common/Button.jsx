@@ -42,7 +42,7 @@ export const Button = ({
           aria-hidden="true"
         />
         {/* Text & Icon Content */}
-        <span className="relative z-10 flex items-center gap-3 text-white transition-colors duration-300">
+        <span className="relative z-10 flex items-center gap-3 text-inherit transition-colors duration-300">
           {icon && iconPosition === 'left' && <span className="transition-transform duration-300 group-hover:-translate-x-0.5">{icon}</span>}
           <span>{children}</span>
           {icon && iconPosition === 'right' && <span className="transition-transform duration-300 group-hover:translate-x-1">{icon}</span>}
@@ -68,8 +68,8 @@ export const Button = ({
   if (variant === 'secondary') {
     const secondaryClasses = `
       ${baseClasses} ${sizeClasses}
-      bg-transparent text-[#1A1A1A] border border-[#1A1A1A]
-      hover:bg-[#1A1A1A] hover:text-white
+      bg-transparent text-[var(--color-text-primary)] border border-[var(--color-border-strong)]
+      hover:bg-[var(--color-text-primary)] hover:text-[var(--color-page-bg)]
       ${className}
     `;
 
@@ -94,8 +94,8 @@ export const Button = ({
 
   if (variant === 'link') {
     const linkClasses = `
-      inline-flex items-center gap-3 text-xs uppercase tracking-[0.2em] font-sans font-medium text-[#1A1A1A]
-      border-b border-[#1A1A1A]/30 pb-1.5 hover:border-[#D4AF37] hover:text-[#D4AF37]
+      inline-flex items-center gap-3 text-xs uppercase tracking-[0.2em] font-sans font-medium text-[var(--color-text-primary)]
+      border-b border-[var(--color-border)] pb-1.5 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]
       transition-colors duration-300 group ${className}
     `;
 

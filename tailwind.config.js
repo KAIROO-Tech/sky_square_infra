@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -7,16 +8,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#F9F8F6',
-        foreground: '#1A1A1A',
-        surface: '#EBE5DE',
-        muted: '#6C6863',
-        accent: {
-          DEFAULT: '#D4AF37',
-          hover: '#C29F2F',
-          light: '#E6CA65',
+        background: 'var(--color-page-bg)',
+        foreground: 'var(--color-page-fg)',
+        surface: {
+          DEFAULT: 'var(--color-surface)',
+          warm: 'var(--color-surface-warm)',
+          elevated: 'var(--color-surface-elevated)',
+          muted: 'var(--color-surface-muted)',
         },
-        'accent-foreground': '#FFFFFF',
+        muted: 'var(--color-text-muted)',
+        accent: {
+          DEFAULT: 'var(--color-accent)',
+          hover: 'var(--color-accent-hover)',
+          light: 'var(--color-accent-light)',
+          subtle: 'var(--color-accent-subtle)',
+        },
+        'accent-foreground': 'var(--color-accent-fg)',
       },
       fontFamily: {
         serif: ['"Playfair Display"', 'Georgia', 'serif'],

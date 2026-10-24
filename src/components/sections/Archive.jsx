@@ -13,11 +13,11 @@ export const Archive = ({ onSelectProject }) => {
 
 
   return (
-    <section id="work" className="w-full py-28 md:py-36 bg-[#F9F8F6] px-8 md:px-16 border-b border-[#1A1A1A]/10 relative z-10">
+    <section id="work" className="w-full py-28 md:py-36 bg-[var(--color-page-bg)] text-[var(--color-text-primary)] px-8 md:px-16 border-b border-[var(--color-border)] relative z-10 transition-colors duration-300">
       <div className="max-w-[1600px] mx-auto">
         
         {/* Section Header & Filter Tabs */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 pb-8 border-b border-[#1A1A1A]/10">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 pb-8 border-b border-[var(--color-border)]">
           <div>
             <div className="flex items-center gap-3 mb-4">
               <span className="w-8 h-px bg-[#D4AF37]" />
@@ -25,7 +25,7 @@ export const Archive = ({ onSelectProject }) => {
                 Project Portfolio
               </p>
             </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-[#1A1A1A] tracking-tight">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-[var(--color-text-primary)] tracking-tight">
               The <span className="italic text-[#D4AF37]">Archive</span>
             </h2>
           </div>
@@ -44,8 +44,8 @@ export const Archive = ({ onSelectProject }) => {
                   onClick={() => setActiveFilter(tab.id)}
                   className={`py-2 transition-all duration-500 relative cursor-pointer ${
                     isActive
-                      ? 'text-[#1A1A1A] font-semibold after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-full after:h-px after:bg-[#D4AF37]'
-                      : 'text-[#6C6863] hover:text-[#1A1A1A]'
+                      ? 'text-[var(--color-text-primary)] font-semibold after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-full after:h-px after:bg-[#D4AF37]'
+                      : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
                   }`}
                 >
                   {tab.label}
@@ -73,7 +73,7 @@ export const Archive = ({ onSelectProject }) => {
                   <img
                     src={project.heroImage}
                     alt={project.title}
-                    className={`object-cover w-full h-full grayscale group-hover:grayscale-0 transition-all duration-[1600ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:scale-105 opacity-85 group-hover:opacity-100 ${
+                    className={`object-cover w-full h-full transition-transform duration-[1200ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:scale-105 opacity-90 group-hover:opacity-100 ${
                       project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
                     }`}
                     onError={(e) => {
@@ -160,12 +160,12 @@ export const Archive = ({ onSelectProject }) => {
         </div>
 
         {/* Bottom CTA for Custom Architecture */}
-        <div className="mt-20 p-12 bg-[#EBE5DE]/30 border-t-2 border-t-[#D4AF37] border border-[#1A1A1A]/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+        <div className="mt-20 p-12 bg-[var(--color-surface-warm)] border-t-2 border-t-[#D4AF37] border border-[var(--color-border)] flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div>
-            <h4 className="font-serif text-2xl md:text-3xl text-[#1A1A1A] mb-2 font-normal">
+            <h4 className="font-serif text-2xl md:text-3xl text-[var(--color-text-primary)] mb-2 font-normal">
               Have a land parcel or custom architectural project?
             </h4>
-            <p className="font-sans text-sm text-[#6C6863] font-light">
+            <p className="font-sans text-sm text-[var(--color-text-secondary)] font-light">
               We provide turnkey feasibility studies, land demarcation, and civil structural engineering.
             </p>
           </div>

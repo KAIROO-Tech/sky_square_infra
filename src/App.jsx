@@ -31,7 +31,7 @@ export const App = () => {
 
   return (
     <SmoothScroll>
-      <div className="relative min-h-screen bg-[#0c0c0c] text-[#f5f5f7] font-sans antialiased overflow-x-hidden selection:bg-[#d4af37] selection:text-[#0c0c0c]">
+      <div className="relative min-h-screen bg-[var(--color-page-bg)] text-[var(--color-text-primary)] font-sans antialiased overflow-x-hidden selection:bg-[var(--color-accent)] selection:text-[var(--color-accent-fg)]">
         {/* Scroll restoration helper */}
         <ScrollToTop />
 

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext({
-  theme: 'dark',
+  theme: 'light',
   toggleTheme: () => {},
   setTheme: () => {},
 });
@@ -11,25 +11,35 @@ export const useTheme = () => useContext(ThemeContext);
 export const ThemeProvider = ({ children }) => {
   const [theme, setThemeState] = useState(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('skysquare_theme');
-      return saved === 'light' ? 'light' : 'dark';
+      try {
+        const saved = localStorage.getItem('skysquare_theme');
+        if (saved === 'dark') return 'dark';
+        if (saved === 'light') return 'light';
+      } catch (e) {
+        console.warn('Unable to access localStorage for theme:', e);
+      }
     }
-    return 'dark';
+    // Default theme for first-time visitors must be 'light'
+    return 'light';
   });
 
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
 
-    if (theme === 'light') {
-      root.classList.add('light');
-      root.classList.remove('dark');
-    } else {
+    if (theme === 'dark') {
       root.classList.add('dark');
       root.classList.remove('light');
+    } else {
+      root.classList.add('light');
+      root.classList.remove('dark');
     }
 
-    localStorage.setItem('skysquare_theme', theme);
+    try {
+      localStorage.setItem('skysquare_theme', theme);
+    } catch (e) {
+      console.warn('Unable to persist theme to localStorage:', e);
+    }
   }, [theme]);
 
   const toggleTheme = () => {
@@ -43,7 +53,7 @@ export const ThemeProvider = ({ children }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme, isDark: theme === 'dark' }}>
       {children}
     </ThemeContext.Provider>
   );

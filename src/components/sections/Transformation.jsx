@@ -68,25 +68,22 @@ export const Transformation = () => {
     <section 
       ref={containerRef}
       id="transformation"
-      className="dark-scrim-container relative w-full bg-[#0d0f11] text-white py-24 md:py-32 px-6 lg:px-16 overflow-hidden border-t border-white/10"
+      className="relative w-full bg-[var(--color-page-bg)] text-[var(--color-text-primary)] py-24 md:py-32 px-6 lg:px-16 overflow-hidden border-t border-[var(--color-border)] transition-colors duration-300"
     >
-      {/* Architectural Grid Lines */}
-      <div className="absolute inset-0 pointer-events-none opacity-5 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-
       <div className="max-w-7xl mx-auto relative z-10">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 pb-8 border-b border-white/10 gap-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 pb-8 border-b border-[var(--color-border)] gap-6">
           <div>
-            <div className="flex items-center gap-2 text-[#C5A880] text-xs uppercase tracking-[0.3em] font-mono mb-3">
-              <span className="w-2 h-2 rounded-full bg-[#C5A880] animate-pulse" />
+            <div className="flex items-center gap-2 text-[var(--color-accent)] text-xs uppercase tracking-[0.3em] font-mono mb-3">
+              <span className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />
               Signature Methodology
             </div>
-            <h2 className="font-serif text-3xl md:text-5xl text-white font-medium tracking-tight">
+            <h2 className="font-serif text-3xl md:text-5xl text-[var(--color-text-primary)] font-medium tracking-tight">
               The Evolution of Land
             </h2>
           </div>
-          <p className="text-white/60 text-sm md:text-base max-w-md font-light leading-relaxed">
+          <p className="text-[var(--color-text-secondary)] text-sm md:text-base max-w-md font-light leading-relaxed">
             From uncharted acreage to engineered generational landmarks across prime Telangana corridors.
           </p>
         </div>
@@ -95,13 +92,13 @@ export const Transformation = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
           
           {/* Left: Architectural Zoom-Wipe Visual Frame */}
-          <div className="lg:col-span-6 relative h-[360px] md:h-[480px] lg:h-[540px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
+          <div className="lg:col-span-6 relative h-[360px] md:h-[480px] lg:h-[540px] rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-xl bg-[var(--color-surface-warm)]">
             {stages.map((stage, idx) => (
               <div
                 key={`img-${stage.number}`}
                 className={`absolute inset-0 transition-all duration-700 ease-in-out ${
                   activeStep === idx 
-                    ? 'opacity-100 scale-105 z-10 pointer-events-auto' 
+                    ? 'opacity-100 scale-100 z-10 pointer-events-auto' 
                     : 'opacity-0 scale-100 z-0 pointer-events-none'
                 }`}
               >
@@ -111,14 +108,14 @@ export const Transformation = () => {
                   className="w-full h-full object-cover transform transition-transform duration-1000 ease-out"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
                 
                 {/* Visual Metadata Overlay */}
-                <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-xs font-mono tracking-widest text-white/80">
-                  <span className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between text-xs font-mono tracking-widest text-white/90">
+                  <span className="bg-black/65 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20">
                     STAGE {stage.number} OF 04
                   </span>
-                  <span className="text-[#C5A880]">SKY SQUARE INFRA</span>
+                  <span className="text-[var(--color-accent-light)] font-semibold">SKY SQUARE INFRA</span>
                 </div>
               </div>
             ))}
@@ -139,27 +136,27 @@ export const Transformation = () => {
                         : 'opacity-0 translate-y-6 absolute inset-0 z-0 pointer-events-none hidden'
                     }`}
                   >
-                    <div className="flex items-center gap-3 text-[#C5A880] text-xs font-mono uppercase tracking-[0.25em] mb-3">
+                    <div className="flex items-center gap-3 text-[var(--color-accent)] text-xs font-mono uppercase tracking-[0.25em] mb-3">
                       <IconComponent className="w-4 h-4" />
                       <span>{stage.subtitle}</span>
                     </div>
 
-                    <h3 className="font-serif text-3xl md:text-4xl text-white font-medium mb-4">
+                    <h3 className="font-serif text-3xl md:text-4xl text-[var(--color-text-primary)] font-medium mb-4">
                       {stage.title}
                     </h3>
 
-                    <p className="text-white/70 text-sm md:text-base leading-relaxed font-light mb-8">
+                    <p className="font-sans text-sm md:text-base text-[var(--color-text-secondary)] leading-relaxed font-light mb-8">
                       {stage.description}
                     </p>
 
                     {/* Staggered Metrics Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-6 border-t border-white/10">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-6 border-t border-[var(--color-border)]">
                       {stage.metrics.map((m, mIdx) => (
                         <div key={mIdx} className="flex flex-col">
-                          <span className="text-white/40 text-[11px] uppercase tracking-wider font-mono mb-1">
+                          <span className="text-[var(--color-text-muted)] text-[11px] uppercase tracking-wider font-mono mb-1">
                             {m.label}
                           </span>
-                          <span className="text-white font-medium text-xs md:text-sm">
+                          <span className="text-[var(--color-text-primary)] font-medium text-xs md:text-sm">
                             {m.value}
                           </span>
                         </div>
@@ -171,7 +168,7 @@ export const Transformation = () => {
             </div>
 
             {/* Stage Step Tabs */}
-            <div className="pt-10 mt-8 border-t border-white/10">
+            <div className="pt-10 mt-8 border-t border-[var(--color-border)]">
               <div className="grid grid-cols-4 gap-2 md:gap-4">
                 {stages.map((stage, idx) => {
                   const isCurrent = activeStep === idx;
@@ -181,17 +178,17 @@ export const Transformation = () => {
                       onClick={() => handleTabClick(idx)}
                       className={`group flex flex-col text-left transition-all duration-300 py-3 px-2 md:px-3 rounded-lg border focus:outline-none cursor-pointer ${
                         isCurrent
-                          ? 'border-[#C5A880] bg-[#C5A880]/10 text-white shadow-md'
-                          : 'border-white/5 bg-white/[0.02] text-white/40 hover:text-white/80 hover:border-white/20'
+                          ? 'border-[var(--color-accent)] bg-[var(--color-accent)]/10 text-[var(--color-text-primary)] shadow-sm'
+                          : 'border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-border-strong)]'
                       }`}
                     >
                       <div className="flex items-center justify-between w-full mb-1">
-                        <span className={`text-xs font-mono font-semibold ${isCurrent ? 'text-[#C5A880]' : 'text-white/40'}`}>
+                        <span className={`text-xs font-mono font-semibold ${isCurrent ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)]'}`}>
                           {stage.number}
                         </span>
-                        {isCurrent && <CheckCircle2 className="w-3 h-3 text-[#C5A880]" />}
+                        {isCurrent && <CheckCircle2 className="w-3 h-3 text-[var(--color-accent)]" />}
                       </div>
-                      <span className="text-[11px] md:text-xs font-medium truncate">
+                      <span className={`text-[11px] md:text-xs truncate ${isCurrent ? 'font-semibold text-[var(--color-text-primary)]' : 'font-medium text-[var(--color-text-secondary)]'}`}>
                         {stage.title}
                       </span>
                     </button>

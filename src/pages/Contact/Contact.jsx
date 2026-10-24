@@ -6,7 +6,7 @@ import './Contact.css';
 
 export const Contact = () => {
   return (
-    <div className="contact-page-container w-full min-h-screen bg-[#0c0c0c] text-[#f5f5f7] selection:bg-[#d4af37]/30 selection:text-[#d4af37]">
+    <div className="contact-page-container w-full min-h-screen bg-[var(--color-page-bg)] text-[var(--color-text-primary)] selection:bg-[#d4af37]/30 selection:text-[#d4af37] transition-colors duration-300">
       <ContactHeader />
 
       <section className="w-full py-16 md:py-24 px-6 sm:px-8 md:px-16">

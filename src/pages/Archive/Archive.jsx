@@ -163,16 +163,16 @@ export const Archive = () => {
   };
 
   return (
-    <div className="archive-page-container w-full min-h-screen bg-[#0c0c0c] text-[#f5f5f7] selection:bg-[#d4af37]/30 selection:text-[#d4af37]">
+    <div className="archive-page-container w-full min-h-screen bg-[var(--color-page-bg)] text-[var(--color-text-primary)] selection:bg-[#d4af37]/30 selection:text-[#d4af37] transition-colors duration-300">
       {/* Hero Section with Parallax Effect */}
       <ArchiveHero />
 
       {/* Sticky Filter Header */}
-      <div className="archive-sticky-filter py-4 px-6 md:px-16 border-b border-white/10">
+      <div className="archive-sticky-filter py-4 px-6 md:px-16 border-b border-[var(--color-border)]">
         <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex items-center gap-3">
             <span className="w-2.5 h-2.5 rounded-full bg-[#d4af37] animate-pulse" />
-            <p className="font-mono text-xs uppercase tracking-[0.25em] text-white/70">
+            <p className="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-text-secondary)]">
               ARCHITECTURAL DOSSIER SECTORS ({filteredProjects.length} WORKS)
             </p>
           </div>
@@ -180,7 +180,7 @@ export const Archive = () => {
           <div
             role="tablist"
             aria-label="Filter Architectural Projects"
-            className="flex gap-2 p-1.5 bg-white/[0.03] border border-white/10 rounded-full font-mono text-xs uppercase tracking-wider"
+            className="flex gap-2 p-1.5 bg-[var(--color-surface-warm)] border border-[var(--color-border)] rounded-full font-mono text-xs uppercase tracking-wider"
           >
             {[
               { id: 'all', label: 'All Works' },
@@ -198,16 +198,16 @@ export const Archive = () => {
                   aria-selected={isActive}
                   aria-controls="archive-project-viewport"
                   onClick={() => setActiveFilter(tab.id)}
-                  className={`relative px-5 py-2 rounded-full transition-all duration-300 flex items-center gap-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#d4af37] ${
+                  className={`relative px-5 py-2 rounded-full transition-all duration-300 flex items-center gap-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] ${
                     isActive
-                      ? 'bg-[#d4af37] text-[#0c0c0c] font-semibold shadow-lg shadow-[#d4af37]/20'
-                      : 'text-white/70 hover:text-white hover:bg-white/5'
+                      ? 'bg-[var(--color-accent)] text-[var(--color-accent-fg)] font-semibold shadow-md'
+                      : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface)]'
                   }`}
                 >
                   <span>{tab.label}</span>
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                      isActive ? 'bg-[#0c0c0c]/20 text-[#0c0c0c]' : 'bg-white/10 text-white/60'
+                      isActive ? 'bg-[var(--color-accent-fg)]/20 text-[var(--color-accent-fg)]' : 'bg-[var(--color-surface-muted)] text-[var(--color-text-muted)]'
                     }`}
                   >
                     {count}
@@ -224,19 +224,19 @@ export const Archive = () => {
         <div className="max-w-[1600px] mx-auto relative">
           
           {/* Deck Header & Live Progress Tracker */}
-          <div className="flex items-center justify-between mb-4 pt-2 font-mono text-xs uppercase tracking-widest text-white/60 border-b border-white/10 pb-3">
+          <div className="flex items-center justify-between mb-4 pt-2 font-mono text-xs uppercase tracking-widest text-[var(--color-text-muted)] border-b border-[var(--color-border)] pb-3">
             <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#d4af37]" />
+              <Layers className="w-4 h-4 text-[var(--color-accent)]" />
               <span>PINNED DOSSIER STACK</span>
             </div>
 
             {isDesktop && (
-              <div className="flex items-center gap-3 bg-white/[0.04] border border-white/10 px-4 py-1 rounded-full">
-                <span className="text-[#d4af37] font-semibold">
+              <div className="flex items-center gap-3 bg-[var(--color-surface-warm)] border border-[var(--color-border)] px-4 py-1 rounded-full">
+                <span className="text-[var(--color-accent)] font-semibold">
                   {String(activeCardIndex + 1).padStart(2, '0')}
                 </span>
-                <span className="text-white/30">/</span>
-                <span>{String(filteredProjects.length).padStart(2, '0')}</span>
+                <span className="text-[var(--color-text-muted)]/40">/</span>
+                <span className="text-[var(--color-text-secondary)]">{String(filteredProjects.length).padStart(2, '0')}</span>
               </div>
             )}
           </div>
@@ -428,20 +428,20 @@ export const Archive = () => {
       </div>
 
       {/* Luxury Architectural Valuation CTA Section */}
-      <section className="w-full py-16 px-6 md:px-16 border-t border-white/10 bg-[#0c0c0c]">
+      <section className="w-full py-16 px-6 md:px-16 border-t border-[var(--color-border)] bg-[var(--color-surface-warm)]">
         <div className="max-w-[1600px] mx-auto">
-          <div className="p-8 md:p-14 bg-gradient-to-r from-white/[0.04] via-white/[0.02] to-white/[0.04] border-t-2 border-t-[#d4af37] border border-white/10 backdrop-blur-md flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-72 h-72 bg-[#d4af37]/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="p-8 md:p-14 bg-[var(--color-surface)] border-t-2 border-t-[var(--color-accent)] border border-[var(--color-border)] shadow-card flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-72 h-72 bg-[var(--color-accent)]/5 rounded-full blur-3xl pointer-events-none" />
 
             <div className="max-w-2xl z-10">
-              <div className="flex items-center gap-2 text-[#d4af37] font-mono text-xs uppercase tracking-widest mb-3">
+              <div className="flex items-center gap-2 text-[var(--color-accent)] font-mono text-xs uppercase tracking-widest mb-3">
                 <Sparkles className="w-4 h-4" />
                 <span>TURNKEY LAND &amp; STRUCTURAL ENGINEERING</span>
               </div>
-              <h4 className="font-serif text-2xl sm:text-3xl text-[#f5f5f7] mb-3 font-normal leading-snug">
+              <h4 className="font-serif text-2xl sm:text-3xl text-[var(--color-text-primary)] mb-3 font-normal leading-snug">
                 Have a land parcel or custom architectural project?
               </h4>
-              <p className="font-sans text-sm md:text-base text-white/70 font-light leading-relaxed">
+              <p className="font-sans text-sm md:text-base text-[var(--color-text-secondary)] font-light leading-relaxed">
                 We provide comprehensive feasibility studies, land demarcation, structural civil blueprints, and turnkey construction management across Telangana.
               </p>
             </div>
@@ -451,7 +451,7 @@ export const Archive = () => {
                 variant="primary"
                 size="default"
                 onClick={() => navigate('/inquire')}
-                className="w-full sm:w-auto bg-[#d4af37] text-[#0c0c0c] hover:bg-[#c29f2f] font-mono text-xs uppercase tracking-wider font-semibold py-4 px-8 shadow-lg shadow-[#d4af37]/20"
+                className="w-full sm:w-auto bg-[var(--color-accent)] text-[var(--color-accent-fg)] hover:bg-[var(--color-accent-hover)] font-mono text-xs uppercase tracking-wider font-semibold py-4 px-8 shadow-md"
               >
                 Request Project Valuation
               </Button>
