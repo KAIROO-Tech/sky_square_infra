@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+memory.md
+.env
+.env.*
+public/uploads/*
+!public/uploads/.gitkeep

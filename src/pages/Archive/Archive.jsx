@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, MapPin, Sparkles, Layers, ChevronRight } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { projects } from '../../data/projects';
+import { useProjects } from '../../context/ProjectsContext';
 import { ArchiveHero } from './components/ArchiveHero';
 import { Button } from '../../components/common/Button';
 import './Archive.css';
@@ -13,6 +13,7 @@ if (typeof window !== 'undefined') {
 }
 
 export const Archive = () => {
+  const { projects } = useProjects();
   const [activeFilter, setActiveFilter] = useState('all');
   const [activeCardIndex, setActiveCardIndex] = useState(0);
   const [hoveredCardId, setHoveredCardId] = useState(null);
@@ -23,16 +24,22 @@ export const Archive = () => {
   const pinnedSectionRef = useRef(null);
   const cardsRef = useRef([]);
 
-  const filteredProjects = projects.filter((project) => {
+  // Filter only active pinned projects for the Pinned Dossier Stack
+  const pinnedProjects = projects
+    .filter((p) => p.isPinned !== false)
+    .sort((a, b) => (a.stackOrder ?? 0) - (b.stackOrder ?? 0));
+
+  const filteredProjects = pinnedProjects.filter((project) => {
     if (activeFilter === 'all') return true;
     return project.status.toLowerCase() === activeFilter.toLowerCase();
   });
 
   const categoryCounts = {
-    all: projects.length,
-    ongoing: projects.filter((p) => p.status.toLowerCase() === 'ongoing').length,
-    completed: projects.filter((p) => p.status.toLowerCase() === 'completed').length,
+    all: pinnedProjects.length,
+    ongoing: pinnedProjects.filter((p) => p.status.toLowerCase() === 'ongoing').length,
+    completed: pinnedProjects.filter((p) => p.status.toLowerCase() === 'completed').length,
   };
+
 
   // Viewport resize listener
   useEffect(() => {
@@ -44,7 +51,7 @@ export const Archive = () => {
     return () => window.removeEventListener('resize', checkViewport);
   }, []);
 
-  // GSAP ScrollTrigger pinned staging sequence with explicit card holds & snap
+  // GSAP ScrollTrigger pinned staging sequence with clean deck stacking & zero ghosting
   useEffect(() => {
     if (!isDesktop || !pinnedSectionRef.current) return;
 
@@ -52,90 +59,86 @@ export const Archive = () => {
 
     const ctx = gsap.context(() => {
       const cards = cardsRef.current.filter(Boolean);
-      if (!cards.length) return;
+      const totalCards = cards.length;
+      if (!totalCards) return;
 
-      // Initial positions setup: card 01 is 100% visible and centered
+      // 1. Initial positions: Card 0 is 100% visible, all others below with proper z-indexes
       cards.forEach((card, index) => {
-        if (index > 0) {
-          gsap.set(card, {
-            yPercent: 100,
-            scale: 0.92,
-            opacity: 0,
-          });
-        } else {
-          gsap.set(card, {
-            yPercent: 0,
-            scale: 1,
-            opacity: 1,
-          });
-        }
+        gsap.set(card, {
+          yPercent: index === 0 ? 0 : 100,
+          scale: index === 0 ? 1 : 0.95,
+          opacity: index === 0 ? 1 : 0,
+          zIndex: 10 + index,
+          visibility: index === 0 ? 'visible' : 'hidden',
+        });
       });
 
-      const totalCards = cards.length;
       if (totalCards <= 1) return;
 
+      // 2. Build equalized scrub timeline where each step is exactly 1 unit of time
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: pinnedSectionRef.current,
           pin: true,
           pinSpacing: true,
-          scrub: 0.8,
+          scrub: 0.6,
           start: 'top top+=65',
-          end: () => `+=${totalCards * 150}%`,
+          end: () => `+=${(totalCards - 1) * 120}%`,
           snap: {
             snapTo: 1 / (totalCards - 1),
-            duration: 0.5,
-            delay: 0.1,
-            ease: 'power1.inOut',
+            duration: { min: 0.2, max: 0.4 },
+            delay: 0.05,
+            ease: 'power1.out',
           },
           invalidateOnRefresh: true,
           onUpdate: (self) => {
-            const step = Math.min(
-              Math.floor(self.progress * totalCards),
-              totalCards - 1
-            );
-            setActiveCardIndex(step);
+            const step = Math.round(self.progress * (totalCards - 1));
+            setActiveCardIndex(Math.min(Math.max(step, 0), totalCards - 1));
           },
         },
       });
 
-      // Build staged hold + transition sequence
-      cards.forEach((card, index) => {
-        // 1. Hold current card locked 100% centered in view
-        tl.to({}, { duration: 1.5 });
+      // 3. Symmetrical transitions: Next card slides up cleanly, previous card hides completely
+      for (let i = 0; i < totalCards - 1; i++) {
+        const currentCard = cards[i];
+        const nextCard = cards[i + 1];
 
-        // 2. Transition next card in after hold duration
-        if (index < totalCards - 1) {
-          const nextCard = cards[index + 1];
-          tl.to(
-            nextCard,
-            {
-              yPercent: 0,
-              scale: 1,
-              opacity: 1,
-              duration: 1.0,
-              ease: 'power2.inOut',
-            },
-            '>'
-          );
+        // Ensure next card becomes visible before it enters
+        tl.set(nextCard, { visibility: 'visible' }, i);
 
-          tl.to(
-            card,
-            {
-              scale: 0.93,
-              opacity: 0.3,
-              duration: 1.0,
-              ease: 'power2.inOut',
-            },
-            '<'
-          );
-        }
-      });
+        // Slide next card up to center
+        tl.to(
+          nextCard,
+          {
+            yPercent: 0,
+            scale: 1,
+            opacity: 1,
+            duration: 1.0,
+            ease: 'power2.inOut',
+          },
+          i
+        );
+
+        // Fade & slightly scale down the outgoing card so it never bleeds through
+        tl.to(
+          currentCard,
+          {
+            scale: 0.94,
+            opacity: 0,
+            duration: 0.7,
+            ease: 'power2.inOut',
+          },
+          i + 0.3
+        );
+
+        // Once fully covered, hide previous card completely from rendering & clicks
+        tl.set(currentCard, { visibility: 'hidden' }, i + 1);
+      }
     }, pinnedSectionRef);
 
     const timer = setTimeout(() => {
       ScrollTrigger.refresh();
-    }, 120);
+    }, 150);
 
     return () => {
       clearTimeout(timer);
@@ -230,10 +233,10 @@ export const Archive = () => {
             {isDesktop && (
               <div className="flex items-center gap-3 bg-white/[0.04] border border-white/10 px-4 py-1 rounded-full">
                 <span className="text-[#d4af37] font-semibold">
-                  0{activeCardIndex + 1}
+                  {String(activeCardIndex + 1).padStart(2, '0')}
                 </span>
                 <span className="text-white/30">/</span>
-                <span>0{filteredProjects.length}</span>
+                <span>{String(filteredProjects.length).padStart(2, '0')}</span>
               </div>
             )}
           </div>
@@ -249,7 +252,8 @@ export const Archive = () => {
               {filteredProjects.map((project, index) => {
                 const isHovered = hoveredCardId === project.id;
                 const firstGal = project.galleryImages?.[0];
-                const secondaryImage = typeof firstGal === 'string' ? firstGal : firstGal?.url;
+                const fallbackGal = typeof firstGal === 'string' ? firstGal : firstGal?.url;
+                const secondaryImage = project.hoverImage || fallbackGal;
 
                 return (
                   <div
@@ -273,7 +277,9 @@ export const Archive = () => {
                     {/* Card Architectural Header */}
                     <div className="absolute top-6 left-6 right-6 z-20 flex items-center justify-between pointer-events-none">
                       <div className="font-mono text-xs tracking-widest text-white/70 flex items-center gap-2 bg-[#0c0c0c]/70 backdrop-blur-md px-3.5 py-1.5 border border-white/10">
-                        <span className="text-[#d4af37] font-semibold">0{index + 1}</span>
+                        <span className="text-[#d4af37] font-semibold">
+                          {String(index + 1).padStart(2, '0')}
+                        </span>
                         <span>//</span>
                         <span className="uppercase text-[10px] tracking-[0.2em]">{project.category}</span>
                       </div>
@@ -374,7 +380,8 @@ export const Archive = () => {
             <div className="flex flex-col gap-8">
               {filteredProjects.map((project) => {
                 const firstGal = project.galleryImages?.[0];
-                const secondaryImage = typeof firstGal === 'string' ? firstGal : firstGal?.url;
+                const fallbackGal = typeof firstGal === 'string' ? firstGal : firstGal?.url;
+                const secondaryImage = project.hoverImage || fallbackGal;
 
                 return (
                   <div

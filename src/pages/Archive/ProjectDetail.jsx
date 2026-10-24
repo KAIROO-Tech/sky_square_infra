@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { projects } from '../../data/projects';
+import { useProjects } from '../../context/ProjectsContext';
 import { Button } from '../../components/common/Button';
 import { BeforeAfterSlider } from '../../components/common/BeforeAfterSlider';
 import { 
+  FileText,
+  Download,
   ArrowLeft, 
   ChevronLeft, 
   ChevronRight, 
@@ -68,20 +70,12 @@ const iconMap = {
 export const ProjectDetail = () => {
   const { projectSlug } = useParams();
   const navigate = useNavigate();
+  const { projects, getProject } = useProjects();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   // Find project using robust matching for slug variations
-  const project = projects.find((p) => {
-    const id = p.id.toLowerCase();
-    const slug = (projectSlug || '').toLowerCase();
-    if (id === slug) return true;
-    
-    // Normalize IDs and Slugs to match 4800-sft-duplex-villa -> 4800-duplex-villa
-    const normId = id.replace('-sft', '').replace('-project', '');
-    const normSlug = slug.replace('-sft', '').replace('-project', '');
-    return normId === normSlug;
-  });
+  const project = getProject(projectSlug);
 
   const rawGallery = project?.galleryImages || [];
   const galleryImages = rawGallery.map((item, idx) => {
@@ -482,6 +476,46 @@ export const ProjectDetail = () => {
             ))}
           </div>
         </div>
+
+        {/* Architectural Blueprints & PDF Dossiers */}
+        {project.documents && project.documents.length > 0 && (
+          <div className="mb-20">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-8 h-px bg-[#D4AF37]" />
+              <h3 className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-semibold">
+                Architectural Blueprints &amp; Technical Dossiers
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {project.documents.map((doc, idx) => (
+                <a
+                  key={idx}
+                  href={doc.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-5 bg-[#EBE5DE]/30 border border-[#1A1A1A]/10 hover:border-[#D4AF37] hover:bg-[#EBE5DE]/50 transition-all flex items-center justify-between group cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-[#1A1A1A] text-[#D4AF37]">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-serif text-sm font-medium text-[#1A1A1A] group-hover:text-[#D4AF37] transition-colors">
+                        {doc.title || `Architectural Specification Plate 0${idx + 1}`}
+                      </h4>
+                      {doc.fileSize && (
+                        <span className="font-mono text-[10px] text-[#6C6863] tracking-wider uppercase">
+                          {doc.fileSize} • PDF Document
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <Download className="w-4 h-4 text-[#6C6863] group-hover:text-[#D4AF37] transition-colors" />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* 5. Consultation Banner CTA */}
         <div className="p-10 bg-[#EBE5DE]/40 border border-[#1A1A1A]/10 flex flex-col md:flex-row items-center justify-between gap-8 mb-20">
