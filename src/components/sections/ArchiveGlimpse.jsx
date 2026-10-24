@@ -1,21 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { projects } from '../../data/projects';
+import { useProjects } from '../../context/ProjectsContext';
 import { Button } from '../common/Button';
 import AnimatedContent from '../motion/AnimatedContent';
 import { ArrowUpRight, MapPin, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 export const ArchiveGlimpse = () => {
   const navigate = useNavigate();
+  const { projects } = useProjects();
 
-  // Target the 3 featured showcase projects requested
+  // Target the 3 featured showcase projects requested or fallback to available
   const targetIds = ['indus-farm-lands', '4800-duplex-villa', 'mamidipally-connectivity'];
-  const showcaseProjects = targetIds
-    .map(id => projects.find(p => p.id === id))
+  const normalize = (str) =>
+    (str || '')
+      .toLowerCase()
+      .trim()
+      .replace(/-sft/g, '')
+      .replace(/-project/g, '')
+      .replace(/-blueprint/g, '');
+
+  let showcaseProjects = targetIds
+    .map((tid) => projects.find((p) => p.id === tid || normalize(p.id) === normalize(tid)))
     .filter(Boolean);
+
+  if (showcaseProjects.length === 0 && projects.length > 0) {
+    showcaseProjects = projects.slice(0, 3);
+  }
 
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
   const activeProject = showcaseProjects[activeProjectIndex] || showcaseProjects[0];
+
 
   return (
     <section className="w-full py-24 md:py-36 bg-[#F9F8F6] px-6 sm:px-12 md:px-16 border-b border-[#1A1A1A]/10 relative z-10">

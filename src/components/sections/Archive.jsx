@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { projects } from '../../data/projects';
+import { useProjects } from '../../context/ProjectsContext';
 import { Button } from '../common/Button';
 
 export const Archive = ({ onSelectProject }) => {
+  const { projects } = useProjects();
   const [activeFilter, setActiveFilter] = useState('all');
 
   const filteredProjects = projects.filter((project) => {
     if (activeFilter === 'all') return true;
     return project.status.toLowerCase() === activeFilter.toLowerCase();
   });
+
 
   return (
     <section id="work" className="w-full py-28 md:py-36 bg-[#F9F8F6] px-8 md:px-16 border-b border-[#1A1A1A]/10 relative z-10">

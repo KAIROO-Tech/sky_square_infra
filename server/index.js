@@ -3,17 +3,23 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import authRoutes from './routes/authRoutes.js';
+import projectRoutes from './routes/projectRoutes.js';
+import mediaRoutes from './routes/mediaRoutes.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// In-memory inquiry store for demo/leads
-const inquiries = [];
+// Serve static uploaded media files
+const uploadsPath = path.join(__dirname, '../public/uploads');
+app.use('/uploads', express.static(uploadsPath));
 
 // API: Health check
 app.get('/api/health', (req, res) => {
@@ -23,6 +29,14 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Mount Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/media', mediaRoutes);
+
+// In-memory inquiry store for demo/leads
+const inquiries = [];
 
 // API: Submit consultation inquiry
 app.post('/api/inquiry', (req, res) => {
