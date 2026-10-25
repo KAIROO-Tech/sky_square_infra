@@ -8,11 +8,22 @@ export const ScrollToTop = () => {
     if (hash) {
       const element = document.querySelector(hash);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        const headerOffset = 90;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.scrollY - headerOffset;
+        if (window.lenis) {
+          window.lenis.scrollTo(offsetPosition, { duration: 0.8 });
+        } else {
+          window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+        }
         return;
       }
     }
-    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    if (window.lenis) {
+      window.lenis.scrollTo(0, { immediate: true });
+    } else {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    }
   }, [pathname, hash]);
 
   return null;

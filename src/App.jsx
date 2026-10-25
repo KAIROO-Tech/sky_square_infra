@@ -11,6 +11,7 @@ import { Home } from './pages/Home/Home';
 import { Archive } from './pages/Archive/Archive';
 import { ProjectDetail } from './pages/Archive/ProjectDetail';
 import { Expertise } from './pages/Expertise/Expertise';
+import { Contact } from './pages/Contact/Contact';
 import { Inquire } from './pages/Inquire/Inquire';
 import { AdminRoutes } from '../admin/routes/AdminRoutes';
 
@@ -31,7 +32,7 @@ export const App = () => {
 
   return (
     <SmoothScroll>
-      <div className="relative min-h-screen bg-[#0c0c0c] text-[#f5f5f7] font-sans antialiased overflow-x-hidden selection:bg-[#d4af37] selection:text-[#0c0c0c]">
+      <div className="relative min-h-screen bg-[var(--color-page-bg)] text-[var(--color-text-primary)] font-sans antialiased overflow-x-hidden selection:bg-[var(--color-accent)] selection:text-[var(--color-accent-fg)]">
         {/* Scroll restoration helper */}
         <ScrollToTop />
 
@@ -51,7 +52,7 @@ export const App = () => {
             <Route path="/archive" element={<Archive />} />
             <Route path="/archive/:projectSlug" element={<ProjectDetail />} />
             <Route path="/expertise" element={<Expertise />} />
-            <Route path="/contact" element={<Inquire />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/inquire" element={<Inquire />} />
           </Routes>
         </div>

@@ -13,7 +13,7 @@ export const Home = () => {
   const navigate = useNavigate();
 
   const handleOpenConsultation = (project = null) => {
-    navigate('/inquire', { state: { selectedProject: project } });
+    navigate('/contact#consultation', { state: { selectedProject: project, scrollToForm: true } });
   };
 
   const handleExploreArchive = () => {

@@ -49,7 +49,7 @@ export const BrandEntry = () => {
 
   return (
     <div
-      className={`fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#0c0c0c] select-none transition-all duration-700 ease-[cubic-bezier(0.85,0,0.15,1)] ${
+      className={`fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[var(--color-page-bg)] text-[var(--color-text-primary)] select-none transition-all duration-700 ease-[cubic-bezier(0.85,0,0.15,1)] ${
         phase === 4 ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
       }`}
     >
@@ -57,7 +57,7 @@ export const BrandEntry = () => {
       <button
         type="button"
         onClick={handleComplete}
-        className="absolute top-8 right-8 z-[100000] font-mono text-[10px] uppercase tracking-[0.25em] text-white/50 hover:text-[#d4af37] border border-white/10 hover:border-[#d4af37]/30 px-3.5 py-1.5 bg-[#0c0c0c]/80 backdrop-blur-sm transition-all duration-300 cursor-pointer"
+        className="absolute top-8 right-8 z-[100000] font-mono text-[10px] uppercase tracking-[0.25em] text-[var(--color-text-muted)] hover:text-[var(--color-accent)] border border-[var(--color-border)] hover:border-[var(--color-accent)]/50 px-3.5 py-1.5 bg-[var(--color-surface)]/80 backdrop-blur-sm transition-all duration-300 cursor-pointer"
         aria-label="Skip introduction"
       >
         Skip Intro
@@ -66,22 +66,22 @@ export const BrandEntry = () => {
       {/* Architectural Hairline Grid */}
       <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
         <div
-          className={`absolute top-0 bottom-0 left-1/4 w-[1px] bg-white/10 origin-top transition-transform duration-1000 ease-out ${
+          className={`absolute top-0 bottom-0 left-1/4 w-[1px] bg-[var(--color-border)] origin-top transition-transform duration-1000 ease-out ${
             phase >= 0 ? 'scale-y-100' : 'scale-y-0'
           }`}
         />
         <div
-          className={`absolute top-0 bottom-0 left-3/4 w-[1px] bg-white/10 origin-bottom transition-transform duration-1000 ease-out ${
+          className={`absolute top-0 bottom-0 left-3/4 w-[1px] bg-[var(--color-border)] origin-bottom transition-transform duration-1000 ease-out ${
             phase >= 0 ? 'scale-y-100' : 'scale-y-0'
           }`}
         />
         <div
-          className={`absolute left-0 right-0 top-1/3 h-[1px] bg-white/10 origin-left transition-transform duration-1000 ease-out ${
+          className={`absolute left-0 right-0 top-1/3 h-[1px] bg-[var(--color-border)] origin-left transition-transform duration-1000 ease-out ${
             phase >= 0 ? 'scale-x-100' : 'scale-x-0'
           }`}
         />
         <div
-          className={`absolute left-0 right-0 top-2/3 h-[1px] bg-white/10 origin-right transition-transform duration-1000 ease-out ${
+          className={`absolute left-0 right-0 top-2/3 h-[1px] bg-[var(--color-border)] origin-right transition-transform duration-1000 ease-out ${
             phase >= 0 ? 'scale-x-100' : 'scale-x-0'
           }`}
         />
@@ -89,20 +89,20 @@ export const BrandEntry = () => {
 
       {/* Typography Sequence Container */}
       <div className="relative z-20 flex flex-col items-center justify-center space-y-4 text-center">
-        <div className="absolute font-serif text-[18vw] text-white/[0.02] font-light leading-none select-none pointer-events-none z-0">
+        <div className="absolute font-serif text-[18vw] text-[var(--color-text-primary)] opacity-[0.03] dark:opacity-[0.05] font-light leading-none select-none pointer-events-none z-0">
           SQ
         </div>
 
         <div className="relative z-10 overflow-hidden flex flex-col items-center">
           <h1
-            className={`font-serif tracking-[0.35em] text-4xl sm:text-6xl font-light text-white transition-all duration-700 ease-out transform ${
+            className={`font-serif tracking-[0.35em] text-4xl sm:text-6xl font-light text-[var(--color-text-primary)] transition-all duration-700 ease-out transform ${
               phase >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
             }`}
           >
             SKY
           </h1>
           <h1
-            className={`font-serif tracking-[0.25em] text-4xl sm:text-6xl font-normal text-white mt-2 transition-all duration-700 ease-out transform ${
+            className={`font-serif tracking-[0.25em] text-4xl sm:text-6xl font-normal text-[var(--color-text-primary)] mt-2 transition-all duration-700 ease-out transform ${
               phase >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
             }`}
           >
@@ -112,7 +112,7 @@ export const BrandEntry = () => {
 
         <div className="relative z-10 overflow-hidden pt-1">
           <p
-            className={`font-mono tracking-[0.5em] text-xs sm:text-sm font-semibold text-[#d4af37] transition-all duration-700 ease-out transform ${
+            className={`font-mono tracking-[0.5em] text-xs sm:text-sm font-semibold text-[var(--color-accent)] transition-all duration-700 ease-out transform ${
               phase >= 3 ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
             }`}
           >

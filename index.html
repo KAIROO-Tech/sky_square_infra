@@ -1,11 +1,24 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth bg-[#F9F8F6] text-[#1A1A1A]">
+<html lang="en" class="scroll-smooth light" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sky Square Infra | Invisible Luxury &amp; Engineering Excellence</title>
     <meta name="description" content="A modern engineering powerhouse delivering excellence in construction, land development, and infrastructure in the Telangana growth corridors." />
     
+    <!-- Inline Early Theme Initialization (Zero Flash) -->
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('skysquare_theme');
+          var theme = (saved === 'dark') ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.classList.remove('light', 'dark');
+          document.documentElement.classList.add(theme);
+        } catch (e) {}
+      })();
+    </script>
+
     <!-- Google Fonts: Playfair Display (Serif) & Inter (Sans) & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,19 +28,26 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
-              background: '#F9F8F6',
-              foreground: '#1A1A1A',
-              surface: '#EBE5DE',
-              muted: '#6C6863',
-              accent: {
-                DEFAULT: '#D4AF37',
-                hover: '#C29F2F',
-                light: '#E6CA65',
+              background: 'var(--color-page-bg)',
+              foreground: 'var(--color-page-fg)',
+              surface: {
+                DEFAULT: 'var(--color-surface)',
+                warm: 'var(--color-surface-warm)',
+                elevated: 'var(--color-surface-elevated)',
+                muted: 'var(--color-surface-muted)',
               },
-              'accent-foreground': '#FFFFFF',
+              muted: 'var(--color-text-muted)',
+              accent: {
+                DEFAULT: 'var(--color-accent)',
+                hover: 'var(--color-accent-hover)',
+                light: 'var(--color-accent-light)',
+                subtle: 'var(--color-accent-subtle)',
+              },
+              'accent-foreground': 'var(--color-accent-fg)',
             },
             fontFamily: {
               serif: ['"Playfair Display"', 'Georgia', 'serif'],
@@ -79,7 +99,7 @@
       }
     </script>
   </head>
-  <body class="bg-[#F9F8F6] text-[#1A1A1A] antialiased selection:bg-[#D4AF37] selection:text-white relative overflow-x-hidden min-h-screen">
+  <body class="bg-background text-foreground antialiased selection:bg-[#D4AF37] selection:text-white relative overflow-x-hidden min-h-screen">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

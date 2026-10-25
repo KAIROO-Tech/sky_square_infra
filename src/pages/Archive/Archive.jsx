@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, MapPin, Sparkles, Layers, ChevronRight } from 'lucide-react';
+import { ArrowRight, MapPin, Sparkles, Layers, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useProjects } from '../../context/ProjectsContext';
@@ -13,7 +13,7 @@ if (typeof window !== 'undefined') {
 }
 
 export const Archive = () => {
-  const { projects } = useProjects();
+  const { projects, loading, error } = useProjects();
   const [activeFilter, setActiveFilter] = useState('all');
   const [activeCardIndex, setActiveCardIndex] = useState(0);
   const [hoveredCardId, setHoveredCardId] = useState(null);
@@ -23,6 +23,14 @@ export const Archive = () => {
 
   const pinnedSectionRef = useRef(null);
   const cardsRef = useRef([]);
+  const mobileCardsRef = useRef([]);
+  const scrollTriggerRef = useRef(null);
+  const isNavigatingRef = useRef(false);
+  const wheelLockRef = useRef(false);
+  const lastWheelTimeRef = useRef(0);
+  const activeIndexRef = useRef(activeCardIndex);
+  activeIndexRef.current = activeCardIndex;
+  const filteredLengthRef = useRef(0);
 
   // Filter only active pinned projects for the Pinned Dossier Stack
   const pinnedProjects = projects
@@ -33,6 +41,7 @@ export const Archive = () => {
     if (activeFilter === 'all') return true;
     return project.status.toLowerCase() === activeFilter.toLowerCase();
   });
+  filteredLengthRef.current = filteredProjects.length;
 
   const categoryCounts = {
     all: pinnedProjects.length,
@@ -92,8 +101,10 @@ export const Archive = () => {
           },
           invalidateOnRefresh: true,
           onUpdate: (self) => {
-            const step = Math.round(self.progress * (totalCards - 1));
-            setActiveCardIndex(Math.min(Math.max(step, 0), totalCards - 1));
+            if (!isNavigatingRef.current) {
+              const step = Math.round(self.progress * (totalCards - 1));
+              setActiveCardIndex(Math.min(Math.max(step, 0), totalCards - 1));
+            }
           },
         },
       });
@@ -134,6 +145,8 @@ export const Archive = () => {
         // Once fully covered, hide previous card completely from rendering & clicks
         tl.set(currentCard, { visibility: 'hidden' }, i + 1);
       }
+
+      scrollTriggerRef.current = tl.scrollTrigger;
     }, pinnedSectionRef);
 
     const timer = setTimeout(() => {
@@ -142,9 +155,287 @@ export const Archive = () => {
 
     return () => {
       clearTimeout(timer);
+      scrollTriggerRef.current = null;
       ctx.revert();
     };
   }, [activeFilter, isDesktop, filteredProjects.length]);
+
+  // Mobile intersection observer to keep activeCardIndex in sync while scrolling
+  useEffect(() => {
+    if (isDesktop) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isNavigatingRef.current) {
+            const index = Number(entry.target.getAttribute('data-project-index'));
+            if (!isNaN(index)) {
+              setActiveCardIndex(index);
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.45,
+      }
+    );
+
+    const cards = mobileCardsRef.current.filter(Boolean);
+    cards.forEach((card) => observer.observe(card));
+
+    return () => {
+      cards.forEach((card) => observer.unobserve(card));
+      observer.disconnect();
+    };
+  }, [isDesktop, filteredProjects.length, activeFilter]);
+
+  // Programmatic navigation to a target project index
+  const navigateToProject = (targetIndex) => {
+    if (targetIndex < 0 || targetIndex >= filteredProjects.length) return;
+    if (isNavigatingRef.current) return;
+
+    isNavigatingRef.current = true;
+    wheelLockRef.current = true;
+    setActiveCardIndex(targetIndex);
+
+    if (isDesktop && scrollTriggerRef.current) {
+      const st = scrollTriggerRef.current;
+      const totalCards = filteredProjects.length;
+      if (totalCards <= 1) {
+        isNavigatingRef.current = false;
+        wheelLockRef.current = false;
+        return;
+      }
+
+      // Calculate target vertical scroll position within pinned ScrollTrigger boundaries
+      const targetProgress = targetIndex / (totalCards - 1);
+      const targetY = st.start + targetProgress * (st.end - st.start);
+
+      if (window.lenis) {
+        window.lenis.scrollTo(targetY, {
+          duration: 0.75,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          onComplete: () => {
+            isNavigatingRef.current = false;
+            setTimeout(() => {
+              wheelLockRef.current = false;
+            }, 100);
+          },
+        });
+      } else {
+        const scrollProxy = { y: window.scrollY };
+        gsap.to(scrollProxy, {
+          y: targetY,
+          duration: 0.75,
+          ease: 'power2.inOut',
+          onUpdate: () => {
+            window.scrollTo(0, scrollProxy.y);
+          },
+          onComplete: () => {
+            isNavigatingRef.current = false;
+            setTimeout(() => {
+              wheelLockRef.current = false;
+            }, 100);
+          },
+        });
+      }
+
+      // Safeguard lock release
+      setTimeout(() => {
+        isNavigatingRef.current = false;
+        wheelLockRef.current = false;
+      }, 850);
+    } else {
+      // Mobile smooth scroll to target project card with navbar header offset
+      const targetCard = mobileCardsRef.current[targetIndex];
+      if (targetCard) {
+        if (window.lenis) {
+          window.lenis.scrollTo(targetCard, {
+            offset: -75,
+            duration: 0.65,
+            onComplete: () => {
+              isNavigatingRef.current = false;
+              wheelLockRef.current = false;
+            },
+          });
+        } else {
+          const rect = targetCard.getBoundingClientRect();
+          const targetY = window.pageYOffset + rect.top - 75;
+          window.scrollTo({
+            top: Math.max(0, targetY),
+            behavior: 'smooth',
+          });
+          setTimeout(() => {
+            isNavigatingRef.current = false;
+            wheelLockRef.current = false;
+          }, 700);
+        }
+      } else {
+        isNavigatingRef.current = false;
+        wheelLockRef.current = false;
+      }
+    }
+  };
+
+  const handlePrev = (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    if (isNavigatingRef.current || wheelLockRef.current || activeCardIndex <= 0) return;
+    navigateToProject(activeCardIndex - 1);
+  };
+
+  const handleNext = (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    if (isNavigatingRef.current || wheelLockRef.current || activeCardIndex >= filteredProjects.length - 1) return;
+    navigateToProject(activeCardIndex + 1);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      handlePrev(e);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      handleNext(e);
+    }
+  };
+
+  // Unified Wheel & Touch Navigation:
+  // - 1 intentional downward wheel gesture advances exactly 1 slide
+  // - 1 intentional upward wheel gesture moves to previous slide
+  // - Transition throttle lock swallows trackpad momentum and avoids multi-slide skipping
+  // - Normal scrolling allowed when outside slider or over nested scrollable areas
+  useEffect(() => {
+    const section = pinnedSectionRef.current;
+    if (!section) return;
+
+    let momentumTimer = null;
+
+    const handleWheel = (e) => {
+      if (!isDesktop) return;
+
+      // Preserve native scrolling if pointer is over a nested scrollable element
+      let el = e.target;
+      while (el && el !== section) {
+        if (el.scrollHeight > el.clientHeight) {
+          const style = window.getComputedStyle(el);
+          if (['auto', 'scroll'].includes(style.overflowY)) {
+            const atTop = el.scrollTop <= 0 && e.deltaY < 0;
+            const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight && e.deltaY > 0;
+            if (!atTop && !atBottom) {
+              return;
+            }
+          }
+        }
+        el = el.parentElement;
+      }
+
+      const now = Date.now();
+      const delta = e.deltaY;
+
+      // Ignore micro noise/jitter
+      if (Math.abs(delta) < 18) return;
+
+      const currentIndex = activeIndexRef.current;
+      const total = filteredLengthRef.current;
+      if (total <= 1) return;
+
+      const isDownward = delta > 0;
+      const isUpward = delta < 0;
+
+      const canAdvance = isDownward && currentIndex < total - 1;
+      const canRetreat = isUpward && currentIndex > 0;
+
+      // At boundaries, let normal page scrolling proceed (up to Hero or down to Footer)
+      if (!canAdvance && !canRetreat) {
+        return;
+      }
+
+      // Inside slide range: intercept event to advance 1 slide
+      e.preventDefault();
+      e.stopPropagation();
+
+      // If transition is locked or currently navigating, absorb momentum events
+      if (wheelLockRef.current || isNavigatingRef.current) {
+        return;
+      }
+
+      // Cooldown throttle to ensure 1 gesture = 1 slide
+      if (now - lastWheelTimeRef.current < 750) {
+        return;
+      }
+
+      wheelLockRef.current = true;
+      lastWheelTimeRef.current = now;
+
+      if (canAdvance) {
+        navigateToProject(currentIndex + 1);
+      } else if (canRetreat) {
+        navigateToProject(currentIndex - 1);
+      }
+
+      clearTimeout(momentumTimer);
+      momentumTimer = setTimeout(() => {
+        wheelLockRef.current = false;
+      }, 800);
+    };
+
+    // Scoped touch swipe handling for touch-enabled devices (works on both mobile and desktop touchscreens)
+    let touchStartY = null;
+    let touchStartX = null;
+
+    const handleTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e) => {
+      if (touchStartY === null) return;
+      const touchEndY = e.changedTouches[0].clientY;
+      const touchEndX = e.changedTouches[0].clientX;
+      const diffY = touchStartY - touchEndY;
+      const diffX = touchStartX - touchEndX;
+      touchStartY = null;
+      touchStartX = null;
+
+      // Ensure gesture is predominantly vertical and meets threshold
+      if (Math.abs(diffY) < 45 || Math.abs(diffY) < Math.abs(diffX)) return;
+
+      const currentIndex = activeIndexRef.current;
+      const total = filteredLengthRef.current;
+      if (total <= 1) return;
+
+      if (diffY > 0 && currentIndex < total - 1) {
+        if (!isNavigatingRef.current && !wheelLockRef.current) {
+          wheelLockRef.current = true;
+          navigateToProject(currentIndex + 1);
+          setTimeout(() => {
+            wheelLockRef.current = false;
+          }, 700);
+        }
+      } else if (diffY < 0 && currentIndex > 0) {
+        if (!isNavigatingRef.current && !wheelLockRef.current) {
+          wheelLockRef.current = true;
+          navigateToProject(currentIndex - 1);
+          setTimeout(() => {
+            wheelLockRef.current = false;
+          }, 700);
+        }
+      }
+    };
+
+    section.addEventListener('wheel', handleWheel, { passive: false });
+    section.addEventListener('touchstart', handleTouchStart, { passive: true });
+    section.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      clearTimeout(momentumTimer);
+      section.removeEventListener('wheel', handleWheel);
+      section.removeEventListener('touchstart', handleTouchStart);
+      section.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isDesktop]);
 
   const handleMouseMove = (e, id) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -163,16 +454,16 @@ export const Archive = () => {
   };
 
   return (
-    <div className="archive-page-container w-full min-h-screen bg-[#0c0c0c] text-[#f5f5f7] selection:bg-[#d4af37]/30 selection:text-[#d4af37]">
+    <div className="archive-page-container w-full min-h-screen bg-[var(--color-page-bg)] text-[var(--color-text-primary)] selection:bg-[#d4af37]/30 selection:text-[#d4af37] transition-colors duration-300">
       {/* Hero Section with Parallax Effect */}
       <ArchiveHero />
 
       {/* Sticky Filter Header */}
-      <div className="archive-sticky-filter py-4 px-6 md:px-16 border-b border-white/10">
+      <div className="archive-sticky-filter py-4 px-6 md:px-16 border-b border-[var(--color-border)]">
         <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex items-center gap-3">
             <span className="w-2.5 h-2.5 rounded-full bg-[#d4af37] animate-pulse" />
-            <p className="font-mono text-xs uppercase tracking-[0.25em] text-white/70">
+            <p className="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-text-secondary)]">
               ARCHITECTURAL DOSSIER SECTORS ({filteredProjects.length} WORKS)
             </p>
           </div>
@@ -180,7 +471,7 @@ export const Archive = () => {
           <div
             role="tablist"
             aria-label="Filter Architectural Projects"
-            className="flex gap-2 p-1.5 bg-white/[0.03] border border-white/10 rounded-full font-mono text-xs uppercase tracking-wider"
+            className="flex gap-2 p-1.5 bg-[var(--color-surface-warm)] border border-[var(--color-border)] rounded-full font-mono text-xs uppercase tracking-wider"
           >
             {[
               { id: 'all', label: 'All Works' },
@@ -198,16 +489,16 @@ export const Archive = () => {
                   aria-selected={isActive}
                   aria-controls="archive-project-viewport"
                   onClick={() => setActiveFilter(tab.id)}
-                  className={`relative px-5 py-2 rounded-full transition-all duration-300 flex items-center gap-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#d4af37] ${
+                  className={`relative px-5 py-2 rounded-full transition-all duration-300 flex items-center gap-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] ${
                     isActive
-                      ? 'bg-[#d4af37] text-[#0c0c0c] font-semibold shadow-lg shadow-[#d4af37]/20'
-                      : 'text-white/70 hover:text-white hover:bg-white/5'
+                      ? 'bg-[var(--color-accent)] text-[var(--color-accent-fg)] font-semibold shadow-md'
+                      : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface)]'
                   }`}
                 >
                   <span>{tab.label}</span>
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                      isActive ? 'bg-[#0c0c0c]/20 text-[#0c0c0c]' : 'bg-white/10 text-white/60'
+                      isActive ? 'bg-[var(--color-accent-fg)]/20 text-[var(--color-accent-fg)]' : 'bg-[var(--color-surface-muted)] text-[var(--color-text-muted)]'
                     }`}
                   >
                     {count}
@@ -224,22 +515,61 @@ export const Archive = () => {
         <div className="max-w-[1600px] mx-auto relative">
           
           {/* Deck Header & Live Progress Tracker */}
-          <div className="flex items-center justify-between mb-4 pt-2 font-mono text-xs uppercase tracking-widest text-white/60 border-b border-white/10 pb-3">
+          <div className="flex items-center justify-between mb-4 pt-2 font-mono text-xs uppercase tracking-widest text-[var(--color-text-muted)] border-b border-[var(--color-border)] pb-3">
             <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#d4af37]" />
+              <Layers className="w-4 h-4 text-[var(--color-accent)]" />
               <span>PINNED DOSSIER STACK</span>
             </div>
 
-            {isDesktop && (
-              <div className="flex items-center gap-3 bg-white/[0.04] border border-white/10 px-4 py-1 rounded-full">
-                <span className="text-[#d4af37] font-semibold">
+            <div className="flex items-center gap-2">
+              {/* Quick Arrow Nav for mobile in header */}
+              {filteredProjects.length > 1 && (
+                <div className="flex md:hidden items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    disabled={activeCardIndex <= 0}
+                    aria-label="Previous project"
+                    className="w-7 h-7 flex items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] disabled:opacity-25 hover:border-[#d4af37] transition-colors"
+                  >
+                    <ChevronUp className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={activeCardIndex >= filteredProjects.length - 1}
+                    aria-label="Next project"
+                    className="w-7 h-7 flex items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] disabled:opacity-25 hover:border-[#d4af37] transition-colors"
+                  >
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 bg-[var(--color-surface-warm)] border border-[var(--color-border)] px-3 sm:px-4 py-1 rounded-full">
+                <span className="text-[var(--color-accent)] font-semibold">
                   {String(activeCardIndex + 1).padStart(2, '0')}
                 </span>
-                <span className="text-white/30">/</span>
-                <span>{String(filteredProjects.length).padStart(2, '0')}</span>
+                <span className="text-[var(--color-text-muted)]/40">/</span>
+                <span className="text-[var(--color-text-secondary)]">{String(filteredProjects.length).padStart(2, '0')}</span>
               </div>
-            )}
+            </div>
           </div>
+
+          {/* Empty State when filter yields 0 projects */}
+          {filteredProjects.length === 0 && (
+            <div className="py-20 text-center flex flex-col items-center justify-center">
+              <p className="font-serif text-2xl text-[var(--color-text-primary)] mb-2 font-normal">
+                No Projects in Dossier Sector
+              </p>
+              <p className="font-sans text-xs text-[var(--color-text-secondary)] mb-6 max-w-sm">
+                No architectural files matched the filter &ldquo;{activeFilter}&rdquo;.
+              </p>
+              <Button variant="secondary" size="small" onClick={() => setActiveFilter('all')}>
+                View All Works
+              </Button>
+            </div>
+          )}
 
           {/* DESKTOP: GSAP Pinned Deck Viewport */}
           {isDesktop ? (
@@ -374,11 +704,71 @@ export const Archive = () => {
                   </div>
                 );
               })}
+
+              {/* Vertically Stacked Pair of Up/Down Project Navigation Controls */}
+              {filteredProjects.length > 1 && (
+                <div
+                  className="archive-slider-nav"
+                  role="group"
+                  aria-label="Vertical project slider navigation"
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={handleKeyDown}
+                >
+                  {/* Up Arrow: Navigate to Previous Project */}
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    disabled={activeCardIndex <= 0}
+                    aria-label="Previous project"
+                    title="Previous project"
+                    className="archive-slider-nav-btn archive-slider-nav-prev"
+                  >
+                    <ChevronUp className="w-4 h-4" aria-hidden="true" />
+                  </button>
+
+                  {/* Vertical Progress Indicator Track */}
+                  <div
+                    className="archive-slider-indicator-track"
+                    role="tablist"
+                    aria-label="Project slider indicators"
+                  >
+                    {filteredProjects.map((p, idx) => (
+                      <button
+                        key={p.id || idx}
+                        type="button"
+                        role="tab"
+                        aria-selected={activeCardIndex === idx}
+                        aria-label={`Go to project ${idx + 1}: ${p.title}`}
+                        title={`${String(idx + 1).padStart(2, '0')} — ${p.title}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigateToProject(idx);
+                        }}
+                        className={`archive-slider-indicator-dot ${
+                          activeCardIndex === idx ? 'active' : ''
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Down Arrow: Navigate to Next Project */}
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={activeCardIndex >= filteredProjects.length - 1}
+                    aria-label="Next project"
+                    title="Next project"
+                    className="archive-slider-nav-btn archive-slider-nav-next"
+                  >
+                    <ChevronDown className="w-4 h-4" aria-hidden="true" />
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             /* MOBILE: Cascading Feed */
-            <div className="flex flex-col gap-8">
-              {filteredProjects.map((project) => {
+            <div className="flex flex-col gap-6 relative">
+              {filteredProjects.map((project, index) => {
                 const firstGal = project.galleryImages?.[0];
                 const fallbackGal = typeof firstGal === 'string' ? firstGal : firstGal?.url;
                 const secondaryImage = project.hoverImage || fallbackGal;
@@ -386,8 +776,10 @@ export const Archive = () => {
                 return (
                   <div
                     key={project.id}
+                    ref={(el) => (mobileCardsRef.current[index] = el)}
+                    data-project-index={index}
                     onClick={() => handleCardClick(project.id)}
-                    className="archive-mobile-card group cursor-pointer p-6 flex flex-col justify-end"
+                    className="archive-mobile-card group cursor-pointer p-4 sm:p-6 flex flex-col justify-end"
                   >
                     <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
                       <img
@@ -409,9 +801,9 @@ export const Archive = () => {
                       <span className="text-[#d4af37] font-mono text-xs uppercase tracking-wider block mb-1">
                         {project.location}
                       </span>
-                      <h3 className="text-2xl font-serif text-white mb-2">{project.title}</h3>
-                      <p className="text-white/70 text-xs line-clamp-2 mb-4 font-light">{project.summary}</p>
-                      <div className="flex items-center justify-between border-t border-white/10 pt-3">
+                      <h3 className="text-xl sm:text-2xl font-serif text-white mb-2">{project.title}</h3>
+                      <p className="text-white/70 text-xs line-clamp-2 mb-3 font-light leading-relaxed">{project.summary}</p>
+                      <div className="flex items-center justify-between border-t border-white/10 pt-2.5">
                         <span className="font-mono text-[10px] text-[#D4AF37] uppercase tracking-widest flex items-center gap-1">
                           Inspect File <ChevronRight className="w-3 h-3" />
                         </span>
@@ -421,6 +813,58 @@ export const Archive = () => {
                   </div>
                 );
               })}
+
+              {/* Dedicated Compact Mobile Bottom Navigation Group */}
+              {filteredProjects.length > 1 && (
+                <div
+                  className="archive-mobile-nav-bar"
+                  role="group"
+                  aria-label="Archive project mobile navigation"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    disabled={activeCardIndex <= 0}
+                    aria-label="Previous project"
+                    title="Previous project"
+                    className="archive-mobile-nav-btn"
+                  >
+                    <ChevronUp className="w-4 h-4" aria-hidden="true" />
+                  </button>
+
+                  <div className="archive-mobile-nav-indicators" role="tablist" aria-label="Project slider indicators">
+                    {filteredProjects.map((p, idx) => (
+                      <button
+                        key={p.id || idx}
+                        type="button"
+                        role="tab"
+                        aria-selected={activeCardIndex === idx}
+                        aria-label={`Go to project ${idx + 1}: ${p.title}`}
+                        title={`${String(idx + 1).padStart(2, '0')} — ${p.title}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigateToProject(idx);
+                        }}
+                        className={`archive-mobile-indicator-dot ${
+                          activeCardIndex === idx ? 'active' : ''
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={activeCardIndex >= filteredProjects.length - 1}
+                    aria-label="Next project"
+                    title="Next project"
+                    className="archive-mobile-nav-btn"
+                  >
+                    <ChevronDown className="w-4 h-4" aria-hidden="true" />
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -428,20 +872,20 @@ export const Archive = () => {
       </div>
 
       {/* Luxury Architectural Valuation CTA Section */}
-      <section className="w-full py-16 px-6 md:px-16 border-t border-white/10 bg-[#0c0c0c]">
+      <section className="w-full py-16 px-6 md:px-16 border-t border-[var(--color-border)] bg-[var(--color-surface-warm)]">
         <div className="max-w-[1600px] mx-auto">
-          <div className="p-8 md:p-14 bg-gradient-to-r from-white/[0.04] via-white/[0.02] to-white/[0.04] border-t-2 border-t-[#d4af37] border border-white/10 backdrop-blur-md flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-72 h-72 bg-[#d4af37]/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="p-8 md:p-14 bg-[var(--color-surface)] border-t-2 border-t-[var(--color-accent)] border border-[var(--color-border)] shadow-card flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-72 h-72 bg-[var(--color-accent)]/5 rounded-full blur-3xl pointer-events-none" />
 
             <div className="max-w-2xl z-10">
-              <div className="flex items-center gap-2 text-[#d4af37] font-mono text-xs uppercase tracking-widest mb-3">
+              <div className="flex items-center gap-2 text-[var(--color-accent)] font-mono text-xs uppercase tracking-widest mb-3">
                 <Sparkles className="w-4 h-4" />
                 <span>TURNKEY LAND &amp; STRUCTURAL ENGINEERING</span>
               </div>
-              <h4 className="font-serif text-2xl sm:text-3xl text-[#f5f5f7] mb-3 font-normal leading-snug">
+              <h4 className="font-serif text-2xl sm:text-3xl text-[var(--color-text-primary)] mb-3 font-normal leading-snug">
                 Have a land parcel or custom architectural project?
               </h4>
-              <p className="font-sans text-sm md:text-base text-white/70 font-light leading-relaxed">
+              <p className="font-sans text-sm md:text-base text-[var(--color-text-secondary)] font-light leading-relaxed">
                 We provide comprehensive feasibility studies, land demarcation, structural civil blueprints, and turnkey construction management across Telangana.
               </p>
             </div>
@@ -451,7 +895,7 @@ export const Archive = () => {
                 variant="primary"
                 size="default"
                 onClick={() => navigate('/inquire')}
-                className="w-full sm:w-auto bg-[#d4af37] text-[#0c0c0c] hover:bg-[#c29f2f] font-mono text-xs uppercase tracking-wider font-semibold py-4 px-8 shadow-lg shadow-[#d4af37]/20"
+                className="w-full sm:w-auto bg-[var(--color-accent)] text-[var(--color-accent-fg)] hover:bg-[var(--color-accent-hover)] font-mono text-xs uppercase tracking-wider font-semibold py-4 px-8 shadow-md"
               >
                 Request Project Valuation
               </Button>

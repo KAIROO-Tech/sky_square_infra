@@ -32,10 +32,10 @@ export const Marquee = ({
         <div className="flex items-center gap-12 whitespace-nowrap px-6 shrink-0 min-w-full justify-around">
           {listToRender.map((item, i) => (
             <React.Fragment key={`m1-${i}`}>
-              <span className={textClassName || "font-serif text-sm tracking-[0.25em] text-[#1A1A1A]/40 uppercase"}>
+              <span className={textClassName || "font-serif text-sm tracking-[0.25em] text-[var(--color-text-primary)]/40 uppercase"}>
                 {item}
               </span>
-              <span className="text-[#D4AF37]/60 text-xs select-none">✦</span>
+              <span className="text-[var(--color-accent)]/60 text-xs select-none">✦</span>
             </React.Fragment>
           ))}
         </div>
@@ -44,10 +44,10 @@ export const Marquee = ({
         <div className="flex items-center gap-12 whitespace-nowrap px-6 shrink-0 min-w-full justify-around">
           {listToRender.map((item, i) => (
             <React.Fragment key={`m2-${i}`}>
-              <span className={textClassName || "font-serif text-sm tracking-[0.25em] text-[#1A1A1A]/40 uppercase"}>
+              <span className={textClassName || "font-serif text-sm tracking-[0.25em] text-[var(--color-text-primary)]/40 uppercase"}>
                 {item}
               </span>
-              <span className="text-[#D4AF37]/60 text-xs select-none">✦</span>
+              <span className="text-[var(--color-accent)]/60 text-xs select-none">✦</span>
             </React.Fragment>
           ))}
         </div>
