@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { requireAdminAuth } from '../middleware/authMiddleware.js';
+import { isS3Configured, uploadBufferToS3 } from '../services/s3Service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,21 +57,41 @@ const upload = multer({
 const router = express.Router();
 
 // POST /api/media/upload (requires admin auth)
-router.post('/upload', requireAdminAuth, upload.single('file'), (req, res) => {
+router.post('/upload', requireAdminAuth, upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ success: false, error: 'No media file attached.' });
   }
 
-  const fileUrl = `/uploads/${req.file.filename}`;
   const ext = path.extname(req.file.filename).toLowerCase();
   
   let mediaType = 'image';
   if (['.mp4', '.webm'].includes(ext)) mediaType = 'video';
   if (['.pdf'].includes(ext)) mediaType = 'pdf';
 
+  let fileUrl = `/uploads/${req.file.filename}`;
+  let storageProvider = 'local';
+
+  // If S3 environment variables are configured, attempt upload to S3
+  if (isS3Configured()) {
+    try {
+      const buffer = fs.readFileSync(req.file.path);
+      const s3Url = await uploadBufferToS3({
+        buffer,
+        filename: req.file.filename,
+        mimetype: req.file.mimetype,
+      });
+      fileUrl = s3Url;
+      storageProvider = 's3';
+      console.log(`[S3 SUCCESS] Uploaded to S3: ${s3Url}`);
+    } catch (s3Err) {
+      console.warn(`[S3 FALLBACK] S3 upload failed (${s3Err.message}). Using local storage fallback: ${fileUrl}`);
+    }
+  }
+
   return res.status(201).json({
     success: true,
     url: fileUrl,
+    storage: storageProvider,
     filename: req.file.filename,
     originalName: req.file.originalname,
     mediaType,

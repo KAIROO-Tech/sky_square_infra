@@ -6,7 +6,7 @@
     "category": "Land Development",
     "status": "ongoing",
     "isBlueprint": false,
-    "featured": false,
+    "featured": true,
     "progressPercent": 72,
     "milestones": [
       {
@@ -38,7 +38,7 @@
     "placeholderGradient": "linear-gradient(135deg, #1C2321 0%, #0D1B2A 100%)",
     "summary": "High-end residential duplex in Hyderabad's premier growth corridor featuring modern architecture & precise planning.",
     "description": "Crafted for discerning homeowners, this expansive 5-BHK duplex villa in shankerpally showcases double-height living areas, Italian marble flooring, floor-to-ceiling glass fenestrations, and private landscaped courtyards designed for seamless indoor-outdoor living.",
-    "scope": "karan development",
+    "scope": "karan development zxc",
     "architecturalHighlights": [
       "Seismic Zone II compliant reinforced concrete frame structure",
       "Double-glazed acoustic thermal windows with thermal break aluminium framing",
@@ -127,7 +127,7 @@
       }
     ],
     "createdAt": "2026-10-17T19:55:11.177Z",
-    "updatedAt": "2026-10-24T14:47:41.238Z",
+    "updatedAt": "2026-10-24T15:29:37.233Z",
     "beforeImage": "/uploads/b207c3300388ee45ef026969926cb6e1-1792307473208.jpg",
     "afterImage": "/uploads/screenshot-2026-09-10-at-5-37-12---pm-1792307478525.png",
     "hoverImage": "/uploads/4e8478aaf66a577f5eba1f188f0af944-1792776635806.jpg"
@@ -727,5 +727,184 @@
     "documents": [],
     "createdAt": "2026-10-17T19:55:11.177Z",
     "updatedAt": "2026-10-24T14:46:18.884Z"
+  },
+  {
+    "id": "uploading-testing",
+    "title": "uploading testing",
+    "location": "zxczxc",
+    "category": "Land Development",
+    "status": "completed",
+    "isBlueprint": false,
+    "featured": false,
+    "isPinned": true,
+    "stackOrder": 6,
+    "progressPercent": 0,
+    "milestones": [],
+    "heroImage": "/uploads/4e8478aaf66a577f5eba1f188f0af944-1792863013521.jpg",
+    "hoverImage": "/uploads/075adeb3b8376738c2587a0b7920fe7c-1792863017236.jpg",
+    "placeholderGradient": "linear-gradient(135deg, #1C2321 0%, #0D1B2A 100%)",
+    "summary": "Executive Summary (Lead Paragraph) *\nExecutive Summary (Lead Paragraph) *\nExecutive Summary (Lead Paragraph) *\nExecutive Summary (Lead Paragraph) *\n",
+    "description": "In-Depth Technical Description *\nIn-Depth Technical Description *\nIn-Depth Technical Description *\nIn-Depth Technical Description *\nIn-Depth Technical Description *\n",
+    "scope": "qweqweqwe",
+    "architecturalHighlights": [
+      "Key Specifications & Architectural Highlights (1)Key Specifications & Architectural Highlights (1)",
+      "Key Specifications & Architectural Highlights (1)",
+      "Key Specifications & Architectural Highlights "
+    ],
+    "materialsAndAmenities": [
+      {
+        "icon": "Trees",
+        "label": "Material & Specification Palette (1)",
+        "detail": "Material & Specification Palette "
+      },
+      {
+        "icon": "Droplets",
+        "label": "drop",
+        "detail": "Specification detail descriMaterial & Specification Palette (1)ption"
+      }
+    ],
+    "pullQuote": "Architectural Ethos & Philosophy (Pull Quote)\nArchitectural Ethos & Philosophy (Pull Quote)\n",
+    "galleryImages": [
+      {
+        "url": "/uploads/screenshot-2026-10-06-at-5-09-34---pm-1792863222816.png",
+        "caption": "Screenshot 2026 10 06 at 5.09.34 PM"
+      },
+      {
+        "url": "/uploads/screenshot-2026-10-06-at-6-02-42---pm-1792863222834.png",
+        "caption": "Screenshot 2026 10 06 at 6.02.42 PM"
+      },
+      {
+        "url": "/uploads/screenshot-2026-10-07-at-5-18-02---pm-1792863222842.png",
+        "caption": "Screenshot 2026 10 07 at 5.18.02 PM"
+      },
+      {
+        "url": "/uploads/screenshot-2026-10-07-at-10-14-08---am-1792863222850.png",
+        "caption": "Screenshot 2026 10 07 at 10.14.08 AM"
+      },
+      {
+        "url": "/uploads/screenshot-2026-10-08-at-4-20-42---pm-1792863222857.png",
+        "caption": "Screenshot 2026 10 08 at 4.20.42 PM"
+      },
+      {
+        "url": "/uploads/screenshot-2026-10-08-at-5-05-44---pm-1792863222865.png",
+        "caption": "Screenshot 2026 10 08 at 5.05.44 PM"
+      },
+      {
+        "url": "/uploads/screenshot-2026-10-09-at-11-53-01---am-1792863222874.png",
+        "caption": "Screenshot 2026 10 09 at 11.53.01 AM"
+      }
+    ],
+    "metrics": [
+      {
+        "label": "Dossier Metrics & Telemetry (1)",
+        "value": "Dossier Metrics & Telemetry "
+      },
+      {
+        "label": "Dossier Metrics & Telemetry (3",
+        "value": "Dossier Metrics & Telemetry se44"
+      }
+    ],
+    "beforeImage": "/uploads/screenshot-2026-09-18-at-3-21-15---pm-1792863202540.png",
+    "afterImage": "/uploads/screenshot-2026-09-15-at-1-46-14---pm-1792863207904.png",
+    "documents": [
+      {
+        "title": "asdasdasdads zxzxczxc_Generated_Resume",
+        "fileUrl": "/uploads/asdasdasdads-zxzxczxc-generated-resume-1792863234405.pdf",
+        "fileSize": "0.2 MB"
+      }
+    ],
+    "createdAt": "2026-10-24T17:33:57.295Z",
+    "updatedAt": "2026-10-24T17:33:57.295Z"
+  },
+  {
+    "id": "project-title",
+    "title": "Project Title *",
+    "location": "Geographic Location *",
+    "category": "Land Development",
+    "status": "ongoing",
+    "isBlueprint": false,
+    "featured": false,
+    "isPinned": true,
+    "stackOrder": 7,
+    "progressPercent": 50,
+    "milestones": [
+      {
+        "label": "New Construction Milestone",
+        "done": true
+      }
+    ],
+    "heroImage": "https://testing-sqi.s3.ap-south-1.amazonaws.com/projects/whatsapp-image-2026-08-31-at-23-16-10-1792912875286.jpeg",
+    "hoverImage": "https://testing-sqi.s3.ap-south-1.amazonaws.com/projects/whatsapp-image-2026-08-31-at-23-18-24--2--1792912868817.jpeg",
+    "placeholderGradient": "linear-gradient(135deg, #1C2321 0%, #0D1B2A 100%)",
+    "summary": "Executive Summary (Lead Paragraph) *Executive Summary (Lead Paragraph) *Executive Summary (Lead Paragraph) *",
+    "description": "In-Depth Technical Description *In-Depth Technical Description *In-Depth Technical Description *",
+    "scope": "Engineering Scope",
+    "architecturalHighlights": [
+      "New engineering specification or highlight"
+    ],
+    "materialsAndAmenities": [
+      {
+        "icon": "Layers",
+        "label": "New Material / Amenity",
+        "detail": "Specification detail description"
+      },
+      {
+        "icon": "Layers",
+        "label": "New Material / Amenity",
+        "detail": "Specification detail description"
+      }
+    ],
+    "pullQuote": "Architectural Ethos & Philosophy (Pull Quote)\nArchitectural Ethos & Philosophy (Pull Quote)\n",
+    "galleryImages": [
+      {
+        "url": "/uploads/4e8478aaf66a577f5eba1f188f0af944-1792912315480.jpg",
+        "caption": "4e8478aaf66a577f5eba1f188f0af944"
+      },
+      {
+        "url": "/uploads/whatsapp-image-2026-08-31-at-23-16-10-1792912325335.jpeg",
+        "caption": "WhatsApp Image 2026 08 31 at 23.16.10"
+      },
+      {
+        "url": "/uploads/whatsapp-image-2026-08-31-at-23-18-23-1792912325678.jpeg",
+        "caption": "WhatsApp Image 2026 08 31 at 23.18.23"
+      },
+      {
+        "url": "/uploads/whatsapp-image-2026-08-31-at-23-18-24--1--1792912326396.jpeg",
+        "caption": "WhatsApp Image 2026 08 31 at 23.18.24 (1)"
+      },
+      {
+        "url": "/uploads/whatsapp-image-2026-08-31-at-23-18-24--2--1792912326820.jpeg",
+        "caption": "WhatsApp Image 2026 08 31 at 23.18.24 (2)"
+      },
+      {
+        "url": "/uploads/whatsapp-image-2026-08-31-at-23-18-24--3--1792912327301.jpeg",
+        "caption": "WhatsApp Image 2026 08 31 at 23.18.24 (3)"
+      },
+      {
+        "url": "/uploads/whatsapp-image-2026-08-31-at-23-18-24--4--1792912327782.jpeg",
+        "caption": "WhatsApp Image 2026 08 31 at 23.18.24 (4)"
+      },
+      {
+        "url": "/uploads/whatsapp-image-2026-08-31-at-23-18-24--5--1792912328185.jpeg",
+        "caption": "WhatsApp Image 2026 08 31 at 23.18.24 (5)"
+      }
+    ],
+    "metrics": [
+      {
+        "label": "Metric Name",
+        "value": "Specification Value"
+      }
+    ],
+    "beforeImage": "",
+    "afterImage": "",
+    "documents": [
+      {
+        "title": "REVISED STRUCTURAL DETAILS @SHANKARPALLY",
+        "fileUrl": "/uploads/revised-structural-details--shankarpally-1792912335463.pdf",
+        "fileSize": "2.4 MB"
+      }
+    ],
+    "createdAt": "2026-10-25T07:12:19.214Z",
+    "updatedAt": "2026-10-25T07:31:35.517Z"
   }
 ]
