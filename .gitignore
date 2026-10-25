@@ -25,5 +25,6 @@ dist-ssr
 memory.md
 .env
 .env.*
+*.csv
 public/uploads/*
 !public/uploads/.gitkeep
