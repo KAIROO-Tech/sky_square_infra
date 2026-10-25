@@ -20,19 +20,19 @@ export const ProjectModal = ({ project, onClose, onInquire }) => {
       <div className="absolute inset-0" onClick={onClose} />
 
       {/* Modal Dossier Card (Strict 0px radius, 1px borders) */}
-      <div className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto bg-[#F9F8F6] text-[#1A1A1A] border border-[#1A1A1A] shadow-hero z-10">
+      <div className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto bg-[var(--color-surface)] text-[var(--color-text-primary)] border border-[var(--color-border-strong)] shadow-2xl z-10 transition-colors duration-300">
         
         {/* Header Bar */}
-        <div className="sticky top-0 bg-[#F9F8F6] border-b border-[#1A1A1A]/15 px-8 py-5 flex items-center justify-between z-20">
+        <div className="sticky top-0 bg-[var(--color-surface)] border-b border-[var(--color-border)] px-8 py-5 flex items-center justify-between z-20">
           <div className="flex items-center gap-3">
             <span className="w-2 h-2 bg-[#D4AF37]" />
-            <span className="font-sans text-xs uppercase tracking-[0.25em] text-[#6C6863]">
+            <span className="font-sans text-xs uppercase tracking-[0.25em] text-[var(--color-text-secondary)]">
               Architectural Dossier / Ref. {project.id}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-[#1A1A1A] hover:text-[#D4AF37] transition-colors focus:outline-none"
+            className="p-2 text-[var(--color-text-primary)] hover:text-[#D4AF37] transition-colors focus:outline-none"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -43,43 +43,43 @@ export const ProjectModal = ({ project, onClose, onInquire }) => {
         <div className="p-8 sm:p-12 md:p-16">
           
           {/* Top Title & Metadata */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-[#1A1A1A]/10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-[var(--color-border)]">
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <span className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-medium">
                   {project.category}
                 </span>
-                <span className="text-[#1A1A1A]/30">•</span>
-                <span className="font-sans text-xs uppercase tracking-[0.2em] text-[#6C6863]">
+                <span className="text-[var(--color-text-muted)]">•</span>
+                <span className="font-sans text-xs uppercase tracking-[0.2em] text-[var(--color-text-secondary)]">
                   {project.location}
                 </span>
               </div>
-              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[#1A1A1A] font-normal leading-tight">
+              <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[var(--color-text-primary)] font-normal leading-tight">
                 {project.title}
               </h2>
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="font-sans text-[11px] uppercase tracking-[0.2em] text-[#6C6863]">
+              <span className="font-sans text-[11px] uppercase tracking-[0.2em] text-[var(--color-text-secondary)]">
                 Status:
               </span>
               <span className={`inline-flex items-center gap-2 px-3 py-1 text-xs uppercase tracking-widest font-sans border ${
                 project.status === 'ongoing' 
-                  ? 'border-[#D4AF37] text-[#D4AF37] bg-[#D4AF37]/5' 
-                  : 'border-[#1A1A1A] text-[#1A1A1A] bg-[#1A1A1A]/5'
+                  ? 'border-[#D4AF37] text-[#D4AF37] bg-[#D4AF37]/10' 
+                  : 'border-[var(--color-border-strong)] text-[var(--color-text-primary)] bg-[var(--color-surface-muted)]'
               }`}>
-                <span className={`w-1.5 h-1.5 ${project.status === 'ongoing' ? 'bg-[#D4AF37]' : 'bg-[#1A1A1A]'}`} />
+                <span className={`w-1.5 h-1.5 ${project.status === 'ongoing' ? 'bg-[#D4AF37]' : 'bg-[var(--color-text-primary)]'}`} />
                 {project.status}
               </span>
             </div>
           </div>
 
           {/* Large Visual Section */}
-          <div className="my-10 relative h-72 sm:h-96 md:h-[420px] overflow-hidden bg-[#1A1A1A] border border-[#1A1A1A]/20">
+          <div className="my-10 relative h-72 sm:h-96 md:h-[420px] overflow-hidden bg-[#1A1A1A] border border-[var(--color-border)]">
             <img
               src={project.heroImage}
               alt={project.title}
-              className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000"
+              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
               onError={(e) => {
                 e.target.style.display = 'none';
               }}
@@ -95,17 +95,17 @@ export const ProjectModal = ({ project, onClose, onInquire }) => {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pt-4">
             
             <div className="md:col-span-7">
-              <h3 className="font-serif text-2xl text-[#1A1A1A] mb-4">
+              <h3 className="font-serif text-2xl text-[var(--color-text-primary)] mb-4">
                 Project Overview &amp; Specifications
               </h3>
-              <p className="font-sans text-base text-[#6C6863] leading-relaxed font-light mb-8">
+              <p className="font-sans text-base text-[var(--color-text-secondary)] leading-relaxed font-light mb-8">
                 {project.description}
               </p>
 
               <h4 className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-semibold mb-4">
                 Architectural &amp; Structural Highlights
               </h4>
-              <ul className="space-y-3 font-sans text-sm text-[#1A1A1A]/85">
+              <ul className="space-y-3 font-sans text-sm text-[var(--color-text-primary)]">
                 {project.architecturalHighlights?.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-3">
                     <CheckCircle2 className="w-4 h-4 text-[#D4AF37] shrink-0 mt-0.5" />
@@ -116,28 +116,28 @@ export const ProjectModal = ({ project, onClose, onInquire }) => {
             </div>
 
             {/* Right Column: Key Technical Metrics */}
-            <div className="md:col-span-5 bg-[#EBE5DE]/30 p-8 border-t-2 border-t-[#D4AF37] border border-[#1A1A1A]/10">
-              <h4 className="font-sans text-xs uppercase tracking-[0.25em] text-[#1A1A1A] font-semibold mb-6">
+            <div className="md:col-span-5 bg-[var(--color-surface-warm)] p-8 border-t-2 border-t-[#D4AF37] border border-[var(--color-border)]">
+              <h4 className="font-sans text-xs uppercase tracking-[0.25em] text-[var(--color-text-primary)] font-semibold mb-6">
                 Technical Data Sheet
               </h4>
 
               <div className="space-y-6">
                 <div>
-                  <span className="block font-sans text-[10px] uppercase tracking-[0.2em] text-[#6C6863] mb-1">
+                  <span className="block font-sans text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-1">
                     Scope of Work
                   </span>
-                  <span className="font-serif text-lg text-[#1A1A1A]">
+                  <span className="font-serif text-lg text-[var(--color-text-primary)]">
                     {project.scope}
                   </span>
                 </div>
 
-                <div className="border-t border-[#1A1A1A]/10 pt-4 space-y-4">
+                <div className="border-t border-[var(--color-border)] pt-4 space-y-4">
                   {project.metrics?.map((metric, i) => (
                     <div key={i} className="flex justify-between items-center text-sm font-sans">
-                      <span className="text-[#6C6863] uppercase tracking-[0.15em] text-xs">
+                      <span className="text-[var(--color-text-secondary)] uppercase tracking-[0.15em] text-xs">
                         {metric.label}
                       </span>
-                      <span className="font-serif font-medium text-[#1A1A1A]">
+                      <span className="font-serif font-medium text-[var(--color-text-primary)]">
                         {metric.value}
                       </span>
                     </div>
@@ -145,7 +145,7 @@ export const ProjectModal = ({ project, onClose, onInquire }) => {
                 </div>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-[#1A1A1A]/15">
+              <div className="mt-8 pt-6 border-t border-[var(--color-border)]">
                 <Button
                   variant="primary"
                   size="default"

@@ -25,6 +25,7 @@ export const SmoothScroll = ({ children }) => {
     });
 
     lenisRef.current = lenis;
+    window.lenis = lenis;
 
     // Connect Lenis scroll event to GSAP ScrollTrigger
     lenis.on('scroll', ScrollTrigger.update);
@@ -37,6 +38,7 @@ export const SmoothScroll = ({ children }) => {
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      window.lenis = null;
       gsap.ticker.remove(updateTicker);
       lenis.destroy();
     };

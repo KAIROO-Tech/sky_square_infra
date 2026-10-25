@@ -1,8 +1,8 @@
 /* Page-specific styling for isolated Archive page */
 .archive-page-container {
   min-height: 100vh;
-  background-color: #0c0c0c;
-  color: #f5f5f7;
+  background-color: var(--color-page-bg);
+  color: var(--color-text-primary);
 }
 
 /* Glassmorphism Sticky Filter Bar */
@@ -10,11 +10,11 @@
   position: sticky;
   top: 70px;
   z-index: 40;
-  background: rgba(12, 12, 12, 0.85);
+  background: var(--color-surface-glass);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  transition: border-color 0.3s ease;
+  border-bottom: 1px solid var(--color-border);
+  transition: border-color 0.3s ease, background 0.3s ease;
 }
 
 /* Pinned Stacking Viewport Container */
@@ -45,21 +45,19 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #111113;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   border-radius: 0px;
   overflow: hidden;
-  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.9),
-              0 0 40px -10px rgba(212, 175, 55, 0.1);
+  box-shadow: var(--color-shadow);
   transform-origin: center bottom;
   will-change: transform, opacity;
-  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
 }
 
 .archive-stack-card:hover {
-  border-color: rgba(212, 175, 55, 0.5);
-  box-shadow: 0 35px 70px -15px rgba(0, 0, 0, 0.95),
-              0 0 50px -10px rgba(212, 175, 55, 0.2);
+  border-color: var(--color-border-gold);
+  box-shadow: var(--color-shadow-hover);
 }
 
 /* Hardware accelerated image zoom & mask reveal */
@@ -67,21 +65,19 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease, opacity 0.7s ease-in-out;
-  will-change: transform, filter, opacity;
-  filter: brightness(0.7) contrast(1.08);
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.7s ease-in-out;
+  will-change: transform, opacity;
 }
 
 .archive-stack-card:hover .archive-card-image {
-  transform: scale(1.05);
-  filter: brightness(0.85) contrast(1.12);
+  transform: scale(1.04);
 }
 
 /* Metric item hover effect */
 .archive-metric-item {
   position: relative;
   padding-left: 12px;
-  border-left: 1px solid rgba(212, 175, 55, 0.4);
+  border-left: 1px solid var(--color-border-gold);
 }
 
 /* Pill Button Arrow Animation */
@@ -91,9 +87,9 @@
   gap: 8px;
   padding: 8px 20px;
   border-radius: 0px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #f5f5f7;
+  background: var(--color-surface-warm);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -101,17 +97,19 @@
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.archive-stack-card:hover .archive-pill-btn {
-  background: rgba(212, 175, 55, 0.18);
-  border-color: rgba(212, 175, 55, 0.7);
-  color: #d4af37;
+.archive-stack-card:hover .archive-pill-btn,
+.archive-pill-btn:hover {
+  background: var(--color-accent-subtle);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 .archive-pill-btn .arrow-icon {
   transition: transform 0.3s ease;
 }
 
-.archive-stack-card:hover .archive-pill-btn .arrow-icon {
+.archive-stack-card:hover .archive-pill-btn .arrow-icon,
+.archive-pill-btn:hover .arrow-icon {
   transform: translateX(5px);
 }
 
@@ -120,8 +118,236 @@
   position: relative;
   width: 100%;
   height: 480px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #111113;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   border-radius: 0px;
   overflow: hidden;
+  box-shadow: var(--color-shadow);
 }
+
+/* ==========================================================================
+   Archive Page — Vertical Project Slider Navigation Controls
+   Luxury Editorial Architecture aesthetic: charcoal surfaces, subtle borders,
+   champagne-gold accents, and restrained animations.
+   ========================================================================== */
+
+.archive-slider-nav {
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem;
+  background: rgba(12, 12, 14, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+}
+
+.archive-slider-nav:hover {
+  border-color: rgba(212, 175, 55, 0.45);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 16px rgba(212, 175, 55, 0.15);
+}
+
+/* Individual Up/Down Navigation Buttons */
+.archive-slider-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.archive-slider-nav-btn:hover:not(:disabled) {
+  background: #d4af37;
+  border-color: #d4af37;
+  color: #0c0c0e;
+  box-shadow: 0 0 18px rgba(212, 175, 55, 0.5);
+}
+
+.archive-slider-nav-prev:hover:not(:disabled) svg {
+  transform: translateY(-2px);
+}
+
+.archive-slider-nav-next:hover:not(:disabled) svg {
+  transform: translateY(2px);
+}
+
+.archive-slider-nav-btn svg {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Clear visible keyboard focus indicators */
+.archive-slider-nav-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #0c0c0e, 0 0 0 4px #d4af37;
+}
+
+/* Disabled State at First/Last Boundaries */
+.archive-slider-nav-btn:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-color: rgba(255, 255, 255, 0.06);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* Synchronized Vertical Indicator Dots Track */
+.archive-slider-indicator-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0;
+}
+
+.archive-slider-indicator-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.28);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  outline: none;
+}
+
+.archive-slider-indicator-dot:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.7);
+  transform: scale(1.3);
+}
+
+.archive-slider-indicator-dot.active {
+  height: 16px;
+  background: #d4af37;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.75);
+}
+
+.archive-slider-indicator-dot:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #0c0c0e, 0 0 0 3px #d4af37;
+}
+
+/* Responsive adjustments across breakpoints */
+@media (min-width: 1280px) {
+  .archive-slider-nav {
+    right: 2rem;
+  }
+}
+
+/* Mobile Archive Navigation & Layout */
+@media (max-width: 767px) {
+  /* Prevent desktop vertical nav from ever displaying as an oval on mobile */
+  .archive-slider-nav {
+    display: none !important;
+  }
+
+  /* Adaptive mobile cards that fit viewports from 320px to 767px */
+  .archive-mobile-card {
+    height: clamp(380px, 62vh, 480px);
+    min-height: 360px;
+    max-height: 520px;
+  }
+
+  /* Dedicated compact bottom-anchored mobile navigation group */
+  .archive-mobile-nav-bar {
+    position: sticky;
+    bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
+    z-index: 35;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    width: fit-content;
+    max-width: calc(100vw - 2rem);
+    margin: 1.25rem auto 0;
+    padding: 0.375rem 0.875rem;
+    background: rgba(12, 12, 14, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 9999px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 12px rgba(212, 175, 55, 0.15);
+    user-select: none;
+    transition: all 0.3s ease;
+  }
+
+  .archive-mobile-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    touch-action: manipulation;
+  }
+
+  .archive-mobile-nav-btn:hover:not(:disabled),
+  .archive-mobile-nav-btn:active:not(:disabled) {
+    background: #d4af37;
+    border-color: #d4af37;
+    color: #0c0c0e;
+    transform: scale(1.05);
+  }
+
+  .archive-mobile-nav-btn:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+    pointer-events: none;
+    border-color: rgba(255, 255, 255, 0.06);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .archive-mobile-nav-indicators {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0 0.25rem;
+  }
+
+  .archive-mobile-indicator-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.3);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    outline: none;
+  }
+
+  .archive-mobile-indicator-dot.active {
+    width: 18px;
+    height: 6px;
+    background: #d4af37;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.75);
+  }
+}
+

@@ -11,6 +11,7 @@ export const Input = ({
   value,
   onChange,
   name,
+  id,
   required = false,
   error,
   helperText,
@@ -18,27 +19,38 @@ export const Input = ({
   className = '',
   ...props
 }) => {
+  const inputId = id || name;
   return (
-    <div className={`flex flex-col gap-2 w-full ${className}`}>
+    <div className={`flex flex-col gap-1.5 w-full ${className}`}>
       {label && (
-        <label className="font-sans text-[11px] uppercase tracking-[0.25em] text-[#6C6863] font-medium flex items-center gap-1">
+        <label htmlFor={inputId} className="font-sans text-[11px] uppercase tracking-[0.25em] text-[var(--color-text-secondary)] font-medium flex items-center gap-1">
           {label}
-          {required && <span className="text-[#D4AF37]">*</span>}
+          {required && <span className="text-[var(--color-accent)]">*</span>}
         </label>
       )}
       <input
+        id={inputId}
         type={type}
         name={name}
         value={value}
         onChange={onChange}
-        required={required}
         disabled={disabled}
         placeholder={placeholder}
-        className="w-full h-12 bg-transparent text-[#1A1A1A] text-sm font-sans px-0 py-2 border-b border-[#1A1A1A]/30 focus:border-[#D4AF37] focus:outline-none transition-colors duration-500 rounded-none placeholder:font-serif placeholder:italic placeholder:text-[#6C6863]/60 placeholder:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-invalid={!!error}
+        aria-describedby={error ? `${inputId}-error` : undefined}
+        className={`w-full h-12 bg-transparent text-[var(--color-text-primary)] text-sm font-sans px-0 py-2 border-b transition-colors duration-300 rounded-none placeholder:font-serif placeholder:italic placeholder:text-[var(--color-input-placeholder)] placeholder:text-sm disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none ${
+          error
+            ? 'border-red-500 text-red-500 focus:border-red-500'
+            : 'border-[var(--color-input-border)] focus:border-[var(--color-accent)]'
+        }`}
         {...props}
       />
-      {error && <span className="font-sans text-xs text-red-600 mt-1">{error}</span>}
-      {helperText && !error && <span className="font-sans text-[11px] text-[#6C6863]/80">{helperText}</span>}
+      {error && (
+        <span id={`${inputId}-error`} className="font-sans text-xs text-red-600 dark:text-red-400 mt-1 animate-fadeIn">
+          {error}
+        </span>
+      )}
+      {helperText && !error && <span className="font-sans text-[11px] text-[var(--color-text-muted)]">{helperText}</span>}
     </div>
   );
 };
@@ -49,6 +61,7 @@ export const Textarea = ({
   value,
   onChange,
   name,
+  id,
   rows = 4,
   required = false,
   error,
@@ -57,27 +70,38 @@ export const Textarea = ({
   className = '',
   ...props
 }) => {
+  const textareaId = id || name;
   return (
-    <div className={`flex flex-col gap-2 w-full ${className}`}>
+    <div className={`flex flex-col gap-1.5 w-full ${className}`}>
       {label && (
-        <label className="font-sans text-[11px] uppercase tracking-[0.25em] text-[#6C6863] font-medium flex items-center gap-1">
+        <label htmlFor={textareaId} className="font-sans text-[11px] uppercase tracking-[0.25em] text-[var(--color-text-secondary)] font-medium flex items-center gap-1">
           {label}
-          {required && <span className="text-[#D4AF37]">*</span>}
+          {required && <span className="text-[var(--color-accent)]">*</span>}
         </label>
       )}
       <textarea
+        id={textareaId}
         name={name}
         value={value}
         onChange={onChange}
         rows={rows}
-        required={required}
         disabled={disabled}
         placeholder={placeholder}
-        className="w-full bg-transparent text-[#1A1A1A] text-sm font-sans px-0 py-2 border-b border-[#1A1A1A]/30 focus:border-[#D4AF37] focus:outline-none transition-colors duration-500 rounded-none placeholder:font-serif placeholder:italic placeholder:text-[#6C6863]/60 placeholder:text-sm resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-invalid={!!error}
+        aria-describedby={error ? `${textareaId}-error` : undefined}
+        className={`w-full bg-transparent text-[var(--color-text-primary)] text-sm font-sans px-0 py-2 border-b transition-colors duration-300 rounded-none placeholder:font-serif placeholder:italic placeholder:text-[var(--color-input-placeholder)] placeholder:text-sm resize-none disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none ${
+          error
+            ? 'border-red-500 text-red-500 focus:border-red-500'
+            : 'border-[var(--color-input-border)] focus:border-[var(--color-accent)]'
+        }`}
         {...props}
       />
-      {error && <span className="font-sans text-xs text-red-600 mt-1">{error}</span>}
-      {helperText && !error && <span className="font-sans text-[11px] text-[#6C6863]/80">{helperText}</span>}
+      {error && (
+        <span id={`${textareaId}-error`} className="font-sans text-xs text-red-600 dark:text-red-400 mt-1 animate-fadeIn">
+          {error}
+        </span>
+      )}
+      {helperText && !error && <span className="font-sans text-[11px] text-[var(--color-text-muted)]">{helperText}</span>}
     </div>
   );
 };
@@ -88,34 +112,46 @@ export const Select = ({
   value,
   onChange,
   name,
+  id,
   required = false,
   error,
   className = '',
   ...props
 }) => {
+  const selectId = id || name;
   return (
-    <div className={`flex flex-col gap-2 w-full ${className}`}>
+    <div className={`flex flex-col gap-1.5 w-full ${className}`}>
       {label && (
-        <label className="font-sans text-[11px] uppercase tracking-[0.25em] text-[#6C6863] font-medium flex items-center gap-1">
+        <label htmlFor={selectId} className="font-sans text-[11px] uppercase tracking-[0.25em] text-[var(--color-text-secondary)] font-medium flex items-center gap-1">
           {label}
-          {required && <span className="text-[#D4AF37]">*</span>}
+          {required && <span className="text-[var(--color-accent)]">*</span>}
         </label>
       )}
       <select
+        id={selectId}
         name={name}
         value={value}
         onChange={onChange}
-        required={required}
-        className="w-full h-12 bg-transparent text-[#1A1A1A] text-sm font-sans px-0 py-2 border-b border-[#1A1A1A]/30 focus:border-[#D4AF37] focus:outline-none transition-colors duration-500 rounded-none cursor-pointer"
+        aria-invalid={!!error}
+        aria-describedby={error ? `${selectId}-error` : undefined}
+        className={`w-full h-12 bg-transparent text-[var(--color-text-primary)] text-sm font-sans px-0 py-2 border-b transition-colors duration-300 rounded-none cursor-pointer focus:outline-none ${
+          error
+            ? 'border-red-500 text-red-500 focus:border-red-500'
+            : 'border-[var(--color-input-border)] focus:border-[var(--color-accent)]'
+        }`}
         {...props}
       >
         {options.map((opt, i) => (
-          <option key={i} value={opt.value} className="bg-[#F9F8F6] text-[#1A1A1A]">
+          <option key={i} value={opt.value} className="bg-[var(--color-surface)] text-[var(--color-text-primary)]">
             {opt.label}
           </option>
         ))}
       </select>
-      {error && <span className="font-sans text-xs text-red-600 mt-1">{error}</span>}
+      {error && (
+        <span id={`${selectId}-error`} className="font-sans text-xs text-red-600 dark:text-red-400 mt-1 animate-fadeIn">
+          {error}
+        </span>
+      )}
     </div>
   );
 };
