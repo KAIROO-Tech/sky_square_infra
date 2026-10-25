@@ -14,13 +14,13 @@ export const Ethos = () => {
         />
       </div>
 
-      <div className="max-w-[1600px] mx-auto px-8 md:px-16 relative z-10">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-8 md:px-16 relative z-10">
         
         {/* Centered Quotation Container */}
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
           
           <AnimatedContent distance={30} direction="vertical" delay={0.15}>
-            <div className="flex items-center gap-3 mb-8 justify-center">
+            <div className="flex items-center gap-3 mb-6 sm:mb-8 justify-center">
               <span className="w-8 h-px bg-[var(--color-accent)]" />
               <p className="font-sans text-xs uppercase tracking-[0.25em] text-[var(--color-accent)] font-medium">
                 The Ethos
@@ -29,7 +29,7 @@ export const Ethos = () => {
             </div>
 
             {/* Large Serif Statement */}
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-normal leading-[1.15] text-[var(--color-text-primary)] max-w-4xl tracking-tight mb-12">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-normal leading-[1.2] sm:leading-[1.15] text-[var(--color-text-primary)] max-w-4xl tracking-tight mb-8 sm:mb-12">
               “A modern engineering powerhouse committed to delivering excellence in construction, land development, and government contract projects.”
             </h2>
           </AnimatedContent>
@@ -38,7 +38,7 @@ export const Ethos = () => {
           <AnimatedContent distance={30} direction="vertical" delay={0.25}>
             <div className="text-left max-w-2xl font-sans text-base md:text-lg text-[var(--color-text-secondary)] leading-relaxed font-light">
               <p className="mb-6">
-                <span className="float-left font-serif text-6xl md:text-7xl leading-[0.8] pr-3 pt-1 text-[var(--color-text-primary)] font-medium select-none">
+                <span className="float-left font-serif text-5xl sm:text-6xl md:text-7xl leading-[0.8] pr-3 pt-1 text-[var(--color-text-primary)] font-medium select-none">
                   W
                 </span>
                 ith a strong foundation in quality, innovation, and reliability, we specialize in transforming raw land into well-planned, high-value developments. Our expertise covers residential and commercial construction, ensuring precision and superior standards in every build.
@@ -52,9 +52,9 @@ export const Ethos = () => {
 
         {/* 3 Pillars Grid with Staggered Reveal */}
         <AnimatedContent distance={30} direction="vertical" delay={0.15} stagger={0.15}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24 pt-16 border-t border-[var(--color-border)]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mt-12 sm:mt-24 pt-10 sm:pt-16 border-t border-[var(--color-border)]">
             
-            <div className="p-8 border border-[var(--color-border)] border-t-2 border-t-[var(--color-border-strong)] hover:border-t-[var(--color-accent)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-warm)] transition-all duration-500 group shadow-sm">
+            <div className="p-6 sm:p-8 border border-[var(--color-border)] border-t-2 border-t-[var(--color-border-strong)] hover:border-t-[var(--color-accent)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-warm)] transition-all duration-500 group shadow-sm">
               <span className="font-sans text-xs uppercase tracking-[0.25em] text-[var(--color-accent)] font-semibold block mb-4">
                 01 / Rigor
               </span>

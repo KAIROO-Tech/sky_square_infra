@@ -169,7 +169,7 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
   };
 
   return (
-    <section id="consultation" className="w-full py-24 md:py-32 bg-[var(--color-page-bg)] text-[var(--color-text-primary)] px-6 md:px-16 border-b border-[var(--color-border)] relative z-10 transition-colors duration-300">
+    <section id="consultation" className="w-full py-24 md:py-32 bg-[var(--color-page-bg)] text-[var(--color-text-primary)] px-6 md:px-16 border-b border-[var(--color-border)] relative z-10 transition-colors duration-300 scroll-mt-24">
       <div className="max-w-[1600px] mx-auto">
         
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
@@ -228,7 +228,7 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
           {/* Right Column: Form Container */}
           <div className="theme-form-card lg:col-span-7 bg-[var(--color-surface)] p-8 sm:p-12 md:p-14 border border-[var(--color-border)] shadow-2xl rounded-2xl relative transition-colors duration-300">
             
-            <form onSubmit={handleSubmit} noValidate className="space-y-8">
+            <form id="consultation-form" onSubmit={handleSubmit} noValidate className="space-y-8">
               
               {selectedProject && (
                 <div className="p-4 bg-[#d4af37]/10 border border-[#d4af37]/50 flex items-center justify-between rounded-lg">

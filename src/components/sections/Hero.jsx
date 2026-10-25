@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../common/Button';
 import AnimatedContent from '../motion/AnimatedContent';
 
 export const Hero = ({ onExploreArchive, onOpenConsultation }) => {
+  const navigate = useNavigate();
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const handleConsultationClick = () => {
+    if (onOpenConsultation) {
+      onOpenConsultation();
+    } else {
+      navigate('/contact#consultation', { state: { scrollToForm: true } });
+    }
+  };
 
   // Handle subtle cursor 3D perspective shift on desktop
   const handleMouseMove = (e) => {
@@ -49,7 +59,7 @@ export const Hero = ({ onExploreArchive, onOpenConsultation }) => {
       </div>
 
       {/* LAYER 2: Editorial Content Stack Layer */}
-      <div className="relative z-20 max-w-7xl mx-auto px-6 lg:px-16 w-full flex flex-col justify-between min-h-[75vh]">
+      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 w-full flex flex-col justify-between min-h-[75vh]">
         
         {/* Main Editorial Hero Stack */}
         <div className="max-w-2xl pt-12 md:pt-20">
@@ -63,7 +73,7 @@ export const Hero = ({ onExploreArchive, onOpenConsultation }) => {
               </span>
             </div>
 
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif font-normal leading-[0.98] text-[var(--color-text-primary)] mb-6 tracking-tight">
+            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-serif font-normal leading-[1.05] sm:leading-[0.98] text-[var(--color-text-primary)] mb-6 tracking-tight">
               Defining the <br />
               <span className="italic text-[var(--color-text-secondary)] font-normal">
                 Hyderabad <span className="text-[var(--color-accent)]">Horizon.</span>
@@ -80,22 +90,22 @@ export const Hero = ({ onExploreArchive, onOpenConsultation }) => {
 
           {/* Action Buttons */}
           <AnimatedContent distance={30} direction="vertical" delay={0.35}>
-            <div className="flex flex-wrap items-center gap-6">
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6">
               <Button
                 variant="primary"
                 size="large"
                 onClick={onExploreArchive}
-                className="bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] font-mono text-xs uppercase tracking-widest font-semibold py-4 px-8 shadow-md"
+                className="w-full sm:w-auto bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] font-mono text-xs uppercase tracking-widest font-semibold py-4 px-8 shadow-md"
               >
                 Explore Archive
               </Button>
 
               <Button
                 variant="link"
-                onClick={onOpenConsultation}
+                onClick={handleConsultationClick}
                 className="text-[var(--color-text-primary)] hover:text-[var(--color-accent)] font-mono text-xs uppercase tracking-widest font-semibold"
               >
-                Book Site Consultation →
+                Book Site Consultant →
               </Button>
             </div>
           </AnimatedContent>
@@ -104,28 +114,28 @@ export const Hero = ({ onExploreArchive, onOpenConsultation }) => {
 
         {/* Bottom Bar: Trust Stats + Relocated Telemetry Tag */}
         <AnimatedContent distance={30} direction="vertical" delay={0.45}>
-          <div className="mt-16 pt-8 border-t border-[var(--color-border)] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="mt-12 sm:mt-16 pt-8 border-t border-[var(--color-border)] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             
             {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-8 md:gap-12">
+            <div className="grid grid-cols-3 gap-3 sm:gap-8 md:gap-12 w-full md:w-auto">
               <div>
                 <span className="block font-serif text-2xl md:text-3xl text-[var(--color-text-primary)] font-normal">134K+</span>
-                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)]">SFT Developed</span>
+                <span className="font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[var(--color-text-muted)]">SFT Developed</span>
               </div>
               <div>
                 <span className="block font-serif text-2xl md:text-3xl text-[var(--color-text-primary)] font-normal">100%</span>
-                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Govt Compliance</span>
+                <span className="font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[var(--color-text-muted)]">Govt Compliance</span>
               </div>
               <div>
                 <span className="block font-serif text-2xl md:text-3xl text-[var(--color-accent)] font-normal">2027</span>
-                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Key Handovers</span>
+                <span className="font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[var(--color-text-muted)]">Key Handovers</span>
               </div>
             </div>
 
             {/* Compact Telemetry Tag (Relocated to Bottom Right) */}
-            <div className="flex items-center gap-4 text-[11px] font-mono tracking-widest text-[var(--color-text-secondary)] border border-[var(--color-border)] px-4 py-2 rounded-full bg-[var(--color-surface)]/90 backdrop-blur-sm self-start md:self-auto shadow-sm">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-[11px] font-mono tracking-wider sm:tracking-widest text-[var(--color-text-secondary)] border border-[var(--color-border)] px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-[var(--color-surface)]/90 backdrop-blur-sm self-start md:self-auto shadow-sm max-w-full">
               <span className="text-[var(--color-accent)] font-semibold">SECTOR: PRIME TELANGANA</span>
-              <span className="w-1 h-1 rounded-full bg-[var(--color-border-strong)]" />
+              <span className="w-1 h-1 rounded-full bg-[var(--color-border-strong)] hidden sm:inline-block" />
               <span>17.3850° N, 78.4867° E</span>
             </div>
 

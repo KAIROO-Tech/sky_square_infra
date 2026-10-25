@@ -35,17 +35,17 @@ export const Navbar = ({ onOpenConsultation }) => {
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-[var(--color-nav-bg)] backdrop-blur-md border-b border-[var(--color-nav-border)] py-4 md:py-5 transition-all duration-300">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-12 flex items-center justify-between">
+    <header className="fixed top-0 left-0 w-full z-50 bg-[var(--color-nav-bg)] backdrop-blur-md border-b border-[var(--color-nav-border)] py-3.5 md:py-5 transition-all duration-300">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-12 flex items-center justify-between">
         
         {/* Brand / Monogram */}
-        <Link to="/" className="group flex items-center gap-3.5 focus:outline-none cursor-pointer">
+        <Link to="/" className="group flex items-center gap-2.5 sm:gap-3.5 focus:outline-none cursor-pointer shrink-0">
           <div className="w-8 h-8 border border-[var(--color-accent)]/60 bg-[var(--color-accent-subtle)] flex items-center justify-center font-serif text-sm font-semibold tracking-tighter text-[var(--color-accent)] group-hover:border-[var(--color-accent)] transition-colors duration-300">
             SQ
           </div>
           <div className="flex flex-col">
-            <span className="font-serif text-base md:text-lg font-bold tracking-tight text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300">
-              SKY SQUARE <span className="font-mono font-light text-xs tracking-[0.2em] text-[var(--color-accent)] block md:inline md:ml-1 uppercase">Infra</span>
+            <span className="font-serif text-sm sm:text-base md:text-lg font-bold tracking-tight text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors duration-300">
+              SKY SQUARE <span className="font-mono font-light text-[10px] sm:text-xs tracking-[0.2em] text-[var(--color-accent)] inline-block ml-0.5 sm:ml-1 uppercase">Infra</span>
             </span>
           </div>
         </Link>

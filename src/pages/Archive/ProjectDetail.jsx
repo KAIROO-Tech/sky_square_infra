@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useProjects } from '../../context/ProjectsContext';
 import { Button } from '../../components/common/Button';
@@ -73,30 +73,54 @@ export const ProjectDetail = () => {
   const { projects, getProject } = useProjects();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [isImgTransitioning, setIsImgTransitioning] = useState(false);
+  const isNavigatingRef = useRef(false);
+  const thumbnailRefs = useRef([]);
 
   // Find project using robust matching for slug variations
   const project = getProject(projectSlug);
 
   const rawGallery = project?.galleryImages || [];
-  const galleryImages = rawGallery.map((item, idx) => {
-    if (typeof item === 'string') {
-      return { url: item, caption: `Specification Plate 0${idx + 1}` };
-    }
-    return {
-      url: item.url,
-      caption: item.caption || `Specification Plate 0${idx + 1}`
-    };
-  });
+  const galleryImages = useMemo(() => {
+    return rawGallery.map((item, idx) => {
+      if (typeof item === 'string') {
+        return { url: item, caption: `Specification Plate 0${idx + 1}` };
+      }
+      return {
+        url: item.url,
+        caption: item.caption || `Specification Plate 0${idx + 1}`
+      };
+    });
+  }, [rawGallery]);
 
-  const handlePrev = useCallback(() => {
-    if (!galleryImages.length) return;
-    setLightboxIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+  // Unified circular navigation function used by arrows, thumbnails & keyboard
+  const goToImage = useCallback((targetIndex) => {
+    if (!galleryImages.length || isNavigatingRef.current) return;
+
+    isNavigatingRef.current = true;
+    setIsImgTransitioning(true);
+
+    const safeIndex = (targetIndex + galleryImages.length) % galleryImages.length;
+    setLightboxIndex(safeIndex);
+
+    // Smooth transition crossfade & click debounce
+    setTimeout(() => {
+      setIsImgTransitioning(false);
+      isNavigatingRef.current = false;
+    }, 220);
   }, [galleryImages.length]);
 
-  const handleNext = useCallback(() => {
-    if (!galleryImages.length) return;
-    setLightboxIndex((prev) => (prev + 1) % galleryImages.length);
-  }, [galleryImages.length]);
+  const handlePrev = useCallback((e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    goToImage(lightboxIndex - 1);
+  }, [goToImage, lightboxIndex]);
+
+  const handleNext = useCallback((e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    goToImage(lightboxIndex + 1);
+  }, [goToImage, lightboxIndex]);
 
   const closeLightbox = useCallback(() => {
     setLightboxOpen(false);
@@ -107,14 +131,44 @@ export const ProjectDetail = () => {
     setLightboxOpen(true);
   };
 
+  // Keep active thumbnail centered in view when index changes
+  useEffect(() => {
+    if (lightboxOpen && thumbnailRefs.current[lightboxIndex]) {
+      thumbnailRefs.current[lightboxIndex].scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+    }
+  }, [lightboxIndex, lightboxOpen]);
+
   // Keyboard navigation & body scroll locking for Lightbox
   useEffect(() => {
     if (!lightboxOpen) return;
 
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowLeft') handlePrev();
-      if (e.key === 'ArrowRight') handleNext();
+      // Do not intercept if user is typing in form controls
+      const target = e.target;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable ||
+          target.tagName === 'SELECT')
+      ) {
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeLightbox();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        handlePrev(e);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        handleNext(e);
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -155,17 +209,19 @@ export const ProjectDetail = () => {
     <div className="project-detail-page bg-[var(--color-page-bg)] text-[var(--color-text-primary)] min-h-screen pt-24 pb-12 w-full">
       <div className="max-w-[1600px] mx-auto px-6 sm:px-8 md:px-16">
         
-        {/* Back Link */}
-        <Link 
-          to="/archive" 
-          className="inline-flex items-center gap-2 font-sans text-xs uppercase tracking-[0.25em] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] mb-8 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 text-[var(--color-accent)]" />
-          <span>Back to Archive</span>
-        </Link>
+        {/* Top Action Bar: Back Link */}
+        <div className="mb-8">
+          <Link 
+            to="/archive" 
+            className="inline-flex items-center gap-2 font-sans text-xs uppercase tracking-[0.25em] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors group"
+          >
+            <ArrowLeft className="w-4 h-4 text-[var(--color-accent)] transition-transform group-hover:-translate-x-1" />
+            <span>Back to Archive</span>
+          </Link>
+        </div>
 
         {/* 1. Hero Image Header (Crisp Sizing & Full Bleed Overlay) */}
-        <div className="relative w-full h-[50vh] sm:h-[60vh] md:h-[68vh] bg-[#1A1A1A] border border-[#1A1A1A]/10 overflow-hidden mb-16">
+        <div className="relative w-full h-[50vh] sm:h-[60vh] md:h-[68vh] bg-[#1A1A1A] border border-[#1A1A1A]/10 overflow-hidden mb-12 sm:mb-16">
           <img
             src={project.heroImage}
             alt={project.title}
@@ -178,13 +234,13 @@ export const ProjectDetail = () => {
           <div className="absolute inset-0 shadow-inner-hairline pointer-events-none z-20" />
 
           {/* Status Badge overlay */}
-          <div className="absolute top-6 sm:top-8 right-6 sm:right-8 z-20 flex flex-wrap gap-2 sm:gap-3">
+          <div className="absolute top-3.5 sm:top-8 right-3.5 sm:right-8 z-20 flex flex-wrap gap-2 sm:gap-3">
             {project.isBlueprint && (
-              <span className="backdrop-blur-md bg-[#1A1A1A]/85 border border-[#D4AF37]/60 text-[#D4AF37] px-3.5 py-1.5 uppercase tracking-[0.25em] text-[10px] font-sans">
+              <span className="backdrop-blur-md bg-[#1A1A1A]/85 border border-[#D4AF37]/60 text-[#D4AF37] px-3 sm:px-3.5 py-1 sm:py-1.5 uppercase tracking-[0.2em] sm:tracking-[0.25em] text-[9px] sm:text-[10px] font-sans">
                 Architectural Blueprint
               </span>
             )}
-            <span className={`backdrop-blur-md px-3.5 py-1.5 uppercase tracking-[0.2em] text-[10px] font-sans border font-medium ${
+            <span className={`backdrop-blur-md px-3 sm:px-3.5 py-1 sm:py-1.5 uppercase tracking-[0.2em] text-[9px] sm:text-[10px] font-sans border font-medium ${
               project.status === 'ongoing'
                 ? 'bg-[#1A1A1A]/85 border-[#D4AF37]/50 text-[#D4AF37]'
                 : 'bg-[#1A1A1A]/85 border-white/30 text-white/90'
@@ -194,11 +250,11 @@ export const ProjectDetail = () => {
           </div>
 
           {/* Title Overlay */}
-          <div className="absolute bottom-0 left-0 w-full p-6 sm:p-10 md:p-14 bg-gradient-to-t from-[#1A1A1A]/95 via-[#1A1A1A]/50 to-transparent z-10">
+          <div className="absolute bottom-0 left-0 w-full p-4 sm:p-8 md:p-14 bg-gradient-to-t from-[#1A1A1A]/95 via-[#1A1A1A]/50 to-transparent z-10">
             <span className="font-sans text-xs uppercase tracking-[0.25em] text-[#D4AF37] block mb-2 font-medium">
               {project.location}
             </span>
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-serif text-white tracking-tight leading-none max-w-4xl">
+            <h1 className="text-2xl sm:text-4xl md:text-6xl font-serif text-white tracking-tight leading-tight max-w-4xl">
               {project.title}
             </h1>
           </div>
@@ -237,7 +293,7 @@ export const ProjectDetail = () => {
                   {project.architecturalHighlights.map((highlight, index) => (
                     <div key={index} className="flex items-start gap-3">
                       <span className="text-[var(--color-accent)] text-sm mt-0.5">✦</span>
-                      <p className="font-sans text-sm text-[var(--color-text-secondary)] leading-relaxed">{highlight}</p>
+                      <p className="font-sans text-sm text-[var(--color-text-secondary)] dark:text-[#C5C2BA] leading-relaxed">{highlight}</p>
                     </div>
                   ))}
                 </div>
@@ -260,16 +316,16 @@ export const ProjectDetail = () => {
                     return (
                       <div 
                         key={idx} 
-                        className="p-5 bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-accent)] hover:bg-[var(--color-surface-warm)] transition-all duration-300 group flex items-start gap-4 shadow-sm"
+                        className="p-5 bg-[var(--color-surface)] dark:bg-[#141417] border border-[var(--color-border)] dark:border-white/10 hover:border-[var(--color-accent)] hover:bg-[var(--color-surface-warm)] transition-all duration-300 group flex items-start gap-4 shadow-sm"
                       >
-                        <div className="p-2.5 bg-[var(--color-surface-warm)] text-[var(--color-accent)] border border-[var(--color-border)] flex-shrink-0">
+                        <div className="p-2.5 bg-[var(--color-surface-warm)] dark:bg-[#1C1C21] text-[var(--color-accent)] border border-[var(--color-border)] dark:border-white/10 flex-shrink-0">
                           <IconComp className="w-4 h-4 text-[var(--color-accent)]" />
                         </div>
                         <div>
                           <h4 className="font-serif text-sm text-[var(--color-text-primary)] font-medium mb-1 group-hover:text-[var(--color-accent)] transition-colors">
                             {item.label}
                           </h4>
-                          <p className="font-sans text-xs text-[var(--color-text-secondary)] leading-relaxed font-light">
+                          <p className="font-sans text-xs text-[var(--color-text-secondary)] dark:text-[#C5C2BA] leading-relaxed font-light">
                             {item.detail}
                           </p>
                         </div>
@@ -282,7 +338,7 @@ export const ProjectDetail = () => {
 
             {/* Editorial Design Philosophy Pull Quote */}
             {project.pullQuote && (
-              <div className="p-8 sm:p-10 bg-[var(--color-surface-warm)] border-l-2 border-l-[var(--color-accent)] border border-[var(--color-border)] relative overflow-hidden shadow-sm">
+              <div className="p-8 sm:p-10 bg-[var(--color-surface-warm)] dark:bg-[#18181C] border-l-2 border-l-[var(--color-accent)] border border-[var(--color-border)] dark:border-white/10 relative overflow-hidden shadow-sm">
                 <div className="absolute top-2 right-4 font-serif text-7xl sm:text-8xl text-[var(--color-text-primary)]/[0.04] select-none pointer-events-none font-bold leading-none">
                   “
                 </div>
@@ -298,7 +354,7 @@ export const ProjectDetail = () => {
                   </blockquote>
                   <div className="pt-2 flex items-center gap-3">
                     <span className="w-4 h-px bg-[var(--color-accent)]/60" />
-                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)]">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)] dark:text-[#A8A49C]">
                       Sky Square Infra Specification Dossier
                     </span>
                   </div>
@@ -309,14 +365,14 @@ export const ProjectDetail = () => {
           </div>
 
           {/* Right Area: Detailed Metadata Grid */}
-          <div className="lg:col-span-4 bg-[var(--color-surface)] border border-[var(--color-border)] p-8 shadow-card space-y-8">
-            <h3 className="font-serif text-lg border-b border-[var(--color-border)] pb-4 text-[var(--color-text-primary)] font-normal">
+          <div className="lg:col-span-4 bg-[var(--color-surface)] dark:bg-[#141417] border border-[var(--color-border)] dark:border-white/10 p-8 shadow-card space-y-8">
+            <h3 className="font-serif text-lg border-b border-[var(--color-border)] dark:border-white/10 pb-4 text-[var(--color-text-primary)] font-normal">
               Dossier Metadata
             </h3>
 
             <div className="space-y-6">
               <div>
-                <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)] block">
+                <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)] dark:text-[#A8A49C] block font-medium">
                   Location
                 </span>
                 <span className="font-serif text-base text-[var(--color-text-primary)] mt-1 block">
@@ -325,7 +381,7 @@ export const ProjectDetail = () => {
               </div>
 
               <div>
-                <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)] block">
+                <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)] dark:text-[#A8A49C] block font-medium">
                   Engineering Scope
                 </span>
                 <span className="font-serif text-base text-[var(--color-text-primary)] mt-1 block">
@@ -336,7 +392,7 @@ export const ProjectDetail = () => {
               {/* Dynamic metrics from project */}
               {project.metrics && project.metrics.map((m, idx) => (
                 <div key={idx}>
-                  <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)] block">
+                  <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)] dark:text-[#A8A49C] block font-medium">
                     {m.label}
                   </span>
                   <span className="font-serif text-base text-[var(--color-accent)] mt-1 block">
@@ -347,10 +403,10 @@ export const ProjectDetail = () => {
 
               {/* Live Progress for Ongoing Projects */}
               {project.status === 'ongoing' && project.progressPercent !== undefined && (
-                <div className="pt-4 border-t border-[var(--color-border)] space-y-4">
+                <div className="pt-4 border-t border-[var(--color-border)] dark:border-white/10 space-y-4">
                   <div>
                     <div className="flex justify-between items-baseline mb-2">
-                      <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)]">
+                      <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)] dark:text-[#A8A49C] font-medium">
                         Construction Progress
                       </span>
                       <span className="font-mono text-sm font-semibold text-[var(--color-accent)]">
@@ -358,7 +414,7 @@ export const ProjectDetail = () => {
                       </span>
                     </div>
                     {/* Compact Gold Progress Bar (0px radius) */}
-                    <div className="w-full h-1.5 bg-[var(--color-surface-muted)] border border-[var(--color-border)] overflow-hidden">
+                    <div className="w-full h-1.5 bg-[var(--color-surface-muted)] dark:bg-[#202026] border border-[var(--color-border)] dark:border-white/10 overflow-hidden">
                       <div 
                         className="h-full bg-[var(--color-accent)] transition-all duration-1000 ease-editorial"
                         style={{ width: `${project.progressPercent}%` }}
@@ -369,7 +425,7 @@ export const ProjectDetail = () => {
                   {/* Milestone Checklist */}
                   {project.milestones && project.milestones.length > 0 && (
                     <div className="pt-2">
-                      <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[#6C6863] block mb-3">
+                      <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-muted)] dark:text-[#A8A49C] block mb-3 font-semibold">
                         Milestone Schedule
                       </span>
                       <div className="space-y-2.5">
@@ -379,11 +435,13 @@ export const ProjectDetail = () => {
                               {milestone.done ? (
                                 <CheckSquare className="w-3.5 h-3.5 text-[#D4AF37]" />
                               ) : (
-                                <Square className="w-3.5 h-3.5 text-[#6C6863]/40" />
+                                <Square className="w-3.5 h-3.5 text-[var(--color-text-muted)]/60 dark:text-white/35" />
                               )}
                             </span>
                             <span className={`font-sans text-xs leading-snug ${
-                              milestone.done ? 'text-[#1A1A1A] font-medium' : 'text-[#6C6863]/70 font-light'
+                              milestone.done 
+                                ? 'text-[var(--color-text-primary)] dark:text-[#F5F5F7] font-medium' 
+                                : 'text-[var(--color-text-secondary)] dark:text-[#A39E95] font-light'
                             }`}>
                               {milestone.label}
                             </span>
@@ -396,10 +454,10 @@ export const ProjectDetail = () => {
               )}
             </div>
 
-            <div className="pt-6 border-t border-[#1A1A1A]/10">
+            <div className="pt-6 border-t border-[var(--color-border)] dark:border-white/10">
               <Button 
                 variant="primary" 
-                className="w-full"
+                className="w-full border border-white/20 hover:border-[#D4AF37]"
                 onClick={() => navigate('/inquire', { state: { selectedProject: project } })}
               >
                 Inquire For Details
@@ -429,7 +487,7 @@ export const ProjectDetail = () => {
                 Visual Documentation
               </h3>
             </div>
-            <span className="font-mono text-xs text-[#6C6863] tracking-widest hidden sm:inline-block">
+            <span className="font-mono text-xs text-[var(--color-text-muted)] dark:text-[#A8A49C] tracking-widest hidden sm:inline-block">
               {String(galleryImages.length).padStart(2, '0')} SPECIFICATION PLATES
             </span>
           </div>
@@ -518,12 +576,12 @@ export const ProjectDetail = () => {
         )}
 
         {/* 5. Consultation Banner CTA */}
-        <div className="p-10 bg-[var(--color-surface-warm)] border border-[var(--color-border)] flex flex-col md:flex-row items-center justify-between gap-8 mb-20 shadow-sm">
+        <div className="p-10 bg-[var(--color-surface-warm)] dark:bg-[#18181C] border border-[var(--color-border)] dark:border-white/10 flex flex-col md:flex-row items-center justify-between gap-8 mb-20 shadow-sm">
           <div>
             <h4 className="font-serif text-xl sm:text-2xl text-[var(--color-text-primary)] mb-2 font-normal">
               Interested in structural specs or valuation in Attapur, Shankerpally, or Zaheerabad?
             </h4>
-            <p className="font-sans text-xs text-[var(--color-text-secondary)] tracking-wider font-light">
+            <p className="font-sans text-xs text-[var(--color-text-secondary)] dark:text-[#B8B4AC] tracking-wider font-light">
               Connect with our advisory director to acquire site blueprints, geodetic surveys or custom quotes.
             </p>
           </div>
@@ -541,7 +599,7 @@ export const ProjectDetail = () => {
             to={`/archive/${prevProject.id}`}
             className="group flex flex-col items-start gap-1 max-w-[45%] text-left"
           >
-            <span className="text-[var(--color-text-muted)] group-hover:text-[var(--color-accent)] flex items-center gap-1 transition-colors">
+            <span className="text-[var(--color-text-muted)] dark:text-[#A8A49C] group-hover:text-[var(--color-accent)] flex items-center gap-1 transition-colors">
               <ChevronLeft className="w-4 h-4" /> PREVIOUS SPECIFICATION
             </span>
             <span className="font-serif text-sm font-semibold normal-case text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors line-clamp-1 mt-1">
@@ -553,7 +611,7 @@ export const ProjectDetail = () => {
             to={`/archive/${nextProject.id}`}
             className="group flex flex-col items-end gap-1 max-w-[45%] text-right"
           >
-            <span className="text-[var(--color-text-muted)] group-hover:text-[var(--color-accent)] flex items-center gap-1 transition-colors">
+            <span className="text-[var(--color-text-muted)] dark:text-[#A8A49C] group-hover:text-[var(--color-accent)] flex items-center gap-1 transition-colors">
               NEXT SPECIFICATION <ChevronRight className="w-4 h-4" />
             </span>
             <span className="font-serif text-sm font-semibold normal-case text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors line-clamp-1 mt-1">
@@ -564,112 +622,121 @@ export const ProjectDetail = () => {
 
       </div>
 
-      {/* 7. High-Precision Lightbox Modal */}
+      {/* 7. Image Gallery / Visual Specification Drawer */}
       {lightboxOpen && (
         <div 
-          className="fixed inset-0 z-50 flex flex-col justify-between bg-[#1A1A1A]/95 backdrop-blur-md p-4 sm:p-8 animate-fadeIn"
+          className="fixed top-[72px] md:top-[80px] bottom-0 left-0 right-0 z-40 flex items-center justify-center bg-[var(--color-overlay)]/85 backdrop-blur-md p-2 sm:p-4 md:p-6 animate-fadeIn"
           role="dialog"
           aria-modal="true"
           aria-label="Visual Documentation Lightbox"
           onClick={closeLightbox}
         >
-          {/* Lightbox Header */}
+          {/* Gallery / Drawer Container Frame */}
           <div 
-            className="flex items-center justify-between border-b border-white/10 pb-4 w-full max-w-7xl mx-auto z-20"
+            className="relative w-full max-w-7xl h-full max-h-[calc(100vh-88px)] md:max-h-[calc(100vh-104px)] flex flex-col justify-between bg-[var(--color-surface)] text-[var(--color-text-primary)] border border-[var(--color-border)] shadow-2xl p-3 sm:p-5 md:p-6 overflow-hidden select-none transition-colors duration-300"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-3">
-              <span className="w-6 h-px bg-[#D4AF37]" />
-              <div>
-                <span className="font-sans text-[10px] uppercase tracking-[0.25em] text-[#D4AF37] block font-medium">
-                  Visual Specification Dossier
+            {/* Gallery Drawer Header */}
+            <div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3.5 w-full z-20 shrink-0">
+              <div className="flex items-center gap-3">
+                <span className="w-6 h-px bg-[var(--color-accent)]" />
+                <div>
+                  <span className="font-sans text-[10px] uppercase tracking-[0.25em] text-[var(--color-accent)] block font-medium">
+                    Visual Specification Dossier
+                  </span>
+                  <h4 className="font-serif text-sm sm:text-base text-[var(--color-text-primary)] font-normal line-clamp-1">
+                    {project.title} &mdash; <span className="text-[var(--color-text-secondary)] font-sans text-xs">{activePlate.caption}</span>
+                  </h4>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 sm:gap-6">
+                <span className="font-mono text-xs tracking-[0.2em] text-[var(--color-text-muted)] hidden sm:inline-block">
+                  PLATE {String(lightboxIndex + 1).padStart(2, '0')} / {String(galleryImages.length).padStart(2, '0')}
                 </span>
-                <h4 className="font-serif text-sm sm:text-base text-white font-normal line-clamp-1">
-                  {project.title} &mdash; <span className="text-[#EBE5DE]/80 font-sans text-xs">{activePlate.caption}</span>
-                </h4>
+                
+                {/* Prominent X Close Button at top-right of gallery drawer container */}
+                <button
+                  type="button"
+                  onClick={closeLightbox}
+                  className="flex items-center justify-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-[var(--color-surface-warm)] hover:bg-[var(--color-accent)] text-[var(--color-text-primary)] hover:text-[#0C0C0E] border border-[var(--color-border)] hover:border-[var(--color-accent)] transition-all duration-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] shadow-md"
+                  aria-label="Close image gallery"
+                  title="Close image gallery"
+                >
+                  <span className="hidden sm:inline font-mono text-[10px] tracking-widest uppercase font-semibold">CLOSE</span>
+                  <X className="w-4 h-4" />
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 sm:gap-6">
-              <span className="font-mono text-xs tracking-[0.2em] text-[#EBE5DE]/70">
-                PLATE {String(lightboxIndex + 1).padStart(2, '0')} / {String(galleryImages.length).padStart(2, '0')}
-              </span>
+            {/* Gallery Main Image Display & Navigation */}
+            <div className="relative flex-1 flex items-center justify-center my-2 sm:my-3 w-full overflow-hidden min-h-0">
+              {/* Prev Button */}
               <button
                 type="button"
-                onClick={closeLightbox}
-                className="flex items-center gap-2 border border-white/20 hover:border-[#D4AF37] text-white hover:text-[#D4AF37] px-3 py-1.5 transition-colors font-sans text-xs tracking-widest uppercase cursor-pointer"
-                aria-label="Close Lightbox"
+                onClick={handlePrev}
+                className="absolute left-2 sm:left-4 z-30 p-2.5 sm:p-3.5 bg-[var(--color-surface-warm)]/90 hover:bg-[var(--color-accent)] text-[var(--color-text-primary)] hover:text-[#0C0C0E] border border-[var(--color-border)] hover:border-[var(--color-accent)] transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] touch-manipulation active:scale-95 shadow-lg"
+                aria-label="Previous gallery image"
+                title="Previous image"
               >
-                <span className="hidden sm:inline font-mono text-[10px] text-[#6C6863]">[ESC]</span>
-                <span>CLOSE</span>
-                <X className="w-4 h-4" />
+                <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
-            </div>
-          </div>
 
-          {/* Lightbox Main Image Display & Navigation */}
-          <div 
-            className="relative flex-1 flex items-center justify-center my-4 w-full max-w-7xl mx-auto overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Prev Button */}
-            <button
-              type="button"
-              onClick={handlePrev}
-              className="absolute left-2 sm:left-6 z-30 p-3 sm:p-4 bg-[#1A1A1A]/80 hover:bg-[#D4AF37] text-white hover:text-[#1A1A1A] border border-white/20 hover:border-[#D4AF37] transition-all cursor-pointer"
-              aria-label="Previous image"
-            >
-              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-            </button>
-
-            {/* Active Image with Caption Frame */}
-            <div className="relative max-h-[66vh] sm:max-h-[70vh] max-w-full flex flex-col items-center justify-center border border-white/10 bg-[#0D0D0D] p-1">
-              <img
-                src={activePlate.url}
-                alt={`${project.title} - ${activePlate.caption}`}
-                className="max-h-[62vh] sm:max-h-[66vh] w-auto max-w-full object-contain"
-              />
-              <div className="absolute inset-0 shadow-inner-hairline pointer-events-none" />
-            </div>
-
-            {/* Next Button */}
-            <button
-              type="button"
-              onClick={handleNext}
-              className="absolute right-2 sm:right-6 z-30 p-3 sm:p-4 bg-[#1A1A1A]/80 hover:bg-[#D4AF37] text-white hover:text-[#1A1A1A] border border-white/20 hover:border-[#D4AF37] transition-all cursor-pointer"
-              aria-label="Next image"
-            >
-              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
-            </button>
-          </div>
-
-          {/* Lightbox Footer Thumbnail Bar */}
-          <div 
-            className="border-t border-white/10 pt-4 w-full max-w-7xl mx-auto flex items-center justify-center gap-3 overflow-x-auto py-2 z-20"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {galleryImages.map((plate, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setLightboxIndex(idx)}
-                className={`relative w-14 h-10 sm:w-20 sm:h-14 flex-shrink-0 overflow-hidden border transition-all cursor-pointer ${
-                  idx === lightboxIndex 
-                    ? 'border-[#D4AF37] opacity-100 ring-1 ring-[#D4AF37]' 
-                    : 'border-white/20 opacity-40 hover:opacity-80'
-                }`}
-                aria-label={`Jump to plate 0${idx + 1}: ${plate.caption}`}
-              >
-                <img 
-                  src={plate.url} 
-                  alt={`Thumbnail Plate ${idx + 1}`} 
-                  className="w-full h-full object-cover"
+              {/* Active Image Frame */}
+              <div className="relative max-h-[50vh] sm:max-h-[54vh] md:max-h-[58vh] max-w-full flex flex-col items-center justify-center border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-1">
+                <img
+                  key={activePlate.url}
+                  src={activePlate.url}
+                  alt={`${project.title} - ${activePlate.caption}`}
+                  className={`max-h-[46vh] sm:max-h-[50vh] md:max-h-[54vh] w-auto max-w-full object-contain transition-all duration-300 ${
+                    isImgTransitioning ? 'opacity-40 scale-[0.99]' : 'opacity-100 scale-100'
+                  }`}
                 />
-                <span className="absolute bottom-0 right-0 bg-[#1A1A1A]/90 text-[8px] font-mono text-[#D4AF37] px-1">
-                  0{idx + 1}
-                </span>
+                <div className="absolute inset-0 shadow-inner-hairline pointer-events-none" />
+              </div>
+
+              {/* Next Button */}
+              <button
+                type="button"
+                onClick={handleNext}
+                className="absolute right-2 sm:right-4 z-30 p-2.5 sm:p-3.5 bg-[var(--color-surface-warm)]/90 hover:bg-[var(--color-accent)] text-[var(--color-text-primary)] hover:text-[#0C0C0E] border border-[var(--color-border)] hover:border-[var(--color-accent)] transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] touch-manipulation active:scale-95 shadow-lg"
+                aria-label="Next gallery image"
+                title="Next image"
+              >
+                <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
-            ))}
+            </div>
+
+            {/* Gallery Footer Thumbnail Bar */}
+            <div className="border-t border-[var(--color-border)] pt-2.5 sm:pt-3 w-full flex items-center justify-center gap-2.5 sm:gap-3 overflow-x-auto py-1.5 z-20 scrollbar-none shrink-0">
+              {galleryImages.map((plate, idx) => (
+                <button
+                  key={idx}
+                  ref={(el) => (thumbnailRefs.current[idx] = el)}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goToImage(idx);
+                  }}
+                  className={`relative w-12 h-9 sm:w-16 sm:h-12 md:w-20 md:h-14 flex-shrink-0 overflow-hidden border transition-all duration-300 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] ${
+                    idx === lightboxIndex 
+                      ? 'border-[var(--color-accent)] opacity-100 ring-2 ring-[var(--color-accent)] scale-105' 
+                      : 'border-[var(--color-border)] opacity-50 hover:opacity-90'
+                  }`}
+                  aria-label={`Jump to plate 0${idx + 1}: ${plate.caption}`}
+                  title={`Plate ${idx + 1}: ${plate.caption}`}
+                >
+                  <img 
+                    src={plate.url} 
+                    alt={`Thumbnail Plate ${idx + 1}`} 
+                    className="w-full h-full object-cover"
+                  />
+                  <span className="absolute bottom-0 right-0 bg-[var(--color-surface-warm)] text-[8px] font-mono text-[var(--color-accent)] px-1">
+                    0{idx + 1}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}

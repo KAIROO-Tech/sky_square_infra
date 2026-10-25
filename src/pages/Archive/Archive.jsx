@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, MapPin, Sparkles, Layers, ChevronRight } from 'lucide-react';
+import { ArrowRight, MapPin, Sparkles, Layers, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useProjects } from '../../context/ProjectsContext';
@@ -13,7 +13,7 @@ if (typeof window !== 'undefined') {
 }
 
 export const Archive = () => {
-  const { projects } = useProjects();
+  const { projects, loading, error } = useProjects();
   const [activeFilter, setActiveFilter] = useState('all');
   const [activeCardIndex, setActiveCardIndex] = useState(0);
   const [hoveredCardId, setHoveredCardId] = useState(null);
@@ -23,6 +23,14 @@ export const Archive = () => {
 
   const pinnedSectionRef = useRef(null);
   const cardsRef = useRef([]);
+  const mobileCardsRef = useRef([]);
+  const scrollTriggerRef = useRef(null);
+  const isNavigatingRef = useRef(false);
+  const wheelLockRef = useRef(false);
+  const lastWheelTimeRef = useRef(0);
+  const activeIndexRef = useRef(activeCardIndex);
+  activeIndexRef.current = activeCardIndex;
+  const filteredLengthRef = useRef(0);
 
   // Filter only active pinned projects for the Pinned Dossier Stack
   const pinnedProjects = projects
@@ -33,6 +41,7 @@ export const Archive = () => {
     if (activeFilter === 'all') return true;
     return project.status.toLowerCase() === activeFilter.toLowerCase();
   });
+  filteredLengthRef.current = filteredProjects.length;
 
   const categoryCounts = {
     all: pinnedProjects.length,
@@ -92,8 +101,10 @@ export const Archive = () => {
           },
           invalidateOnRefresh: true,
           onUpdate: (self) => {
-            const step = Math.round(self.progress * (totalCards - 1));
-            setActiveCardIndex(Math.min(Math.max(step, 0), totalCards - 1));
+            if (!isNavigatingRef.current) {
+              const step = Math.round(self.progress * (totalCards - 1));
+              setActiveCardIndex(Math.min(Math.max(step, 0), totalCards - 1));
+            }
           },
         },
       });
@@ -134,6 +145,8 @@ export const Archive = () => {
         // Once fully covered, hide previous card completely from rendering & clicks
         tl.set(currentCard, { visibility: 'hidden' }, i + 1);
       }
+
+      scrollTriggerRef.current = tl.scrollTrigger;
     }, pinnedSectionRef);
 
     const timer = setTimeout(() => {
@@ -142,9 +155,287 @@ export const Archive = () => {
 
     return () => {
       clearTimeout(timer);
+      scrollTriggerRef.current = null;
       ctx.revert();
     };
   }, [activeFilter, isDesktop, filteredProjects.length]);
+
+  // Mobile intersection observer to keep activeCardIndex in sync while scrolling
+  useEffect(() => {
+    if (isDesktop) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isNavigatingRef.current) {
+            const index = Number(entry.target.getAttribute('data-project-index'));
+            if (!isNaN(index)) {
+              setActiveCardIndex(index);
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.45,
+      }
+    );
+
+    const cards = mobileCardsRef.current.filter(Boolean);
+    cards.forEach((card) => observer.observe(card));
+
+    return () => {
+      cards.forEach((card) => observer.unobserve(card));
+      observer.disconnect();
+    };
+  }, [isDesktop, filteredProjects.length, activeFilter]);
+
+  // Programmatic navigation to a target project index
+  const navigateToProject = (targetIndex) => {
+    if (targetIndex < 0 || targetIndex >= filteredProjects.length) return;
+    if (isNavigatingRef.current) return;
+
+    isNavigatingRef.current = true;
+    wheelLockRef.current = true;
+    setActiveCardIndex(targetIndex);
+
+    if (isDesktop && scrollTriggerRef.current) {
+      const st = scrollTriggerRef.current;
+      const totalCards = filteredProjects.length;
+      if (totalCards <= 1) {
+        isNavigatingRef.current = false;
+        wheelLockRef.current = false;
+        return;
+      }
+
+      // Calculate target vertical scroll position within pinned ScrollTrigger boundaries
+      const targetProgress = targetIndex / (totalCards - 1);
+      const targetY = st.start + targetProgress * (st.end - st.start);
+
+      if (window.lenis) {
+        window.lenis.scrollTo(targetY, {
+          duration: 0.75,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          onComplete: () => {
+            isNavigatingRef.current = false;
+            setTimeout(() => {
+              wheelLockRef.current = false;
+            }, 100);
+          },
+        });
+      } else {
+        const scrollProxy = { y: window.scrollY };
+        gsap.to(scrollProxy, {
+          y: targetY,
+          duration: 0.75,
+          ease: 'power2.inOut',
+          onUpdate: () => {
+            window.scrollTo(0, scrollProxy.y);
+          },
+          onComplete: () => {
+            isNavigatingRef.current = false;
+            setTimeout(() => {
+              wheelLockRef.current = false;
+            }, 100);
+          },
+        });
+      }
+
+      // Safeguard lock release
+      setTimeout(() => {
+        isNavigatingRef.current = false;
+        wheelLockRef.current = false;
+      }, 850);
+    } else {
+      // Mobile smooth scroll to target project card with navbar header offset
+      const targetCard = mobileCardsRef.current[targetIndex];
+      if (targetCard) {
+        if (window.lenis) {
+          window.lenis.scrollTo(targetCard, {
+            offset: -75,
+            duration: 0.65,
+            onComplete: () => {
+              isNavigatingRef.current = false;
+              wheelLockRef.current = false;
+            },
+          });
+        } else {
+          const rect = targetCard.getBoundingClientRect();
+          const targetY = window.pageYOffset + rect.top - 75;
+          window.scrollTo({
+            top: Math.max(0, targetY),
+            behavior: 'smooth',
+          });
+          setTimeout(() => {
+            isNavigatingRef.current = false;
+            wheelLockRef.current = false;
+          }, 700);
+        }
+      } else {
+        isNavigatingRef.current = false;
+        wheelLockRef.current = false;
+      }
+    }
+  };
+
+  const handlePrev = (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    if (isNavigatingRef.current || wheelLockRef.current || activeCardIndex <= 0) return;
+    navigateToProject(activeCardIndex - 1);
+  };
+
+  const handleNext = (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    if (isNavigatingRef.current || wheelLockRef.current || activeCardIndex >= filteredProjects.length - 1) return;
+    navigateToProject(activeCardIndex + 1);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      handlePrev(e);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      handleNext(e);
+    }
+  };
+
+  // Unified Wheel & Touch Navigation:
+  // - 1 intentional downward wheel gesture advances exactly 1 slide
+  // - 1 intentional upward wheel gesture moves to previous slide
+  // - Transition throttle lock swallows trackpad momentum and avoids multi-slide skipping
+  // - Normal scrolling allowed when outside slider or over nested scrollable areas
+  useEffect(() => {
+    const section = pinnedSectionRef.current;
+    if (!section) return;
+
+    let momentumTimer = null;
+
+    const handleWheel = (e) => {
+      if (!isDesktop) return;
+
+      // Preserve native scrolling if pointer is over a nested scrollable element
+      let el = e.target;
+      while (el && el !== section) {
+        if (el.scrollHeight > el.clientHeight) {
+          const style = window.getComputedStyle(el);
+          if (['auto', 'scroll'].includes(style.overflowY)) {
+            const atTop = el.scrollTop <= 0 && e.deltaY < 0;
+            const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight && e.deltaY > 0;
+            if (!atTop && !atBottom) {
+              return;
+            }
+          }
+        }
+        el = el.parentElement;
+      }
+
+      const now = Date.now();
+      const delta = e.deltaY;
+
+      // Ignore micro noise/jitter
+      if (Math.abs(delta) < 18) return;
+
+      const currentIndex = activeIndexRef.current;
+      const total = filteredLengthRef.current;
+      if (total <= 1) return;
+
+      const isDownward = delta > 0;
+      const isUpward = delta < 0;
+
+      const canAdvance = isDownward && currentIndex < total - 1;
+      const canRetreat = isUpward && currentIndex > 0;
+
+      // At boundaries, let normal page scrolling proceed (up to Hero or down to Footer)
+      if (!canAdvance && !canRetreat) {
+        return;
+      }
+
+      // Inside slide range: intercept event to advance 1 slide
+      e.preventDefault();
+      e.stopPropagation();
+
+      // If transition is locked or currently navigating, absorb momentum events
+      if (wheelLockRef.current || isNavigatingRef.current) {
+        return;
+      }
+
+      // Cooldown throttle to ensure 1 gesture = 1 slide
+      if (now - lastWheelTimeRef.current < 750) {
+        return;
+      }
+
+      wheelLockRef.current = true;
+      lastWheelTimeRef.current = now;
+
+      if (canAdvance) {
+        navigateToProject(currentIndex + 1);
+      } else if (canRetreat) {
+        navigateToProject(currentIndex - 1);
+      }
+
+      clearTimeout(momentumTimer);
+      momentumTimer = setTimeout(() => {
+        wheelLockRef.current = false;
+      }, 800);
+    };
+
+    // Scoped touch swipe handling for touch-enabled devices (works on both mobile and desktop touchscreens)
+    let touchStartY = null;
+    let touchStartX = null;
+
+    const handleTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e) => {
+      if (touchStartY === null) return;
+      const touchEndY = e.changedTouches[0].clientY;
+      const touchEndX = e.changedTouches[0].clientX;
+      const diffY = touchStartY - touchEndY;
+      const diffX = touchStartX - touchEndX;
+      touchStartY = null;
+      touchStartX = null;
+
+      // Ensure gesture is predominantly vertical and meets threshold
+      if (Math.abs(diffY) < 45 || Math.abs(diffY) < Math.abs(diffX)) return;
+
+      const currentIndex = activeIndexRef.current;
+      const total = filteredLengthRef.current;
+      if (total <= 1) return;
+
+      if (diffY > 0 && currentIndex < total - 1) {
+        if (!isNavigatingRef.current && !wheelLockRef.current) {
+          wheelLockRef.current = true;
+          navigateToProject(currentIndex + 1);
+          setTimeout(() => {
+            wheelLockRef.current = false;
+          }, 700);
+        }
+      } else if (diffY < 0 && currentIndex > 0) {
+        if (!isNavigatingRef.current && !wheelLockRef.current) {
+          wheelLockRef.current = true;
+          navigateToProject(currentIndex - 1);
+          setTimeout(() => {
+            wheelLockRef.current = false;
+          }, 700);
+        }
+      }
+    };
+
+    section.addEventListener('wheel', handleWheel, { passive: false });
+    section.addEventListener('touchstart', handleTouchStart, { passive: true });
+    section.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      clearTimeout(momentumTimer);
+      section.removeEventListener('wheel', handleWheel);
+      section.removeEventListener('touchstart', handleTouchStart);
+      section.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isDesktop]);
 
   const handleMouseMove = (e, id) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -230,16 +521,55 @@ export const Archive = () => {
               <span>PINNED DOSSIER STACK</span>
             </div>
 
-            {isDesktop && (
-              <div className="flex items-center gap-3 bg-[var(--color-surface-warm)] border border-[var(--color-border)] px-4 py-1 rounded-full">
+            <div className="flex items-center gap-2">
+              {/* Quick Arrow Nav for mobile in header */}
+              {filteredProjects.length > 1 && (
+                <div className="flex md:hidden items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    disabled={activeCardIndex <= 0}
+                    aria-label="Previous project"
+                    className="w-7 h-7 flex items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] disabled:opacity-25 hover:border-[#d4af37] transition-colors"
+                  >
+                    <ChevronUp className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={activeCardIndex >= filteredProjects.length - 1}
+                    aria-label="Next project"
+                    className="w-7 h-7 flex items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] disabled:opacity-25 hover:border-[#d4af37] transition-colors"
+                  >
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 bg-[var(--color-surface-warm)] border border-[var(--color-border)] px-3 sm:px-4 py-1 rounded-full">
                 <span className="text-[var(--color-accent)] font-semibold">
                   {String(activeCardIndex + 1).padStart(2, '0')}
                 </span>
                 <span className="text-[var(--color-text-muted)]/40">/</span>
                 <span className="text-[var(--color-text-secondary)]">{String(filteredProjects.length).padStart(2, '0')}</span>
               </div>
-            )}
+            </div>
           </div>
+
+          {/* Empty State when filter yields 0 projects */}
+          {filteredProjects.length === 0 && (
+            <div className="py-20 text-center flex flex-col items-center justify-center">
+              <p className="font-serif text-2xl text-[var(--color-text-primary)] mb-2 font-normal">
+                No Projects in Dossier Sector
+              </p>
+              <p className="font-sans text-xs text-[var(--color-text-secondary)] mb-6 max-w-sm">
+                No architectural files matched the filter &ldquo;{activeFilter}&rdquo;.
+              </p>
+              <Button variant="secondary" size="small" onClick={() => setActiveFilter('all')}>
+                View All Works
+              </Button>
+            </div>
+          )}
 
           {/* DESKTOP: GSAP Pinned Deck Viewport */}
           {isDesktop ? (
@@ -374,11 +704,71 @@ export const Archive = () => {
                   </div>
                 );
               })}
+
+              {/* Vertically Stacked Pair of Up/Down Project Navigation Controls */}
+              {filteredProjects.length > 1 && (
+                <div
+                  className="archive-slider-nav"
+                  role="group"
+                  aria-label="Vertical project slider navigation"
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={handleKeyDown}
+                >
+                  {/* Up Arrow: Navigate to Previous Project */}
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    disabled={activeCardIndex <= 0}
+                    aria-label="Previous project"
+                    title="Previous project"
+                    className="archive-slider-nav-btn archive-slider-nav-prev"
+                  >
+                    <ChevronUp className="w-4 h-4" aria-hidden="true" />
+                  </button>
+
+                  {/* Vertical Progress Indicator Track */}
+                  <div
+                    className="archive-slider-indicator-track"
+                    role="tablist"
+                    aria-label="Project slider indicators"
+                  >
+                    {filteredProjects.map((p, idx) => (
+                      <button
+                        key={p.id || idx}
+                        type="button"
+                        role="tab"
+                        aria-selected={activeCardIndex === idx}
+                        aria-label={`Go to project ${idx + 1}: ${p.title}`}
+                        title={`${String(idx + 1).padStart(2, '0')} — ${p.title}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigateToProject(idx);
+                        }}
+                        className={`archive-slider-indicator-dot ${
+                          activeCardIndex === idx ? 'active' : ''
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Down Arrow: Navigate to Next Project */}
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={activeCardIndex >= filteredProjects.length - 1}
+                    aria-label="Next project"
+                    title="Next project"
+                    className="archive-slider-nav-btn archive-slider-nav-next"
+                  >
+                    <ChevronDown className="w-4 h-4" aria-hidden="true" />
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             /* MOBILE: Cascading Feed */
-            <div className="flex flex-col gap-8">
-              {filteredProjects.map((project) => {
+            <div className="flex flex-col gap-6 relative">
+              {filteredProjects.map((project, index) => {
                 const firstGal = project.galleryImages?.[0];
                 const fallbackGal = typeof firstGal === 'string' ? firstGal : firstGal?.url;
                 const secondaryImage = project.hoverImage || fallbackGal;
@@ -386,8 +776,10 @@ export const Archive = () => {
                 return (
                   <div
                     key={project.id}
+                    ref={(el) => (mobileCardsRef.current[index] = el)}
+                    data-project-index={index}
                     onClick={() => handleCardClick(project.id)}
-                    className="archive-mobile-card group cursor-pointer p-6 flex flex-col justify-end"
+                    className="archive-mobile-card group cursor-pointer p-4 sm:p-6 flex flex-col justify-end"
                   >
                     <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
                       <img
@@ -409,9 +801,9 @@ export const Archive = () => {
                       <span className="text-[#d4af37] font-mono text-xs uppercase tracking-wider block mb-1">
                         {project.location}
                       </span>
-                      <h3 className="text-2xl font-serif text-white mb-2">{project.title}</h3>
-                      <p className="text-white/70 text-xs line-clamp-2 mb-4 font-light">{project.summary}</p>
-                      <div className="flex items-center justify-between border-t border-white/10 pt-3">
+                      <h3 className="text-xl sm:text-2xl font-serif text-white mb-2">{project.title}</h3>
+                      <p className="text-white/70 text-xs line-clamp-2 mb-3 font-light leading-relaxed">{project.summary}</p>
+                      <div className="flex items-center justify-between border-t border-white/10 pt-2.5">
                         <span className="font-mono text-[10px] text-[#D4AF37] uppercase tracking-widest flex items-center gap-1">
                           Inspect File <ChevronRight className="w-3 h-3" />
                         </span>
@@ -421,6 +813,58 @@ export const Archive = () => {
                   </div>
                 );
               })}
+
+              {/* Dedicated Compact Mobile Bottom Navigation Group */}
+              {filteredProjects.length > 1 && (
+                <div
+                  className="archive-mobile-nav-bar"
+                  role="group"
+                  aria-label="Archive project mobile navigation"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    disabled={activeCardIndex <= 0}
+                    aria-label="Previous project"
+                    title="Previous project"
+                    className="archive-mobile-nav-btn"
+                  >
+                    <ChevronUp className="w-4 h-4" aria-hidden="true" />
+                  </button>
+
+                  <div className="archive-mobile-nav-indicators" role="tablist" aria-label="Project slider indicators">
+                    {filteredProjects.map((p, idx) => (
+                      <button
+                        key={p.id || idx}
+                        type="button"
+                        role="tab"
+                        aria-selected={activeCardIndex === idx}
+                        aria-label={`Go to project ${idx + 1}: ${p.title}`}
+                        title={`${String(idx + 1).padStart(2, '0')} — ${p.title}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigateToProject(idx);
+                        }}
+                        className={`archive-mobile-indicator-dot ${
+                          activeCardIndex === idx ? 'active' : ''
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={activeCardIndex >= filteredProjects.length - 1}
+                    aria-label="Next project"
+                    title="Next project"
+                    className="archive-mobile-nav-btn"
+                  >
+                    <ChevronDown className="w-4 h-4" aria-hidden="true" />
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

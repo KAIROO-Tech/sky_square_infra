@@ -23,9 +23,19 @@ export const buildConsultationPlainText = ({
   interest,
   location,
   message,
+  preferredDate,
+  preferredTime,
   timestamp,
   inquiryId,
 }) => {
+  const scheduleSection = preferredDate || preferredTime
+    ? `
+Requested Appointment Schedule
+- Preferred Date: ${preferredDate || 'Not specified'}
+- Preferred Time Slot: ${preferredTime || 'Not specified'}
+`
+    : '';
+
   return `Sky Square Infra — New Consultation Request
 
 A new consultation request has been submitted through the website.
@@ -36,7 +46,7 @@ Contact Details
 - Full Name: ${fullName}
 - Contact Phone: ${phone}
 - Email Address: ${email}
-
+${scheduleSection}
 Consultation Details
 - Area of Engagement: ${interest}
 - Location of Interest: ${location || 'Not provided'}
@@ -63,6 +73,8 @@ export const buildConsultationHtml = ({
   interest,
   location,
   message,
+  preferredDate,
+  preferredTime,
   timestamp,
   inquiryId,
 }) => {
@@ -72,8 +84,25 @@ export const buildConsultationHtml = ({
   const safeInterest = escapeHtml(interest);
   const safeLocation = escapeHtml(location || 'Not provided');
   const safeMessage = escapeHtml(message || 'Not provided');
+  const safePreferredDate = escapeHtml(preferredDate || '');
+  const safePreferredTime = escapeHtml(preferredTime || '');
   const safeInquiryId = escapeHtml(inquiryId);
   const safeTimestamp = escapeHtml(timestamp);
+
+  const scheduleHtml = (preferredDate || preferredTime)
+    ? `
+    <div class="section-title">Requested Appointment Schedule</div>
+    <div style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.35); padding: 16px; margin: 12px 0 20px 0;">
+      <div class="field-row" style="margin-bottom: 8px;">
+        <div class="field-label" style="color: #B89358; font-weight: 600;">Preferred Date</div>
+        <div class="field-value" style="font-size: 15px; font-weight: 600; color: #141416;">${safePreferredDate || 'Flexible'}</div>
+      </div>
+      <div class="field-row" style="margin-bottom: 0;">
+        <div class="field-label" style="color: #B89358; font-weight: 600;">Preferred Time Slot</div>
+        <div class="field-value" style="font-size: 15px; font-weight: 600; color: #141416;">${safePreferredTime || 'Flexible'}</div>
+      </div>
+    </div>`
+    : '';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -212,7 +241,7 @@ export const buildConsultationHtml = ({
       <div class="field-label">Email Address</div>
       <div class="field-value"><a href="mailto:${safeEmail}">${safeEmail}</a></div>
     </div>
-
+${scheduleHtml}
     <div class="section-title">Consultation Details</div>
     <div class="field-row">
       <div class="field-label">Area of Engagement</div>
@@ -315,7 +344,9 @@ export async function sendConsultationEmail(inquiryData) {
     from: fromAddress,
     to: recipientEmail,
     replyTo: `${inquiryData.fullName.trim()} <${inquiryData.email.trim()}>`,
-    subject: 'New Consultation Request — Sky Square Infra',
+    subject: payload.preferredDate
+      ? `Consultation Appointment Request (${payload.preferredDate}${payload.preferredTime ? ` at ${payload.preferredTime}` : ''}) — Sky Square Infra`
+      : 'New Consultation Request — Sky Square Infra',
     text: buildConsultationPlainText(payload),
     html: buildConsultationHtml(payload),
   };

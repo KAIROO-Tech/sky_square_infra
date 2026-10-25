@@ -2,49 +2,53 @@ import React from 'react';
 
 export const Footer = () => {
   return (
-    <footer id="contact" className="w-full bg-[var(--color-footer-bg)] text-[var(--color-footer-fg)] py-16 md:py-24 px-8 md:px-16 mt-20 md:mt-28 relative z-10 overflow-hidden border-t border-[var(--color-footer-border)] transition-colors duration-300">
+    <footer id="contact" className="w-full bg-[var(--color-footer-bg)] text-[var(--color-footer-fg)] py-12 md:py-20 lg:py-24 px-5 sm:px-8 md:px-12 lg:px-16 mt-12 sm:mt-16 md:mt-24 relative z-10 overflow-hidden border-t border-[var(--color-footer-border)] transition-colors duration-300 min-w-0">
       {/* Subtle Decorative Architectural Watermark */}
-      <div className="absolute bottom-6 inset-x-0 flex items-end justify-center pointer-events-none select-none overflow-hidden text-[var(--color-footer-watermark)] z-0" aria-hidden="true">
-        <span className="font-serif font-bold text-[13vw] tracking-wider leading-none whitespace-nowrap">
+      <div className="absolute bottom-4 sm:bottom-6 inset-x-0 flex items-end justify-center pointer-events-none select-none overflow-hidden text-[var(--color-footer-watermark)] z-0 max-w-full" aria-hidden="true">
+        <span className="font-serif font-bold text-[12vw] sm:text-[13vw] tracking-wider leading-none whitespace-nowrap">
           SKY SQUARE
         </span>
       </div>
 
-      <div className="max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 relative z-10">
+      <div className="max-w-[1500px] mx-auto w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 md:gap-x-10 md:gap-y-12 lg:gap-14 relative z-10 min-w-0">
         
         {/* Left Column: Brand Vision & Heritage */}
-        <div className="col-span-12 lg:col-span-6 flex flex-col justify-between">
+        <div className="col-span-1 md:col-span-2 lg:col-span-6 flex flex-col justify-between min-w-0">
           <div>
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4 sm:mb-6">
               <span className="w-8 h-px bg-[var(--color-accent)]" />
               <span className="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-accent)] font-semibold">
                 The Heritage
               </span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-normal leading-[1.1] mb-6 text-[var(--color-footer-fg)] tracking-tight">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif font-normal leading-[1.15] mb-4 sm:mb-6 text-[var(--color-footer-fg)] tracking-tight">
               Built for <span className="italic text-[var(--color-accent)]">Generations.</span>
             </h2>
-            <p className="text-[var(--color-footer-muted)] font-sans max-w-lg text-sm sm:text-base leading-relaxed font-light mb-8">
+            <p className="text-[var(--color-footer-muted)] font-sans max-w-lg text-sm sm:text-base leading-relaxed font-light mb-6 sm:mb-8">
               We bridge the gap between visionary planning and grounded reality across the Telangana growth corridors.
             </p>
           </div>
 
-          <div className="pt-6 border-t border-[var(--color-footer-border)] flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] font-mono uppercase tracking-[0.18em] text-[var(--color-footer-muted)]">
-            <span>RERA Registered</span>
-            <span className="text-[var(--color-accent)]">•</span>
-            <span>Telangana Govt Contractor</span>
-            <span className="text-[var(--color-accent)]">•</span>
+          <div className="pt-4 sm:pt-6 border-t border-[var(--color-footer-border)] flex flex-wrap items-center gap-x-3 gap-y-2 text-[10px] sm:text-[11px] font-mono uppercase tracking-wider sm:tracking-[0.18em] text-[var(--color-footer-muted)]">
+            <span className="inline-flex items-center gap-2">
+              <span>RERA Registered</span>
+              <span className="text-[var(--color-accent)]" aria-hidden="true">•</span>
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <span>Telangana Govt Contractor</span>
+              <span className="text-[var(--color-accent)]" aria-hidden="true">•</span>
+            </span>
             <span>ISO Compliant</span>
           </div>
         </div>
 
         {/* Middle Column: Offices & Operating Hours */}
-        <div className="col-span-12 sm:col-span-6 lg:col-span-3 flex flex-col justify-between">
+        <div className="col-span-1 md:col-span-1 lg:col-span-3 flex flex-col justify-between min-w-0">
           <div>
-            <h4 className="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-accent)] mb-6 font-semibold">
+            <h4 className="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-accent)] mb-4 sm:mb-6 font-semibold">
               Offices &amp; Studio
             </h4>
-            <address className="not-italic font-sans text-[var(--color-footer-muted)] leading-relaxed text-sm font-light space-y-1 mb-8">
+            <address className="not-italic font-sans text-[var(--color-footer-muted)] leading-relaxed text-sm font-light space-y-1 mb-6 sm:mb-8">
               <strong className="font-serif text-base block text-[var(--color-footer-fg)] mb-2 font-normal">
                 Sky Square Infra Head Office
               </strong>
@@ -54,7 +58,7 @@ export const Footer = () => {
             </address>
           </div>
 
-          <div className="pt-6 border-t border-[var(--color-footer-border)]">
+          <div className="pt-4 sm:pt-6 border-t border-[var(--color-footer-border)]">
             <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-[var(--color-footer-muted)] block mb-1">
               Operating Hours
             </span>
@@ -65,19 +69,19 @@ export const Footer = () => {
         </div>
 
         {/* Right Column: Direct Inquiries & Socials */}
-        <div className="col-span-12 sm:col-span-6 lg:col-span-3 flex flex-col justify-between">
+        <div className="col-span-1 md:col-span-1 lg:col-span-3 flex flex-col justify-between min-w-0">
           <div>
-            <h4 className="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-accent)] mb-6 font-semibold">
+            <h4 className="font-mono text-xs uppercase tracking-[0.25em] text-[var(--color-accent)] mb-4 sm:mb-6 font-semibold">
               Direct Inquiries
             </h4>
-            <ul className="flex flex-col gap-3 font-sans text-sm text-[var(--color-footer-muted)] font-light mb-8">
+            <ul className="flex flex-col gap-3 font-sans text-sm text-[var(--color-footer-muted)] font-light mb-6 sm:mb-8">
               <li>
                 <a 
                   href="mailto:info@skysquareinfra.com" 
                   className="hover:text-[var(--color-accent)] transition-colors duration-300 flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-accent)]"
                 >
-                  <span className="text-[var(--color-accent)] transition-transform duration-300 group-hover:translate-x-1">→</span>
-                  <span className="text-[var(--color-footer-fg)] hover:text-[var(--color-accent)]">info@skysquareinfra.com</span>
+                  <span className="text-[var(--color-accent)] transition-transform duration-300 group-hover:translate-x-1 shrink-0">→</span>
+                  <span className="text-[var(--color-footer-fg)] hover:text-[var(--color-accent)] break-all sm:break-normal">info@skysquareinfra.com</span>
                 </a>
               </li>
               <li>
@@ -85,14 +89,14 @@ export const Footer = () => {
                   href="tel:+919553299745" 
                   className="hover:text-[var(--color-accent)] transition-colors duration-300 flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-accent)]"
                 >
-                  <span className="text-[var(--color-accent)] transition-transform duration-300 group-hover:translate-x-1">→</span>
-                  <span className="text-[var(--color-footer-fg)] hover:text-[var(--color-accent)]">+91 95532 99745</span>
+                  <span className="text-[var(--color-accent)] transition-transform duration-300 group-hover:translate-x-1 shrink-0">→</span>
+                  <span className="text-[var(--color-footer-fg)] hover:text-[var(--color-accent)] whitespace-nowrap">+91 95532 99745</span>
                 </a>
               </li>
             </ul>
           </div>
 
-          <div className="pt-6 border-t border-[var(--color-footer-border)] flex items-center gap-3">
+          <div className="pt-4 sm:pt-6 border-t border-[var(--color-footer-border)] flex items-center gap-3">
             <a
               target="_blank"
               rel="noopener noreferrer"
@@ -124,15 +128,15 @@ export const Footer = () => {
         </div>
 
         {/* Full-width Copyright Bar */}
-        <div className="col-span-12 mt-12 md:mt-16 pt-8 border-t border-[var(--color-footer-border)] flex flex-col sm:flex-row justify-between items-center gap-4 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--color-footer-muted)] relative z-10">
-          <div>
+        <div className="col-span-1 md:col-span-2 lg:col-span-12 mt-8 sm:mt-12 md:mt-16 pt-6 sm:pt-8 border-t border-[var(--color-footer-border)] flex flex-col sm:flex-row justify-between items-center gap-4 font-mono text-[10px] sm:text-[11px] uppercase tracking-wider sm:tracking-[0.18em] text-[var(--color-footer-muted)] relative z-10 min-w-0">
+          <div className="text-center sm:text-left">
             © {new Date().getFullYear()} Sky Square Infra. All rights reserved.
           </div>
-          <div className="flex items-center gap-4 sm:gap-6 text-[10px]">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 sm:gap-6 text-[10px]">
             <span>Architecture</span>
-            <span className="text-[var(--color-accent)]">•</span>
+            <span className="text-[var(--color-accent)]" aria-hidden="true">•</span>
             <span>Land Development</span>
-            <span className="text-[var(--color-accent)]">•</span>
+            <span className="text-[var(--color-accent)]" aria-hidden="true">•</span>
             <span>Infrastructure</span>
           </div>
         </div>

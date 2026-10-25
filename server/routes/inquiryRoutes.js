@@ -52,10 +52,23 @@ router.post('/', async (req, res) => {
     });
   }
 
-  const { fullName, phone, email, interest, location, message } = req.body;
+  const {
+    fullName,
+    name,
+    phone,
+    email,
+    interest,
+    location,
+    message,
+    preferredDate,
+    date,
+    preferredTime,
+    timeSlot,
+  } = req.body;
 
-  // 1. Validate Full Name
-  const trimmedName = typeof fullName === 'string' ? fullName.trim() : '';
+  // 1. Validate Full Name (support either fullName or name)
+  const candidateName = typeof fullName === 'string' ? fullName : typeof name === 'string' ? name : '';
+  const trimmedName = candidateName.trim();
   if (!trimmedName || trimmedName.length < 2) {
     return res.status(400).json({
       success: false,
@@ -94,14 +107,23 @@ router.post('/', async (req, res) => {
     });
   }
 
-  // 4. Validate Area of Engagement
-  const trimmedInterest = typeof interest === 'string' ? interest.trim() : '';
+  // 4. Validate / Default Area of Engagement
+  let trimmedInterest = typeof interest === 'string' ? interest.trim() : '';
+  const rawDate = preferredDate || date;
+  const rawTime = preferredTime || timeSlot;
+  const trimmedDate = typeof rawDate === 'string' ? rawDate.trim() : '';
+  const trimmedTime = typeof rawTime === 'string' ? rawTime.trim() : '';
+
   if (!trimmedInterest) {
-    return res.status(400).json({
-      success: false,
-      field: 'interest',
-      error: 'Please select an area of engagement.',
-    });
+    if (trimmedDate || trimmedTime) {
+      trimmedInterest = 'Scheduled Site Consultation & Advisory';
+    } else {
+      return res.status(400).json({
+        success: false,
+        field: 'interest',
+        error: 'Please select an area of engagement.',
+      });
+    }
   }
 
   // 5. Optional fields
@@ -120,6 +142,8 @@ router.post('/', async (req, res) => {
     interest: trimmedInterest,
     location: trimmedLocation,
     message: trimmedMessage,
+    preferredDate: trimmedDate,
+    preferredTime: trimmedTime,
   });
 
   // Store in inquiry log regardless for traceability
@@ -131,6 +155,8 @@ router.post('/', async (req, res) => {
     interest: trimmedInterest,
     location: trimmedLocation || 'Not provided',
     message: trimmedMessage || 'Not provided',
+    preferredDate: trimmedDate || null,
+    preferredTime: trimmedTime || null,
     receivedAt,
     emailStatus: emailResult.success ? 'dispatched' : `failed_${emailResult.status || 'unknown'}`,
     emailDetails: emailResult.success ? { messageId: emailResult.messageId } : { error: emailResult.error },

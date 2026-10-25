@@ -35,14 +35,14 @@ export const Button = ({
 
   if (variant === 'primary') {
     const primaryContent = (
-      <span className={`relative overflow-hidden group bg-[#1A1A1A] text-white shadow-btn hover:shadow-btn-hover ${sizeClasses} ${baseClasses} ${className}`}>
+      <span className={`relative overflow-hidden group bg-[#1A1A1A] text-white border border-white/15 dark:border-white/20 shadow-btn hover:shadow-btn-hover ${sizeClasses} ${baseClasses} ${className}`}>
         {/* Sliding Gold Layer */}
         <span 
           className="absolute inset-0 bg-[#D4AF37] -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] pointer-events-none z-0" 
           aria-hidden="true"
         />
         {/* Text & Icon Content */}
-        <span className="relative z-10 flex items-center gap-3 text-inherit transition-colors duration-300">
+        <span className="relative z-10 flex items-center gap-3 text-inherit group-hover:text-[#0C0C0E] transition-colors duration-300">
           {icon && iconPosition === 'left' && <span className="transition-transform duration-300 group-hover:-translate-x-0.5">{icon}</span>}
           <span>{children}</span>
           {icon && iconPosition === 'right' && <span className="transition-transform duration-300 group-hover:translate-x-1">{icon}</span>}
