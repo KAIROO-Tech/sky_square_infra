@@ -1,10 +1,12 @@
 import express from 'express';
 import { sendConsultationEmail } from '../services/emailService.js';
+import { requireAdminAuth } from '../middleware/authMiddleware.js';
+import { getDb } from '../db/mongo.js';
 
 const router = express.Router();
 
-// In-memory inquiry storage
-export const inquiries = [];
+// Inquiries are persisted in the MongoDB `inquiries` collection
+const inquiriesCollection = () => getDb().collection('inquiries');
 
 // Lightweight in-memory rate limiting map (IP -> timestamps array)
 const rateLimitMap = new Map();
@@ -162,8 +164,14 @@ router.post('/', async (req, res) => {
     emailDetails: emailResult.success ? { messageId: emailResult.messageId } : { error: emailResult.error },
   };
 
-  inquiries.unshift(inquiryRecord);
-  console.log('[INQUIRY RECORDED]', inquiryRecord.id, inquiryRecord.emailStatus);
+  try {
+    // insertOne adds _id to its argument; insert a copy to keep the record clean
+    await inquiriesCollection().insertOne({ ...inquiryRecord });
+    console.log('[INQUIRY RECORDED]', inquiryRecord.id, inquiryRecord.emailStatus);
+  } catch (dbErr) {
+    // Email outcome still determines the response; log so the lead isn't silently lost
+    console.error('[INQUIRY DB ERROR]', inquiryRecord.id, dbErr.message, JSON.stringify(inquiryRecord));
+  }
 
   // If email provider rejected or configuration is missing, return safe error
   if (!emailResult.success) {
@@ -185,13 +193,18 @@ router.post('/', async (req, res) => {
 
 /**
  * GET /api/inquiries
- * Returns captured inquiries list (internal/admin use)
+ * Returns captured inquiries list, newest first (admin only)
  */
-router.get('/', (req, res) => {
-  res.json({
-    count: inquiries.length,
-    data: inquiries,
-  });
+router.get('/', requireAdminAuth, async (req, res) => {
+  try {
+    const data = await inquiriesCollection()
+      .find({}, { projection: { _id: 0 } })
+      .sort({ receivedAt: -1 })
+      .toArray();
+    res.json({ count: data.length, data });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 export default router;

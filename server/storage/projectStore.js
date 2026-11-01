@@ -1,11 +1,9 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { getDb } from '../db/mongo.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const DATA_FILE = path.join(__dirname, '../data/projects.json');
-const FALLBACK_FILE = path.join(__dirname, '../../src/data/projects.js');
+// Projects live in the MongoDB `projects` collection. Each document keeps the
+// slug in `id` (unique index); Mongo's internal `_id` is never exposed to clients.
+const projectsCollection = () => getDb().collection('projects');
+const HIDE_MONGO_ID = { projection: { _id: 0 } };
 
 // Canonical slug normalizer
 export function normalizeSlug(slug) {
@@ -30,36 +28,11 @@ function findProjectIndex(projects, slug) {
   return projects.findIndex((p) => normalizeSlug(p.id) === normTarget);
 }
 
-// Ensure file exists
-async function ensureDataFile() {
-  try {
-    await fs.access(DATA_FILE);
-  } catch {
-    await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
-    await fs.writeFile(DATA_FILE, '[]', 'utf8');
-  }
-}
-
-// Keep src/data/projects.js synchronized so static fallback is never stale
-async function syncFallbackFile(projects) {
-  try {
-    const fileContent = `// Auto-synchronized from server/data/projects.json\nexport const projects = ${JSON.stringify(projects, null, 2)};\n`;
-    await fs.writeFile(FALLBACK_FILE, fileContent, 'utf8');
-  } catch (err) {
-    console.warn('Could not sync src/data/projects.js fallback:', err.message);
-  }
-}
-
 export async function getAllProjects() {
-  await ensureDataFile();
-  try {
-    const raw = await fs.readFile(DATA_FILE, 'utf8');
-    const list = JSON.parse(raw);
-    return list.sort((a, b) => (a.stackOrder ?? 0) - (b.stackOrder ?? 0));
-  } catch (err) {
-    console.error('Error reading projects:', err);
-    return [];
-  }
+  return projectsCollection()
+    .find({}, HIDE_MONGO_ID)
+    .sort({ stackOrder: 1, _id: 1 })
+    .toArray();
 }
 
 export async function getProjectById(id) {
@@ -69,9 +42,10 @@ export async function getProjectById(id) {
 }
 
 export async function saveProject(projectData) {
+  const { _id, ...data } = projectData || {};
   const projects = await getAllProjects();
-  const slug = (projectData.id || projectData.slug || '').trim().toLowerCase();
-  
+  const slug = (data.id || data.slug || '').trim().toLowerCase();
+
   if (!slug) {
     throw new Error('Project ID or slug is required.');
   }
@@ -84,82 +58,71 @@ export async function saveProject(projectData) {
     const existing = projects[existingIndex];
     savedItem = {
       ...existing,
-      ...projectData,
+      ...data,
       id: existing.id || slug,
-      hoverImage: projectData.hoverImage !== undefined ? projectData.hoverImage : (existing.hoverImage || ''),
+      hoverImage: data.hoverImage !== undefined ? data.hoverImage : (existing.hoverImage || ''),
       updatedAt: now,
     };
-    projects[existingIndex] = savedItem;
+    await projectsCollection().replaceOne({ id: existing.id }, savedItem);
   } else {
     savedItem = {
       id: slug,
-      title: projectData.title || 'Untitled Project',
-      location: projectData.location || 'Telangana, India',
-      category: projectData.category || 'Land Development',
-      status: projectData.status || 'ongoing',
-      isBlueprint: Boolean(projectData.isBlueprint),
-      featured: Boolean(projectData.featured),
-      isPinned: projectData.isPinned !== undefined ? Boolean(projectData.isPinned) : true,
-      stackOrder: projectData.stackOrder !== undefined ? Number(projectData.stackOrder) : projects.length,
-      progressPercent: Number(projectData.progressPercent) || 0,
-      milestones: Array.isArray(projectData.milestones) ? projectData.milestones : [],
-      heroImage: projectData.heroImage || '',
-      hoverImage: projectData.hoverImage || '',
-      placeholderGradient: projectData.placeholderGradient || 'linear-gradient(135deg, #1C2321 0%, #0D1B2A 100%)',
-      summary: projectData.summary || '',
-      description: projectData.description || '',
-      scope: projectData.scope || '',
-      architecturalHighlights: Array.isArray(projectData.architecturalHighlights) ? projectData.architecturalHighlights : [],
-      materialsAndAmenities: Array.isArray(projectData.materialsAndAmenities) ? projectData.materialsAndAmenities : [],
-      pullQuote: projectData.pullQuote || '',
-      galleryImages: Array.isArray(projectData.galleryImages) ? projectData.galleryImages : [],
-      metrics: Array.isArray(projectData.metrics) ? projectData.metrics : [],
-      beforeImage: projectData.beforeImage || '',
-      afterImage: projectData.afterImage || '',
-      documents: Array.isArray(projectData.documents) ? projectData.documents : [],
+      title: data.title || 'Untitled Project',
+      location: data.location || 'Telangana, India',
+      category: data.category || 'Land Development',
+      status: data.status || 'ongoing',
+      isBlueprint: Boolean(data.isBlueprint),
+      featured: Boolean(data.featured),
+      isPinned: data.isPinned !== undefined ? Boolean(data.isPinned) : true,
+      stackOrder: data.stackOrder !== undefined ? Number(data.stackOrder) : projects.length,
+      progressPercent: Number(data.progressPercent) || 0,
+      milestones: Array.isArray(data.milestones) ? data.milestones : [],
+      heroImage: data.heroImage || '',
+      hoverImage: data.hoverImage || '',
+      placeholderGradient: data.placeholderGradient || 'linear-gradient(135deg, #1C2321 0%, #0D1B2A 100%)',
+      summary: data.summary || '',
+      description: data.description || '',
+      scope: data.scope || '',
+      architecturalHighlights: Array.isArray(data.architecturalHighlights) ? data.architecturalHighlights : [],
+      materialsAndAmenities: Array.isArray(data.materialsAndAmenities) ? data.materialsAndAmenities : [],
+      pullQuote: data.pullQuote || '',
+      galleryImages: Array.isArray(data.galleryImages) ? data.galleryImages : [],
+      metrics: Array.isArray(data.metrics) ? data.metrics : [],
+      beforeImage: data.beforeImage || '',
+      afterImage: data.afterImage || '',
+      documents: Array.isArray(data.documents) ? data.documents : [],
       createdAt: now,
       updatedAt: now,
     };
-    projects.push(savedItem);
+    // insertOne mutates its argument by adding _id; insert a copy so the response stays clean.
+    await projectsCollection().insertOne({ ...savedItem });
   }
 
-  await fs.writeFile(DATA_FILE, JSON.stringify(projects, null, 2), 'utf8');
-  await syncFallbackFile(projects);
   return savedItem;
 }
 
 export async function reorderStack(orderList) {
   // orderList: array of { id, stackOrder, isPinned }
   const projects = await getAllProjects();
-  const map = new Map(orderList.map((item) => [item.id.toLowerCase(), item]));
+  const now = new Date().toISOString();
+  const ops = [];
 
-  const updated = projects.map((p) => {
-    let update = map.get((p.id || '').toLowerCase());
-    if (!update) {
-      const norm = normalizeSlug(p.id);
-      for (const item of orderList) {
-        if (normalizeSlug(item.id) === norm) {
-          update = item;
-          break;
-        }
-      }
-    }
+  for (const item of orderList) {
+    const idx = findProjectIndex(projects, item.id);
+    if (idx === -1) continue;
 
-    if (update) {
-      return {
-        ...p,
-        stackOrder: update.stackOrder !== undefined ? Number(update.stackOrder) : p.stackOrder,
-        isPinned: update.isPinned !== undefined ? Boolean(update.isPinned) : p.isPinned,
-        updatedAt: new Date().toISOString(),
-      };
-    }
-    return p;
-  });
+    const target = projects[idx];
+    const $set = { updatedAt: now };
+    if (item.stackOrder !== undefined) $set.stackOrder = Number(item.stackOrder);
+    if (item.isPinned !== undefined) $set.isPinned = Boolean(item.isPinned);
+    ops.push({ updateOne: { filter: { id: target.id }, update: { $set } } });
+  }
 
-  updated.sort((a, b) => (a.stackOrder ?? 0) - (b.stackOrder ?? 0));
-  await fs.writeFile(DATA_FILE, JSON.stringify(updated, null, 2), 'utf8');
-  await syncFallbackFile(updated);
-  return updated;
+  if (ops.length > 0) {
+    await projectsCollection().bulkWrite(ops);
+  }
+
+  return getAllProjects();
 }
 
 export async function deleteProject(id) {
@@ -170,19 +133,21 @@ export async function deleteProject(id) {
     return false;
   }
 
-  projects.splice(existingIndex, 1);
+  const [removed] = projects.splice(existingIndex, 1);
+  await projectsCollection().deleteOne({ id: removed.id });
 
   // Recalculate stack order sequentially for pinned items
   let pinnedIndex = 0;
-  projects.forEach((p) => {
-    if (p.isPinned !== false) {
-      p.stackOrder = pinnedIndex++;
-    } else {
-      p.stackOrder = 999;
-    }
-  });
+  const ops = projects.map((p) => ({
+    updateOne: {
+      filter: { id: p.id },
+      update: { $set: { stackOrder: p.isPinned !== false ? pinnedIndex++ : 999 } },
+    },
+  }));
 
-  await fs.writeFile(DATA_FILE, JSON.stringify(projects, null, 2), 'utf8');
-  await syncFallbackFile(projects);
+  if (ops.length > 0) {
+    await projectsCollection().bulkWrite(ops);
+  }
+
   return true;
 }
