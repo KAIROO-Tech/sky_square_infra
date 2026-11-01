@@ -1,35 +1,20 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 import { requireAdminAuth } from '../middleware/authMiddleware.js';
 import { isS3Configured, uploadBufferToS3 } from '../services/s3Service.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const UPLOADS_DIR = path.join(__dirname, '../../public/uploads');
+// Files are held in memory only long enough to stream them to S3; nothing is written to local disk.
+const storage = multer.memoryStorage();
 
-// Ensure upload directory exists
-if (!fs.existsSync(UPLOADS_DIR)) {
-  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-}
-
-// Multer disk storage setup
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, UPLOADS_DIR);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const cleanBase = path
-      .basename(file.originalname, ext)
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-');
-    const unique = `${cleanBase}-${Date.now()}${ext}`;
-    cb(null, unique);
-  },
-});
+const buildUniqueFilename = (originalname) => {
+  const ext = path.extname(originalname).toLowerCase();
+  const cleanBase = path
+    .basename(originalname, ext)
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '-');
+  return `${cleanBase}-${Date.now()}${ext}`;
+};
 
 const fileFilter = (req, file, cb) => {
   const allowed = [
@@ -62,37 +47,41 @@ router.post('/upload', requireAdminAuth, upload.single('file'), async (req, res)
     return res.status(400).json({ success: false, error: 'No media file attached.' });
   }
 
-  const ext = path.extname(req.file.filename).toLowerCase();
-  
+  if (!isS3Configured()) {
+    return res.status(500).json({
+      success: false,
+      error: 'Media storage is not configured. Set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION and AWS_S3_BUCKET_NAME.',
+    });
+  }
+
+  const filename = buildUniqueFilename(req.file.originalname);
+  const ext = path.extname(filename);
+
   let mediaType = 'image';
   if (['.mp4', '.webm'].includes(ext)) mediaType = 'video';
   if (['.pdf'].includes(ext)) mediaType = 'pdf';
 
-  let fileUrl = `/uploads/${req.file.filename}`;
-  let storageProvider = 'local';
-
-  // If S3 environment variables are configured, attempt upload to S3
-  if (isS3Configured()) {
-    try {
-      const buffer = fs.readFileSync(req.file.path);
-      const s3Url = await uploadBufferToS3({
-        buffer,
-        filename: req.file.filename,
-        mimetype: req.file.mimetype,
-      });
-      fileUrl = s3Url;
-      storageProvider = 's3';
-      console.log(`[S3 SUCCESS] Uploaded to S3: ${s3Url}`);
-    } catch (s3Err) {
-      console.warn(`[S3 FALLBACK] S3 upload failed (${s3Err.message}). Using local storage fallback: ${fileUrl}`);
-    }
+  let fileUrl;
+  try {
+    fileUrl = await uploadBufferToS3({
+      buffer: req.file.buffer,
+      filename,
+      mimetype: req.file.mimetype,
+    });
+    console.log(`[S3 SUCCESS] Uploaded to S3: ${fileUrl}`);
+  } catch (s3Err) {
+    console.error(`[S3 ERROR] Upload failed: ${s3Err.message}`);
+    return res.status(502).json({
+      success: false,
+      error: 'Upload to media storage failed. Please try again.',
+    });
   }
 
   return res.status(201).json({
     success: true,
     url: fileUrl,
-    storage: storageProvider,
-    filename: req.file.filename,
+    storage: 's3',
+    filename,
     originalName: req.file.originalname,
     mediaType,
     size: req.file.size,

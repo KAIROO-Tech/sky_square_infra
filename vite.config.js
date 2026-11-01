@@ -26,10 +26,6 @@ export default defineConfig({
           });
         },
       },
-      '/uploads': {
-        target: 'http://localhost:5001',
-        changeOrigin: true,
-      },
     },
   },
 });

@@ -1,20 +1,20 @@
-import dotenv from 'dotenv';
+// Must be the first import so .env is loaded before any route module reads process.env
+import './config/env.js';
+
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Load environment variables from root .env
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
-
 import express from 'express';
 import cors from 'cors';
+
+import { connectToDatabase } from './db/mongo.js';
 
 import authRoutes from './routes/authRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import mediaRoutes from './routes/mediaRoutes.js';
 import inquiryRoutes from './routes/inquiryRoutes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -22,10 +22,6 @@ const PORT = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-
-// Serve static uploaded media files
-const uploadsPath = path.join(__dirname, '../public/uploads');
-app.use('/uploads', express.static(uploadsPath));
 
 // API: Health check
 app.get('/api/health', (req, res) => {
@@ -55,6 +51,14 @@ app.get('*', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`✦ Sky Square Infra Server listening on http://localhost:${PORT}`);
-});
+connectToDatabase()
+  .then((db) => {
+    console.log(`✦ Connected to MongoDB database "${db.databaseName}"`);
+    app.listen(PORT, () => {
+      console.log(`✦ Sky Square Infra Server listening on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('✖ Failed to connect to MongoDB:', err.message);
+    process.exit(1);
+  });
