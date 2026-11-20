@@ -12,7 +12,7 @@ export const ProjectsProvider = ({ children }) => {
   const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/projects');
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/projects`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       if (json.success && Array.isArray(json.data)) {

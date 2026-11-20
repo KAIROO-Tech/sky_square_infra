@@ -124,7 +124,7 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
     setSubmitError(null);
 
     try {
-      const res = await fetch('/api/inquiry', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/inquiry`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
