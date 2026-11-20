@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useProjects } from '../../context/ProjectsContext';
 import { ArchiveHero } from './components/ArchiveHero';
 import { Button } from '../../components/common/Button';
+import { isVideoMedia } from '../../utils/mediaUtils';
 import './Archive.css';
 
 if (typeof window !== 'undefined') {
@@ -634,24 +635,52 @@ export const Archive = () => {
 
                     {/* Background Hero Image with Hover Crossfade */}
                     <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
-                      {/* Primary Hero Image */}
-                      <img
-                        src={project.heroImage}
-                        alt={project.title}
-                        className={`archive-card-image ${
-                          project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
-                        } ${isHovered && secondaryImage ? 'opacity-0' : 'opacity-100'}`}
-                      />
+                      {/* Primary Hero Image or Video */}
+                      {isVideoMedia(project.heroImage) ? (
+                        <video
+                          src={project.heroImage}
+                          preload="metadata"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className={`archive-card-image ${
+                            project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
+                          } ${isHovered && secondaryImage ? 'opacity-0' : 'opacity-100'}`}
+                        />
+                      ) : (
+                        <img
+                          src={project.heroImage}
+                          alt={project.title}
+                          className={`archive-card-image ${
+                            project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
+                          } ${isHovered && secondaryImage ? 'opacity-0' : 'opacity-100'}`}
+                        />
+                      )}
 
                       {/* Secondary Preview Plate on Hover */}
                       {secondaryImage && (
-                        <img
-                          src={secondaryImage}
-                          alt={`${project.title} Preview Plate`}
-                          className={`archive-card-image absolute inset-0 ${
-                            project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
-                          } ${isHovered ? 'opacity-100' : 'opacity-0'}`}
-                        />
+                        isVideoMedia(secondaryImage) ? (
+                          <video
+                            src={secondaryImage}
+                            preload="metadata"
+                            muted
+                            loop
+                            playsInline
+                            autoPlay={isHovered}
+                            className={`archive-card-image absolute inset-0 ${
+                              project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
+                            } ${isHovered ? 'opacity-100' : 'opacity-0'} pointer-events-none`}
+                          />
+                        ) : (
+                          <img
+                            src={secondaryImage}
+                            alt={`${project.title} Preview Plate`}
+                            className={`archive-card-image absolute inset-0 ${
+                              project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
+                            } ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+                          />
+                        )
                       )}
 
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c]/60 to-transparent opacity-90 group-hover:opacity-95 transition-opacity duration-500 z-10" />
@@ -782,17 +811,40 @@ export const Archive = () => {
                     className="archive-mobile-card group cursor-pointer p-4 sm:p-6 flex flex-col justify-end"
                   >
                     <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
-                      <img
-                        src={project.heroImage}
-                        alt={project.title}
-                        className="archive-card-image group-hover:opacity-0"
-                      />
-                      {secondaryImage && (
-                        <img
-                          src={secondaryImage}
-                          alt={`${project.title} Preview`}
-                          className="archive-card-image absolute inset-0 opacity-0 group-hover:opacity-100"
+                      {isVideoMedia(project.heroImage) ? (
+                        <video
+                          src={project.heroImage}
+                          preload="metadata"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="archive-card-image group-hover:opacity-0"
                         />
+                      ) : (
+                        <img
+                          src={project.heroImage}
+                          alt={project.title}
+                          className="archive-card-image group-hover:opacity-0"
+                        />
+                      )}
+                      {secondaryImage && (
+                        isVideoMedia(secondaryImage) ? (
+                          <video
+                            src={secondaryImage}
+                            preload="metadata"
+                            muted
+                            loop
+                            playsInline
+                            className="archive-card-image absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none"
+                          />
+                        ) : (
+                          <img
+                            src={secondaryImage}
+                            alt={`${project.title} Preview`}
+                            className="archive-card-image absolute inset-0 opacity-0 group-hover:opacity-100"
+                          />
+                        )
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c]/70 to-transparent z-10" />
                     </div>

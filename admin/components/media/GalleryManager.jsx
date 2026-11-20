@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
-import { Plus, Trash2, Image as ImageIcon, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Image as ImageIcon, Video, ArrowUp, ArrowDown, Loader2, Play, Film } from 'lucide-react';
 import { mediaService } from '../../services/mediaService';
+import { isVideoMedia, getMediaThumbnail } from '../../../src/utils/mediaUtils';
 
 export const GalleryManager = ({ images = [], onChange }) => {
   const fileInputRef = useRef(null);
@@ -15,9 +16,11 @@ export const GalleryManager = ({ images = [], onChange }) => {
       for (const file of Array.from(files)) {
         const res = await mediaService.upload(file);
         if (res.success && res.url) {
+          const isVid = isVideoMedia(res.url, res.mediaType || file.type);
           newItems.push({
             url: res.url,
             caption: file.name.replace(/\.[^/.]+$/, '').replace(/-/g, ' '),
+            type: isVid ? 'video' : 'image',
           });
         }
       }
@@ -41,7 +44,13 @@ export const GalleryManager = ({ images = [], onChange }) => {
 
   const handleUpdate = (index, field, value) => {
     const next = [...images];
-    next[index] = { ...next[index], [field]: value };
+    const current = next[index] || {};
+    const updated = { ...current, [field]: value };
+    if (field === 'url') {
+      const isVid = isVideoMedia(value, current.type);
+      if (isVid) updated.type = 'video';
+    }
+    next[index] = updated;
     onChange(next);
   };
 
@@ -63,7 +72,7 @@ export const GalleryManager = ({ images = [], onChange }) => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#d4af37]">
-          Visual Documentation Gallery ({images.length} Plates)
+          Visual Documentation Gallery ({images.length} Plates &amp; Media)
         </label>
         <div className="flex items-center gap-3">
           <button
@@ -77,7 +86,7 @@ export const GalleryManager = ({ images = [], onChange }) => {
             ) : (
               <Plus className="w-3.5 h-3.5 mr-1" />
             )}
-            <span>Upload Photos</span>
+            <span>Upload Media (Photos &amp; Videos)</span>
           </button>
           <span className="text-white/20">|</span>
           <button
@@ -94,39 +103,74 @@ export const GalleryManager = ({ images = [], onChange }) => {
         {images.map((img, idx) => {
           const imgUrl = typeof img === 'string' ? img : img.url;
           const caption = typeof img === 'string' ? '' : img.caption;
+          const imgType = typeof img === 'string' ? '' : img.type;
+          const isVideo = isVideoMedia(imgUrl, imgType);
+          const thumb = getMediaThumbnail(typeof img === 'string' ? { url: img } : img);
 
           return (
             <div
               key={idx}
               className="p-3 bg-[#141416] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between space-y-3"
             >
-              {/* Image Preview & Order Controls */}
+              {/* Media Preview & Order Controls */}
               <div className="relative w-full h-36 bg-black/60 overflow-hidden border border-white/5 flex items-center justify-center">
                 {imgUrl ? (
-                  <img
-                    src={imgUrl}
-                    alt={caption || `Plate 0${idx + 1}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
+                  isVideo ? (
+                    thumb ? (
+                      <img
+                        src={thumb}
+                        alt={caption || `Plate 0${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <video
+                        src={imgUrl}
+                        preload="metadata"
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover pointer-events-none"
+                      />
+                    )
+                  ) : (
+                    <img
+                      src={imgUrl}
+                      alt={caption || `Plate 0${idx + 1}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  )
                 ) : (
                   <div className="text-center text-white/30 text-xs">
                     <ImageIcon className="w-6 h-6 mx-auto mb-1 opacity-40" />
-                    No Image URL
+                    No Media URL
+                  </div>
+                )}
+
+                {/* Video Play Badge Overlay */}
+                {isVideo && imgUrl && (
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
+                    <div className="w-8 h-8 rounded-full bg-black/60 border border-[#d4af37]/80 flex items-center justify-center">
+                      <Play className="w-3.5 h-3.5 ml-0.5 text-[#d4af37] fill-[#d4af37]" />
+                    </div>
                   </div>
                 )}
 
                 {/* Figure badge */}
-                <div className="absolute top-2 left-2 z-10">
+                <div className="absolute top-2 left-2 z-10 flex items-center gap-1">
                   <span className="font-mono text-[9px] uppercase tracking-wider bg-black/80 px-2 py-0.5 text-[#d4af37] border border-white/10">
                     FIG. 0{idx + 1}
                   </span>
+                  {isVideo && (
+                    <span className="font-mono text-[8px] uppercase tracking-wider bg-black/80 px-1.5 py-0.5 text-[#d4af37] border border-[#d4af37]/40 flex items-center gap-0.5">
+                      <Film className="w-2.5 h-2.5" /> VIDEO
+                    </span>
+                  )}
                 </div>
 
                 {/* Reorder Buttons */}
-                <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/80 p-0.5 border border-white/10">
+                <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/80 p-0.5 border border-white/10 z-10">
                   <button
                     type="button"
                     disabled={idx === 0}
@@ -154,14 +198,14 @@ export const GalleryManager = ({ images = [], onChange }) => {
                   type="text"
                   value={imgUrl}
                   onChange={(e) => handleUpdate(idx, 'url', e.target.value)}
-                  placeholder="Image URL..."
+                  placeholder="Media URL (.mp4, .webm, image, YouTube)..."
                   className="w-full bg-[#18181b] border border-white/10 px-2 py-1 text-[11px] font-mono text-white/80 outline-none focus:border-[#d4af37]"
                 />
                 <input
                   type="text"
                   value={caption}
                   onChange={(e) => handleUpdate(idx, 'caption', e.target.value)}
-                  placeholder="Plate Caption (e.g. Subgrade Grading)..."
+                  placeholder="Plate Caption (e.g. Structural Framing Walkthrough)..."
                   className="w-full bg-[#18181b] border border-white/10 px-2 py-1 text-xs font-sans text-white outline-none focus:border-[#d4af37]"
                 />
               </div>
@@ -184,7 +228,7 @@ export const GalleryManager = ({ images = [], onChange }) => {
         ref={fileInputRef}
         type="file"
         multiple
-        accept="image/*"
+        accept="image/*,video/mp4,video/webm,video/quicktime,video/*"
         onChange={(e) => handleFileUpload(e.target.files)}
         className="hidden"
       />

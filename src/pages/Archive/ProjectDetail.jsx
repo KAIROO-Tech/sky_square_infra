@@ -37,8 +37,12 @@ import {
   ArrowUpDown,
   ShieldAlert,
   Car,
-  Quote
+  Quote,
+  Play,
+  Film,
+  Video
 } from 'lucide-react';
+import { isVideoMedia, getVideoEmbedInfo, getMediaThumbnail } from '../../utils/mediaUtils';
 
 const iconMap = {
   Trees,
@@ -76,6 +80,7 @@ export const ProjectDetail = () => {
   const [isImgTransitioning, setIsImgTransitioning] = useState(false);
   const isNavigatingRef = useRef(false);
   const thumbnailRefs = useRef([]);
+  const activeVideoRef = useRef(null);
 
   // Find project using robust matching for slug variations
   const project = getProject(projectSlug);
@@ -84,11 +89,20 @@ export const ProjectDetail = () => {
   const galleryImages = useMemo(() => {
     return rawGallery.map((item, idx) => {
       if (typeof item === 'string') {
-        return { url: item, caption: `Specification Plate 0${idx + 1}` };
+        const isVideo = isVideoMedia(item);
+        return {
+          url: item,
+          caption: isVideo ? `Motion Record 0${idx + 1}` : `Specification Plate 0${idx + 1}`,
+          type: isVideo ? 'video' : 'image',
+          poster: null,
+        };
       }
+      const isVideo = isVideoMedia(item.url, item.type || item.mediaType);
       return {
         url: item.url,
-        caption: item.caption || `Specification Plate 0${idx + 1}`
+        caption: item.caption || (isVideo ? `Motion Record 0${idx + 1}` : `Specification Plate 0${idx + 1}`),
+        type: isVideo ? 'video' : (item.type || 'image'),
+        poster: item.poster || item.thumbnail || null,
       };
     });
   }, [rawGallery]);
@@ -96,6 +110,15 @@ export const ProjectDetail = () => {
   // Unified circular navigation function used by arrows, thumbnails & keyboard
   const goToImage = useCallback((targetIndex) => {
     if (!galleryImages.length || isNavigatingRef.current) return;
+
+    // Pause currently playing video before changing plate
+    if (activeVideoRef.current && !activeVideoRef.current.paused) {
+      try {
+        activeVideoRef.current.pause();
+      } catch (err) {
+        // Safe fallback
+      }
+    }
 
     isNavigatingRef.current = true;
     setIsImgTransitioning(true);
@@ -123,6 +146,13 @@ export const ProjectDetail = () => {
   }, [goToImage, lightboxIndex]);
 
   const closeLightbox = useCallback(() => {
+    if (activeVideoRef.current && !activeVideoRef.current.paused) {
+      try {
+        activeVideoRef.current.pause();
+      } catch (err) {
+        // Safe fallback
+      }
+    }
     setLightboxOpen(false);
   }, []);
 
@@ -147,14 +177,15 @@ export const ProjectDetail = () => {
     if (!lightboxOpen) return;
 
     const handleKeyDown = (e) => {
-      // Do not intercept if user is typing in form controls
+      // Do not intercept if user is typing in form controls or scrubbing video
       const target = e.target;
       if (
         target &&
         (target.tagName === 'INPUT' ||
           target.tagName === 'TEXTAREA' ||
           target.isContentEditable ||
-          target.tagName === 'SELECT')
+          target.tagName === 'SELECT' ||
+          target.tagName === 'VIDEO')
       ) {
         return;
       }
@@ -204,6 +235,8 @@ export const ProjectDetail = () => {
   const nextProject = projects[(currentIndex + 1) % projects.length];
 
   const activePlate = galleryImages[lightboxIndex] || { url: '', caption: '' };
+  const activeIsVideo = isVideoMedia(activePlate.url, activePlate.type);
+  const activeEmbed = activeIsVideo ? getVideoEmbedInfo(activePlate.url) : null;
 
   return (
     <div className="project-detail-page bg-[var(--color-page-bg)] text-[var(--color-text-primary)] min-h-screen pt-24 pb-12 w-full">
@@ -222,13 +255,26 @@ export const ProjectDetail = () => {
 
         {/* 1. Hero Image Header (Crisp Sizing & Full Bleed Overlay) */}
         <div className="relative w-full h-[50vh] sm:h-[60vh] md:h-[68vh] bg-[#1A1A1A] border border-[#1A1A1A]/10 overflow-hidden mb-12 sm:mb-16">
-          <img
-            src={project.heroImage}
-            alt={project.title}
-            className={`w-full h-full object-cover transition-transform duration-[1200ms] hover:scale-105 ${
-              project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
-            }`}
-          />
+          {isVideoMedia(project.heroImage) ? (
+            <video
+              src={project.heroImage}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className={`w-full h-full object-cover transition-transform duration-[1200ms] hover:scale-105 ${
+                project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
+              }`}
+            />
+          ) : (
+            <img
+              src={project.heroImage}
+              alt={project.title}
+              className={`w-full h-full object-cover transition-transform duration-[1200ms] hover:scale-105 ${
+                project.isBlueprint ? 'invert contrast-125 sepia-[0.3]' : ''
+              }`}
+            />
+          )}
           {/* Subtle Darkening Overlay */}
           <div className="absolute inset-0 bg-[#1A1A1A]/20 pointer-events-none" />
           <div className="absolute inset-0 shadow-inner-hairline pointer-events-none z-20" />
@@ -488,50 +534,101 @@ export const ProjectDetail = () => {
               </h3>
             </div>
             <span className="font-mono text-xs text-[var(--color-text-muted)] dark:text-[#A8A49C] tracking-widest hidden sm:inline-block">
-              {String(galleryImages.length).padStart(2, '0')} SPECIFICATION PLATES
+              {String(galleryImages.length).padStart(2, '0')} SPECIFICATION PLATES &amp; RECORDS
             </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {galleryImages.map((plate, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => openLightbox(idx)}
-                className="relative overflow-hidden h-[280px] sm:h-[320px] bg-[#1A1A1A] border border-[#1A1A1A]/15 group cursor-pointer text-left focus:outline-none focus:ring-1 focus:ring-[#D4AF37]"
-                aria-label={`Open specification figure 0${idx + 1}: ${plate.caption} in lightbox`}
-              >
-                <img
-                  src={plate.url}
-                  alt={`${project.title} - ${plate.caption}`}
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transform-none"
-                />
-                
-                {/* Hairline + vignette layer */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/90 via-[#1A1A1A]/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500 pointer-events-none" />
-                <div className="absolute inset-0 shadow-inner-hairline pointer-events-none" />
+            {galleryImages.map((plate, idx) => {
+              const isVideo = isVideoMedia(plate.url, plate.type);
+              const thumb = getMediaThumbnail(plate);
 
-                {/* Technical Figure Badge */}
-                <div className="absolute top-4 left-4 z-10">
-                  <span className="font-mono text-[10px] tracking-[0.2em] text-[#F9F8F6]/90 bg-[#1A1A1A]/85 border border-white/15 px-2.5 py-1 backdrop-blur-sm">
-                    FIG. 0{idx + 1}
-                  </span>
-                </div>
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => openLightbox(idx)}
+                  className="relative overflow-hidden h-[280px] sm:h-[320px] bg-[#141416] border border-[#1A1A1A]/15 dark:border-white/10 group cursor-pointer text-left focus:outline-none focus:ring-1 focus:ring-[#D4AF37]"
+                  aria-label={`Open specification figure 0${idx + 1}: ${plate.caption} in lightbox`}
+                >
+                  {/* Media Element: Static Image, Video Poster, or Preloaded Video Frame */}
+                  {isVideo ? (
+                    thumb ? (
+                      <img
+                        src={thumb}
+                        alt={`${project.title} - ${plate.caption}`}
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transform-none"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <video
+                        src={plate.url}
+                        poster={plate.poster}
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transform-none pointer-events-none"
+                        preload="metadata"
+                        muted
+                        playsInline
+                      />
+                    )
+                  ) : (
+                    <img
+                      src={plate.url}
+                      alt={`${project.title} - ${plate.caption}`}
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transform-none"
+                      loading="lazy"
+                    />
+                  )}
 
-                {/* Hover Caption Overlay (Bottom Left) */}
-                <div className="absolute bottom-4 left-4 right-20 z-10">
-                  <span className="font-sans text-xs text-white/95 font-medium tracking-wide line-clamp-1 block drop-shadow-sm group-hover:text-[#D4AF37] transition-colors duration-300">
-                    {plate.caption}
-                  </span>
-                </div>
+                  {/* Glassmorphic Architectural Play Button Indicator for Videos */}
+                  {isVideo && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                      <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#1A1A1A]/75 backdrop-blur-md border border-[#D4AF37]/80 flex items-center justify-center text-[#D4AF37] group-hover:scale-110 group-hover:bg-[#D4AF37] group-hover:text-[#0C0C0E] transition-all duration-300 shadow-2xl">
+                        <Play className="w-5 h-5 sm:w-6 sm:h-6 ml-0.5 fill-current" />
+                      </div>
+                    </div>
+                  )}
 
-                {/* Hover Inspect Prompt (Bottom Right) */}
-                <div className="absolute bottom-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1.5 bg-[#1A1A1A]/95 border border-[#D4AF37]/60 px-2.5 py-1 text-[#D4AF37] text-[10px] font-mono tracking-wider">
-                  <Maximize2 className="w-3 h-3" />
-                  <span>INSPECT</span>
-                </div>
-              </button>
-            ))}
+                  {/* Hairline + vignette layer */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/90 via-[#1A1A1A]/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500 pointer-events-none" />
+                  <div className="absolute inset-0 shadow-inner-hairline pointer-events-none" />
+
+                  {/* Technical Figure Badge & Video Pill */}
+                  <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
+                    <span className="font-mono text-[10px] tracking-[0.2em] text-[#F9F8F6]/90 bg-[#1A1A1A]/85 border border-white/15 px-2.5 py-1 backdrop-blur-sm">
+                      FIG. 0{idx + 1}
+                    </span>
+                    {isVideo && (
+                      <span className="font-mono text-[9px] tracking-wider uppercase bg-[#1A1A1A]/85 text-[#D4AF37] border border-[#D4AF37]/50 px-2 py-1 backdrop-blur-sm flex items-center gap-1.5 shadow-sm">
+                        <Film className="w-3 h-3 text-[#D4AF37]" />
+                        <span>VIDEO</span>
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Hover Caption Overlay (Bottom Left) */}
+                  <div className="absolute bottom-4 left-4 right-24 z-10">
+                    <span className="font-sans text-xs text-white/95 font-medium tracking-wide line-clamp-1 block drop-shadow-sm group-hover:text-[#D4AF37] transition-colors duration-300">
+                      {plate.caption}
+                    </span>
+                  </div>
+
+                  {/* Hover Action Prompt (Bottom Right) */}
+                  <div className="absolute bottom-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1.5 bg-[#1A1A1A]/95 border border-[#D4AF37]/60 px-2.5 py-1 text-[#D4AF37] text-[10px] font-mono tracking-wider shadow-md">
+                    {isVideo ? (
+                      <>
+                        <Play className="w-3 h-3 fill-current" />
+                        <span>WATCH</span>
+                      </>
+                    ) : (
+                      <>
+                        <Maximize2 className="w-3 h-3" />
+                        <span>INSPECT</span>
+                      </>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -641,9 +738,16 @@ export const ProjectDetail = () => {
               <div className="flex items-center gap-3">
                 <span className="w-6 h-px bg-[var(--color-accent)]" />
                 <div>
-                  <span className="font-sans text-[10px] uppercase tracking-[0.25em] text-[var(--color-accent)] block font-medium">
-                    Visual Specification Dossier
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-sans text-[10px] uppercase tracking-[0.25em] text-[var(--color-accent)] block font-medium">
+                      Visual Specification Dossier
+                    </span>
+                    {activeIsVideo && (
+                      <span className="font-mono text-[9px] uppercase tracking-wider text-[#D4AF37] bg-[#D4AF37]/15 border border-[#D4AF37]/40 px-1.5 py-0.5">
+                        Motion Record
+                      </span>
+                    )}
+                  </div>
                   <h4 className="font-serif text-sm sm:text-base text-[var(--color-text-primary)] font-normal line-clamp-1">
                     {project.title} &mdash; <span className="text-[var(--color-text-secondary)] font-sans text-xs">{activePlate.caption}</span>
                   </h4>
@@ -653,6 +757,7 @@ export const ProjectDetail = () => {
               <div className="flex items-center gap-3 sm:gap-6">
                 <span className="font-mono text-xs tracking-[0.2em] text-[var(--color-text-muted)] hidden sm:inline-block">
                   PLATE {String(lightboxIndex + 1).padStart(2, '0')} / {String(galleryImages.length).padStart(2, '0')}
+                  {activeIsVideo && ' • [VIDEO]'}
                 </span>
                 
                 {/* Prominent X Close Button at top-right of gallery drawer container */}
@@ -660,8 +765,8 @@ export const ProjectDetail = () => {
                   type="button"
                   onClick={closeLightbox}
                   className="flex items-center justify-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-[var(--color-surface-warm)] hover:bg-[var(--color-accent)] text-[var(--color-text-primary)] hover:text-[#0C0C0E] border border-[var(--color-border)] hover:border-[var(--color-accent)] transition-all duration-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] shadow-md"
-                  aria-label="Close image gallery"
-                  title="Close image gallery"
+                  aria-label="Close media dossier"
+                  title="Close media dossier"
                 >
                   <span className="hidden sm:inline font-mono text-[10px] tracking-widest uppercase font-semibold">CLOSE</span>
                   <X className="w-4 h-4" />
@@ -669,39 +774,72 @@ export const ProjectDetail = () => {
               </div>
             </div>
 
-            {/* Gallery Main Image Display & Navigation */}
+            {/* Gallery Main Media Display & Navigation */}
             <div className="relative flex-1 flex items-center justify-center my-2 sm:my-3 w-full overflow-hidden min-h-0">
               {/* Prev Button */}
               <button
                 type="button"
                 onClick={handlePrev}
                 className="absolute left-2 sm:left-4 z-30 p-2.5 sm:p-3.5 bg-[var(--color-surface-warm)]/90 hover:bg-[var(--color-accent)] text-[var(--color-text-primary)] hover:text-[#0C0C0E] border border-[var(--color-border)] hover:border-[var(--color-accent)] transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] touch-manipulation active:scale-95 shadow-lg"
-                aria-label="Previous gallery image"
-                title="Previous image"
+                aria-label="Previous gallery asset"
+                title="Previous plate"
               >
                 <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
 
-              {/* Active Image Frame */}
-              <div className="relative max-h-[50vh] sm:max-h-[54vh] md:max-h-[58vh] max-w-full flex flex-col items-center justify-center border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-1">
-                <img
-                  key={activePlate.url}
-                  src={activePlate.url}
-                  alt={`${project.title} - ${activePlate.caption}`}
-                  className={`max-h-[46vh] sm:max-h-[50vh] md:max-h-[54vh] w-auto max-w-full object-contain transition-all duration-300 ${
-                    isImgTransitioning ? 'opacity-40 scale-[0.99]' : 'opacity-100 scale-100'
-                  }`}
-                />
-                <div className="absolute inset-0 shadow-inner-hairline pointer-events-none" />
-              </div>
+              {/* Active Media Frame: Video Player, Embed, or Static Image */}
+              {activeIsVideo ? (
+                activeEmbed ? (
+                  <div className="relative w-full max-w-4xl aspect-video max-h-[50vh] sm:max-h-[54vh] md:max-h-[58vh] flex items-center justify-center border border-[var(--color-border)] bg-black p-1 shadow-2xl">
+                    <iframe
+                      key={activePlate.url}
+                      src={activeEmbed.embedUrl}
+                      title={activePlate.caption || `${project.title} Video Dossier`}
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <div className="relative max-h-[50vh] sm:max-h-[54vh] md:max-h-[58vh] max-w-full flex flex-col items-center justify-center border border-[var(--color-border)] bg-black p-1 shadow-2xl">
+                    <video
+                      ref={activeVideoRef}
+                      key={activePlate.url}
+                      src={activePlate.url}
+                      poster={activePlate.poster}
+                      controls
+                      autoPlay
+                      playsInline
+                      className={`max-h-[46vh] sm:max-h-[50vh] md:max-h-[54vh] w-auto max-w-full object-contain transition-all duration-300 ${
+                        isImgTransitioning ? 'opacity-40 scale-[0.99]' : 'opacity-100 scale-100'
+                      }`}
+                    >
+                      <source src={activePlate.url} />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                )
+              ) : (
+                <div className="relative max-h-[50vh] sm:max-h-[54vh] md:max-h-[58vh] max-w-full flex flex-col items-center justify-center border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-1">
+                  <img
+                    key={activePlate.url}
+                    src={activePlate.url}
+                    alt={`${project.title} - ${activePlate.caption}`}
+                    className={`max-h-[46vh] sm:max-h-[50vh] md:max-h-[54vh] w-auto max-w-full object-contain transition-all duration-300 ${
+                      isImgTransitioning ? 'opacity-40 scale-[0.99]' : 'opacity-100 scale-100'
+                    }`}
+                  />
+                  <div className="absolute inset-0 shadow-inner-hairline pointer-events-none" />
+                </div>
+              )}
 
               {/* Next Button */}
               <button
                 type="button"
                 onClick={handleNext}
                 className="absolute right-2 sm:right-4 z-30 p-2.5 sm:p-3.5 bg-[var(--color-surface-warm)]/90 hover:bg-[var(--color-accent)] text-[var(--color-text-primary)] hover:text-[#0C0C0E] border border-[var(--color-border)] hover:border-[var(--color-accent)] transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] touch-manipulation active:scale-95 shadow-lg"
-                aria-label="Next gallery image"
-                title="Next image"
+                aria-label="Next gallery asset"
+                title="Next plate"
               >
                 <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
@@ -709,33 +847,64 @@ export const ProjectDetail = () => {
 
             {/* Gallery Footer Thumbnail Bar */}
             <div className="border-t border-[var(--color-border)] pt-2.5 sm:pt-3 w-full flex items-center justify-center gap-2.5 sm:gap-3 overflow-x-auto py-1.5 z-20 scrollbar-none shrink-0">
-              {galleryImages.map((plate, idx) => (
-                <button
-                  key={idx}
-                  ref={(el) => (thumbnailRefs.current[idx] = el)}
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    goToImage(idx);
-                  }}
-                  className={`relative w-12 h-9 sm:w-16 sm:h-12 md:w-20 md:h-14 flex-shrink-0 overflow-hidden border transition-all duration-300 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] ${
-                    idx === lightboxIndex 
-                      ? 'border-[var(--color-accent)] opacity-100 ring-2 ring-[var(--color-accent)] scale-105' 
-                      : 'border-[var(--color-border)] opacity-50 hover:opacity-90'
-                  }`}
-                  aria-label={`Jump to plate 0${idx + 1}: ${plate.caption}`}
-                  title={`Plate ${idx + 1}: ${plate.caption}`}
-                >
-                  <img 
-                    src={plate.url} 
-                    alt={`Thumbnail Plate ${idx + 1}`} 
-                    className="w-full h-full object-cover"
-                  />
-                  <span className="absolute bottom-0 right-0 bg-[var(--color-surface-warm)] text-[8px] font-mono text-[var(--color-accent)] px-1">
-                    0{idx + 1}
-                  </span>
-                </button>
-              ))}
+              {galleryImages.map((plate, idx) => {
+                const thumbIsVideo = isVideoMedia(plate.url, plate.type);
+                const thumbImg = getMediaThumbnail(plate);
+
+                return (
+                  <button
+                    key={idx}
+                    ref={(el) => (thumbnailRefs.current[idx] = el)}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goToImage(idx);
+                    }}
+                    className={`relative w-12 h-9 sm:w-16 sm:h-12 md:w-20 md:h-14 flex-shrink-0 overflow-hidden border transition-all duration-300 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] bg-black ${
+                      idx === lightboxIndex 
+                        ? 'border-[var(--color-accent)] opacity-100 ring-2 ring-[var(--color-accent)] scale-105' 
+                        : 'border-[var(--color-border)] opacity-50 hover:opacity-90'
+                    }`}
+                    aria-label={`Jump to plate 0${idx + 1}: ${plate.caption}`}
+                    title={`Plate ${idx + 1}: ${plate.caption}${thumbIsVideo ? ' (Video)' : ''}`}
+                  >
+                    {thumbIsVideo ? (
+                      thumbImg ? (
+                        <img 
+                          src={thumbImg} 
+                          alt={`Thumbnail Plate ${idx + 1}`} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <video 
+                          src={plate.url} 
+                          preload="metadata" 
+                          muted 
+                          playsInline 
+                          className="w-full h-full object-cover pointer-events-none"
+                        />
+                      )
+                    ) : (
+                      <img 
+                        src={plate.url} 
+                        alt={`Thumbnail Plate ${idx + 1}`} 
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+
+                    {/* Small Play Badge Indicator for Video Thumbnails */}
+                    {thumbIsVideo && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none">
+                        <Play className="w-3.5 h-3.5 text-[#D4AF37] fill-[#D4AF37] drop-shadow" />
+                      </div>
+                    )}
+
+                    <span className="absolute bottom-0 right-0 bg-[var(--color-surface-warm)] text-[8px] font-mono text-[var(--color-accent)] px-1">
+                      0{idx + 1}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

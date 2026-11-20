@@ -7,6 +7,7 @@ import express from 'express';
 import cors from 'cors';
 
 import { connectToDatabase } from './db/mongo.js';
+import { verifySmtpConnection } from './services/emailService.js';
 
 import authRoutes from './routes/authRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
@@ -56,6 +57,10 @@ connectToDatabase()
     console.log(`✦ Connected to MongoDB database "${db.databaseName}"`);
     app.listen(PORT, () => {
       console.log(`✦ Sky Square Infra Server listening on http://localhost:${PORT}`);
+      // Diagnostic check for Titan SMTP transport
+      verifySmtpConnection().catch((err) => {
+        console.error('[SMTP STARTUP CHECK ERROR]', err.message);
+      });
     });
   })
   .catch((err) => {

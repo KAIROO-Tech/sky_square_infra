@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { X, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Button } from '../common/Button';
+import { isVideoMedia } from '../../utils/mediaUtils';
 
 export const ProjectModal = ({ project, onClose, onInquire }) => {
   useEffect(() => {
@@ -76,14 +77,25 @@ export const ProjectModal = ({ project, onClose, onInquire }) => {
 
           {/* Large Visual Section */}
           <div className="my-10 relative h-72 sm:h-96 md:h-[420px] overflow-hidden bg-[#1A1A1A] border border-[var(--color-border)]">
-            <img
-              src={project.heroImage}
-              alt={project.title}
-              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
+            {isVideoMedia(project.heroImage) ? (
+              <video
+                src={project.heroImage}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <img
+                src={project.heroImage}
+                alt={project.title}
+                className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            )}
             {project.isBlueprint && (
               <div className="absolute top-4 right-4 bg-[#1A1A1A]/90 text-[#D4AF37] border border-[#D4AF37]/50 px-4 py-2 text-[10px] uppercase font-sans tracking-[0.25em]">
                 Architectural Blueprint Master

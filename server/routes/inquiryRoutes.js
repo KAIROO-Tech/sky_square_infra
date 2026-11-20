@@ -11,14 +11,18 @@ const inquiriesCollection = () => getDb().collection('inquiries');
 // Lightweight in-memory rate limiting map (IP -> timestamps array)
 const rateLimitMap = new Map();
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
-const MAX_REQUESTS_PER_WINDOW = 5;
+const MAX_REQUESTS_PER_WINDOW = 15; // 15 requests per 10 minutes per IP
 
 const checkRateLimit = (ip) => {
+  // Allow more iterations for loopback during development/testing
+  const isLoopback = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1' || ip === 'unknown';
+  const maxLimit = isLoopback ? 40 : MAX_REQUESTS_PER_WINDOW;
+
   const now = Date.now();
   const timestamps = rateLimitMap.get(ip) || [];
   const validTimestamps = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
 
-  if (validTimestamps.length >= MAX_REQUESTS_PER_WINDOW) {
+  if (validTimestamps.length >= maxLimit) {
     return false;
   }
 

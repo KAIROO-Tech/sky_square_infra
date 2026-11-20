@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Input, Textarea, Select } from '../common/Input';
 import { Button } from '../common/Button';
 import { MessageSquareText } from 'lucide-react';
@@ -17,6 +17,7 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
   const [errors, setErrors] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [inquiryRef, setInquiryRef] = useState(null);
@@ -116,6 +117,9 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
 
   // Triggered only after user confirms in the modal
   const handleConfirmSend = async () => {
+    // Prevent duplicate submissions if the user rapidly double-clicks
+    if (isSubmitting || isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
     setSubmitError(null);
 
@@ -141,6 +145,7 @@ export const Consultation = ({ selectedProject, onClearSelectedProject }) => {
       setSubmitError('Unable to connect to the consultation dispatch server. Please check your network and retry.');
     } finally {
       setIsSubmitting(false);
+      isSubmittingRef.current = false;
     }
   };
 
