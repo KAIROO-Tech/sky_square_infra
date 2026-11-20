@@ -108,11 +108,11 @@ export const AdminLogin = () => {
           </div>
         </form>
 
-        <div className="border-t border-white/5 pt-4 text-center">
+        {/* <div className="border-t border-white/5 pt-4 text-center">
           <p className="font-mono text-[10px] text-white/40">
             Default credentials: <span className="text-[#d4af37]">admin / admin123</span>
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );
